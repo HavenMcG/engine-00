@@ -3,7 +3,9 @@
 **.exe
 **.pdb
 **.dll
-/engine-00/x64/*
-!/engine-00/x64/Debug
-/engine-00/x64/Debug/*
-!/engine-00/x64/Debug/assimp-vc143-mtd.dll
+/engine-00/x64
+/x64/*
+!/x64/Debug
+/x64/Debug/*
+!/x64/Debug/assimp-vc143-mtd.dll
+!/x64/Debug/assimp-vc143-mtd.pdb
