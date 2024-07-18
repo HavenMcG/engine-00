@@ -1,6 +1,9 @@
 .vs
 .git
-engine-00/x64/*
-!engine-00/x64/[Dd]ebug
-engine-00/x64/[Dd]ebug/*
-!engine-00/x64/[Dd]ebug/assimp-vc143-mtd.dll
+**.exe
+**.pdb
+**.dll
+/engine-00/x64/*
+!/engine-00/x64/Debug
+/engine-00/x64/Debug/*
+!/engine-00/x64/Debug/assimp-vc143-mtd.dll
