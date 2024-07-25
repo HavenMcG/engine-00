@@ -4,15 +4,13 @@
 #include "TextureLoader.h"
 #include "iostream"
 
-void Renderer::draw_model(Model* model, Shader* shader) {
+void Renderer::draw_model(Model* model, Shader* shader, ModelLoader& ml, TextureLoader& tl) {
 	for (unsigned int i = 0; i < model->meshes.size(); ++i) {
-		draw_mesh(&model->meshes[i], shader);
+		draw_mesh(&model->meshes[i], shader, ml, tl);
 	}
 }
 
-void Renderer::draw_mesh(Mesh* mesh, Shader* shader) {
-	ModelLoader ml; // TEMP
-	TextureLoader tl;
+void Renderer::draw_mesh(Mesh* mesh, Shader* shader, ModelLoader& ml, TextureLoader& tl) {
 	ml.ogl_load_mesh(mesh);
 	unsigned int diffuse_nr = 1;
 	unsigned int specular_nr = 1;

@@ -173,6 +173,6 @@ unsigned int load_tex_test(const std::string& path) {
 	std::string directory = path.substr(0, path.find_last_of('/'));
 	std::string filename = path.substr(path.find_last_of('/')+1, path.size()-1);
 	bool embedded = ( filename[0] == '*' );
-	std::cout << "dir:  " << directory << std::endl << "file: " << filename << std::endl;
+	//std::cout << "dir:  " << directory << std::endl << "file: " << filename << std::endl;
 	return 0;
 }

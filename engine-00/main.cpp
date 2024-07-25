@@ -10,9 +10,10 @@
 #include "Model.h"
 #include "ModelLoader.h"
 #include "Renderer.h"
+#include "TextureLoader.h"
 
-int window_width = 1200;
-int window_height = 900;
+int window_width = 2400;
+int window_height = 1600;
 
 float delta_time = 0.0f;
 float last_frame = 0.0f;
@@ -71,9 +72,11 @@ int main() {
 	// load models
 	// resources/objects/backpack/backpack.obj
 	// ../../Random Assets/forest-monster/forest-monster-final_FIXED.glb
+	TextureLoader tl;
 	ModelLoader ml;
 	Model monster;
-	ml.read_model(&monster, "../resources/models/forest-monster/forest-monster-final_FIXED.glb");
+	ml.read_model(&monster, "../resources/models/forest-monster/forest-monster-final_FIXED.glb", tl);
+	//ml.ogl_load_model(&monster);
 
 	// instantiate renderer
 	Renderer r;
@@ -118,7 +121,7 @@ int main() {
 		my_shader.set_vec3("light.specular", specular_color);
 		my_shader.set_float("material.shininess", 32.0f);
 
-		r.draw_model(&monster, &my_shader);
+		r.draw_model(&monster, &my_shader, ml, tl);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
