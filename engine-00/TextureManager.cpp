@@ -1,10 +1,8 @@
-#include "TextureLoader.h"
+#include "TextureManager.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <iostream>
 #include "glad/glad.h"
-
-std::unordered_map<std::string, unsigned int> TextureLoader::textures_loaded = {};
 
 TextureType convert_texture_type(aiTextureType ai_ttype) {
 	TextureType ttype;
@@ -62,9 +60,8 @@ TextureType convert_texture_type(aiTextureType ai_ttype) {
 	}
 	return ttype;
 }
-unsigned int load_tex_test(const std::string& path);
 
-unsigned int TextureLoader::load_texture_file(const std::string& path) {
+unsigned int TextureManager::load_texture_file(const std::string& path) {
 
 	bool already_loaded = ( textures_loaded.find(path) != textures_loaded.end() );
 	unsigned int tex_id = 0;
@@ -98,8 +95,7 @@ unsigned int TextureLoader::load_texture_file(const std::string& path) {
 	return tex_id;
 }
 
-unsigned int TextureLoader::load_embedded_texture(const aiTexture* ai_tex, const std::string& path) {
-	load_tex_test(path);
+unsigned int TextureManager::load_embedded_texture(const aiTexture* ai_tex, const std::string& path) {
 	bool already_loaded = (textures_loaded.find(path) != textures_loaded.end());
 	unsigned int tex_id = 0;
 	if (!already_loaded) {
@@ -144,7 +140,7 @@ unsigned int TextureLoader::load_embedded_texture(const aiTexture* ai_tex, const
 	return tex_id;
 }
 
-unsigned int TextureLoader::load_texture_data(const void* data, unsigned int format, int width, int height) {
+unsigned int TextureManager::load_texture_data(const void* data, unsigned int format, int width, int height) {
 	unsigned int tex_id;
 	glGenTextures(1, &tex_id);
 
@@ -160,7 +156,7 @@ unsigned int TextureLoader::load_texture_data(const void* data, unsigned int for
 	return tex_id;
 }
 
-bool TextureLoader::find_id(const std::string& path, unsigned int& id) {
+bool TextureManager::find_id(const std::string& path, unsigned int& id) {
 	auto r = textures_loaded.find(path);
 	if (r == textures_loaded.end()) return false;
 	else {

@@ -10,10 +10,10 @@
 #include "Model.h"
 #include "ModelLoader.h"
 #include "Renderer.h"
-#include "TextureLoader.h"
+#include "TextureManager.h"
 
-int window_width = 2400;
-int window_height = 1600;
+int window_width = 1800;
+int window_height = 1200;
 
 float delta_time = 0.0f;
 float last_frame = 0.0f;
@@ -72,7 +72,8 @@ int main() {
 	// load models
 	// resources/objects/backpack/backpack.obj
 	// ../../Random Assets/forest-monster/forest-monster-final_FIXED.glb
-	TextureLoader tl;
+	TextureManager tl;
+	MeshManager mm;
 	ModelLoader ml;
 	Model monster;
 	ml.read_model(&monster, "../resources/models/forest-monster/forest-monster-final_FIXED.glb", tl);
@@ -121,7 +122,7 @@ int main() {
 		my_shader.set_vec3("light.specular", specular_color);
 		my_shader.set_float("material.shininess", 32.0f);
 
-		r.draw_model(&monster, &my_shader, ml, tl);
+		r.draw_model(&monster, &my_shader, mm, tl);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -155,7 +156,7 @@ void processInput(GLFWwindow* window) {
 		my_cam.move(Right, cam_speed);
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		my_cam.move(Left, cam_speed);
+		my_cam.move(Up, cam_speed);
 	}
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
 		my_cam.move(Down, cam_speed);

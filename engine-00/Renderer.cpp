@@ -1,17 +1,15 @@
 #include "Renderer.h"
-#include "ModelLoader.h"
 #include "glad/glad.h"
-#include "TextureLoader.h"
-#include "iostream"
+#include <iostream>
 
-void Renderer::draw_model(Model* model, Shader* shader, ModelLoader& ml, TextureLoader& tl) {
+void Renderer::draw_model(Model* model, Shader* shader, MeshManager& mm, TextureManager& tl) {
 	for (unsigned int i = 0; i < model->meshes.size(); ++i) {
-		draw_mesh(&model->meshes[i], shader, ml, tl);
+		draw_mesh(&model->meshes[i], shader, mm, tl);
 	}
 }
 
-void Renderer::draw_mesh(Mesh* mesh, Shader* shader, ModelLoader& ml, TextureLoader& tl) {
-	ml.ogl_load_mesh(mesh);
+void Renderer::draw_mesh(Mesh* mesh, Shader* shader, MeshManager& mm, TextureManager& tl) {
+	mm.ogl_load_mesh(mesh);
 	unsigned int diffuse_nr = 1;
 	unsigned int specular_nr = 1;
 	for (unsigned int i = 0; i < mesh->textures.size(); ++i) {
@@ -32,7 +30,7 @@ void Renderer::draw_mesh(Mesh* mesh, Shader* shader, ModelLoader& ml, TextureLoa
 	glActiveTexture(GL_TEXTURE0);
 
 	// draw mesh
-	glBindVertexArray(ml.get_ogl_info(mesh).vao);
+	glBindVertexArray(mm.get_ogl_info(mesh).vao);
 	glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }

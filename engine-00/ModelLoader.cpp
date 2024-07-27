@@ -1,9 +1,9 @@
 #include "ModelLoader.h"
 #include <iostream>
-#include "TextureLoader.h"
+#include "TextureManager.h"
 #include "glad/glad.h"
 
-void ModelLoader::read_model(Model* target, const std::string& path, TextureLoader tl) {
+void ModelLoader::read_model(Model* target, const std::string& path, TextureManager& tl) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -11,52 +11,12 @@ void ModelLoader::read_model(Model* target, const std::string& path, TextureLoad
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
 	}
 	else {
-		target->directory = path.substr(0, path.find_last_of('/'));
+		target->name = path;
 		process_node(target, scene->mRootNode, scene, tl);
 	}
 }
 
-void ModelLoader::ogl_load_mesh(Mesh* target) {
-	bool already_loaded = ( loaded_meshes.find(target->id()) != loaded_meshes.end() );
-	if (!already_loaded) {
-		unsigned int vao, vbo, ebo;
-		glGenVertexArrays(1, &vao);
-		glGenBuffers(1, &vbo);
-		glGenBuffers(1, &ebo);
-
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-		glBufferData(GL_ARRAY_BUFFER, target->vertices.size() * sizeof(Vertex), target->vertices.data(), GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, target->indices.size() * sizeof(unsigned int), target->indices.data(), GL_STATIC_DRAW);
-
-		// vertex positions
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-		// vertex normals
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-		// vertex texture coords
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coords));
-
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		meshes.push_back(OGLMeshInfo{ vao,vbo,ebo });
-		loaded_meshes.emplace(target->id(), meshes.size() - 1);
-	}
-}
-
-OGLMeshInfo ModelLoader::get_ogl_info(Mesh* mesh) {
-	auto result = loaded_meshes.find(mesh->id());
-	if (result != loaded_meshes.end()) return meshes[result->second];
-	else return OGLMeshInfo{};
-}
-
-void ModelLoader::process_node(Model* model, aiNode* node, const aiScene* scene, TextureLoader& tl) {
+void ModelLoader::process_node(Model* model, aiNode* node, const aiScene* scene, TextureManager& tl) {
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -68,11 +28,10 @@ void ModelLoader::process_node(Model* model, aiNode* node, const aiScene* scene,
 	}
 }
 
-Mesh ModelLoader::process_mesh(Model* model, aiMesh* mesh, const aiScene* scene, TextureLoader& tl) {
+Mesh ModelLoader::process_mesh(Model* model, aiMesh* mesh, const aiScene* scene, TextureManager& tl) {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<std::string> textures;
-
 	// process vertices
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
 		Vertex vertex;
@@ -119,17 +78,17 @@ Mesh ModelLoader::process_mesh(Model* model, aiMesh* mesh, const aiScene* scene,
 		textures.insert(textures.end(), specular_maps.begin(), specular_maps.end());
 	}
 
-	return Mesh{ vertices, indices, textures };
+	return Mesh{ model->name + "/" + mesh->mName.C_Str(), vertices, indices, textures};
 }
 
-std::vector<std::string> ModelLoader::load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, TextureLoader& tl) {
+std::vector<std::string> ModelLoader::load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, TextureManager& tl) {
 	std::vector<std::string> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(ai_ttype); ++i) {
 		aiString path;
 		mat->GetTexture(ai_ttype, i, &path);
 		const aiTexture* ai_tex = scene->GetEmbeddedTexture(path.C_Str());
 		TextureType ttype = convert_texture_type(ai_ttype);
-		std::string texture = model->directory + '/' + path.C_Str();
+		std::string texture = model->name.substr(0, model->name.find_last_of('/') + 1) + path.C_Str();
 		bool embedded = (ai_tex != nullptr);
 		if (embedded) {
 			tl.load_embedded_texture(ai_tex, texture);
