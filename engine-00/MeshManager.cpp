@@ -2,10 +2,10 @@
 #include "glad/glad.h"
 #include <iostream>
 
-void MeshManager::ogl_load_mesh(Mesh* target) {
-	bool already_loaded = (loaded_meshes.find(target->name) != loaded_meshes.end());
+void MeshManager::load_data(Mesh& mesh, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+	bool already_loaded = (loaded_meshes.find(mesh.name) != loaded_meshes.end());
 	if (!already_loaded) {
-		std::cout << "loading mesh \"" << target->name << "\"" << std::endl;
+		std::cout << "loading mesh \"" << mesh.name << "\"" << std::endl;
 		unsigned int vao, vbo, ebo;
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);
@@ -14,10 +14,10 @@ void MeshManager::ogl_load_mesh(Mesh* target) {
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-		glBufferData(GL_ARRAY_BUFFER, target->vertices.size() * sizeof(Vertex), target->vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, target->indices.size() * sizeof(unsigned int), target->indices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
 		// vertex positions
 		glEnableVertexAttribArray(0);
@@ -32,13 +32,13 @@ void MeshManager::ogl_load_mesh(Mesh* target) {
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		meshes.push_back(OGLMeshInfo{ vao,vbo,ebo });
-		loaded_meshes.emplace(target->name, meshes.size() - 1);
+		mesh.num_indices = indices.size();
+		loaded_meshes.emplace(mesh.name, OGLMeshInfo{ vao, vbo, ebo });
 	}
 }
 
-OGLMeshInfo MeshManager::get_ogl_info(Mesh* mesh) {
-	auto result = loaded_meshes.find(mesh->name);
-	if (result != loaded_meshes.end()) return meshes[result->second];
+OGLMeshInfo MeshManager::info(const Mesh& mesh) {
+	auto result = loaded_meshes.find(mesh.name);
+	if (result != loaded_meshes.end()) return result->second;
 	else return OGLMeshInfo{};
 }

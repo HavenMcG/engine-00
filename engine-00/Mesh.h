@@ -14,10 +14,7 @@ struct Vertex {
 
 struct Mesh {
 	std::string name;
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-	std::vector<std::string> textures;
-	Mesh();
-	Mesh(std::string, std::vector<Vertex>, std::vector<unsigned int>, std::vector<std::string>);
+	size_t num_indices;
+	Mesh(const std::string&);
 private:
 };

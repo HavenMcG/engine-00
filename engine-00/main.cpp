@@ -33,7 +33,6 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 	// create a GLFW window object
 	GLFWwindow* window = glfwCreateWindow(window_width, window_height, "LearnOpenGL", NULL, NULL);
 	if (window == NULL) {
@@ -72,11 +71,11 @@ int main() {
 	// load models
 	// resources/objects/backpack/backpack.obj
 	// ../../Random Assets/forest-monster/forest-monster-final_FIXED.glb
-	TextureManager tl;
+	TextureManager tm;
 	MeshManager mm;
 	ModelLoader ml;
 	Model monster;
-	ml.read_model(&monster, "../resources/models/forest-monster/forest-monster-final_FIXED.glb", tl);
+	ml.read_model(&monster, "../resources/models/forest-monster/forest-monster-final_FIXED.glb", tm, mm);
 	//ml.ogl_load_model(&monster);
 
 	// instantiate renderer
@@ -122,7 +121,7 @@ int main() {
 		my_shader.set_vec3("light.specular", specular_color);
 		my_shader.set_float("material.shininess", 32.0f);
 
-		r.draw_model(&monster, &my_shader, mm, tl);
+		r.draw_model(&monster, &my_shader, mm, tm);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

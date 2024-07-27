@@ -1,9 +1,74 @@
 #include "ModelLoader.h"
 #include <iostream>
-#include "TextureManager.h"
-#include "glad/glad.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
-void ModelLoader::read_model(Model* target, const std::string& path, TextureManager& tl) {
+struct ModelLoader::Private {
+	static void process_node(Model* model, aiNode* node, const aiScene* scene, TextureManager& tl, MeshManager& mm);
+	static std::pair<Mesh, Material> process_mesh(Model* model, aiMesh* mesh, const aiScene* scene, TextureManager& tl, MeshManager& mm);
+	static std::vector<Texture> load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_tex_type, TextureManager& tl);
+	static TextureType to_texture_type(aiTextureType ai_ttype);
+};
+
+TextureType ModelLoader::Private::to_texture_type(aiTextureType ai_ttype) {
+	TextureType ttype;
+	switch (ai_ttype) {
+		case aiTextureType_NONE:
+			ttype = NONE;
+			break;
+		case aiTextureType_DIFFUSE:
+			ttype = Diffuse;
+			break;
+		case aiTextureType_SPECULAR:
+			ttype = Specular;
+			break;
+		case aiTextureType_AMBIENT:
+			ttype = Ambient;
+			break;
+		case aiTextureType_EMISSIVE:
+			ttype = Emissive;
+			break;
+		case aiTextureType_HEIGHT:
+			ttype = Heightmap;
+			break;
+		case aiTextureType_NORMALS:
+			ttype = Normalmap;
+			break;
+		case aiTextureType_SHININESS:
+			ttype = Shininess;
+			break;
+		case aiTextureType_OPACITY:
+			ttype = Opacity;
+			break;
+		case aiTextureType_DISPLACEMENT:
+			ttype = Displacement;
+			break;
+		case aiTextureType_LIGHTMAP:
+			ttype = Lightmap;
+			break;
+		case aiTextureType_REFLECTION:
+			ttype = Reflection;
+			break;
+		case aiTextureType_BASE_COLOR:
+		case aiTextureType_NORMAL_CAMERA:
+		case aiTextureType_EMISSION_COLOR:
+		case aiTextureType_METALNESS:
+		case aiTextureType_DIFFUSE_ROUGHNESS:
+		case aiTextureType_AMBIENT_OCCLUSION:
+		case aiTextureType_SHEEN:
+		case aiTextureType_CLEARCOAT:
+		case aiTextureType_TRANSMISSION:
+		case aiTextureType_UNKNOWN:
+		case _aiTextureType_Force32Bit:
+		default:
+			ttype = UNIMPLEMENTED;
+			break;
+	}
+	return ttype;
+}
+
+void ModelLoader::read_model(Model* target, const std::string& path, TextureManager& tm, MeshManager& mm) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -12,23 +77,25 @@ void ModelLoader::read_model(Model* target, const std::string& path, TextureMana
 	}
 	else {
 		target->name = path;
-		process_node(target, scene->mRootNode, scene, tl);
+		Private::process_node(target, scene->mRootNode, scene, tm, mm);
 	}
 }
 
-void ModelLoader::process_node(Model* model, aiNode* node, const aiScene* scene, TextureManager& tl) {
+void ModelLoader::Private::process_node(Model* model, aiNode* node, const aiScene* scene, TextureManager& tm, MeshManager& mm) {
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		model->meshes.push_back(process_mesh(model, mesh, scene, tl));
+		std::pair<Mesh, Material> match = process_mesh(model, mesh, scene, tm, mm);
+		model->meshes.push_back(match.first);
+		model->materials.push_back(match.second);
 	}
 	// then do the same for each of it's children
 	for (unsigned int i = 0; i < node->mNumChildren; ++i) {
-		process_node(model, node->mChildren[i], scene, tl);
+		process_node(model, node->mChildren[i], scene, tm, mm);
 	}
 }
 
-Mesh ModelLoader::process_mesh(Model* model, aiMesh* mesh, const aiScene* scene, TextureManager& tl) {
+std::pair<Mesh, Material> ModelLoader::Private::process_mesh(Model* model, aiMesh* mesh, const aiScene* scene, TextureManager& tm, MeshManager& mm) {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<std::string> textures;
@@ -68,35 +135,46 @@ Mesh ModelLoader::process_mesh(Model* model, aiMesh* mesh, const aiScene* scene,
 		}
 	}
 
+	Material new_mat{};
 	// process material
 	if (mesh->mMaterialIndex >= 0) {
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		std::vector<std::string> diffuse_maps = load_material_textures(model, scene, material, aiTextureType_DIFFUSE, tl);
-		textures.insert(textures.end(), diffuse_maps.begin(), diffuse_maps.end());
-
-		std::vector<std::string> specular_maps = load_material_textures(model, scene, material, aiTextureType_SPECULAR, tl);
-		textures.insert(textures.end(), specular_maps.begin(), specular_maps.end());
+		new_mat.diffuses = load_material_textures(model, scene, material, aiTextureType_DIFFUSE, tm);
+		new_mat.speculars = load_material_textures(model, scene, material, aiTextureType_SPECULAR, tm);
 	}
 
-	return Mesh{ model->name + "/" + mesh->mName.C_Str(), vertices, indices, textures};
+	std::string mesh_name = model->name + "/" + mesh->mName.C_Str();
+	Mesh new_mesh{ mesh_name };
+	mm.load_data(new_mesh, vertices, indices);
+	return { new_mesh, new_mat };
 }
 
-std::vector<std::string> ModelLoader::load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, TextureManager& tl) {
-	std::vector<std::string> textures;
+std::vector<Texture> ModelLoader::Private::load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, TextureManager& tm) {
+	std::vector<Texture> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(ai_ttype); ++i) {
 		aiString path;
 		mat->GetTexture(ai_ttype, i, &path);
 		const aiTexture* ai_tex = scene->GetEmbeddedTexture(path.C_Str());
-		TextureType ttype = convert_texture_type(ai_ttype);
-		std::string texture = model->name.substr(0, model->name.find_last_of('/') + 1) + path.C_Str();
+		TextureType ttype = Private::to_texture_type(ai_ttype);
+		std::string full_path = model->name.substr(0, model->name.find_last_of('/') + 1) + path.C_Str();
 		bool embedded = (ai_tex != nullptr);
 		if (embedded) {
-			tl.load_embedded_texture(ai_tex, texture);
+			bool compressed = (ai_tex->mHeight == 0);
+			if (compressed) {
+				tm.load_data_compressed(full_path, (unsigned char*)ai_tex->pcData, ai_tex->mWidth);
+			}
+			else {
+				tm.load_data(full_path, ai_tex->pcData, RGBA, ai_tex->mWidth, ai_tex->mHeight);
+			}
 		}
 		else {
-			tl.load_texture_file(texture);
+			tm.load_file(full_path);
 		}
-		textures.push_back(texture);
+		textures.push_back(Texture{ full_path });
+	}
+	std::cout << "loading textures\n";
+	for (int i = 0; i < textures.size(); ++i) {
+		std::cout << textures[i].name << std::endl;
 	}
 	return textures;
 }

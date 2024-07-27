@@ -3,7 +3,8 @@
 #include <optional>
 #include <expected>
 
-class Texture {
+struct Texture {
 	std::string name;
 	std::optional<unsigned char*> pixel_data;
+	Texture(const std::string& name);
 };

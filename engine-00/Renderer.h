@@ -7,5 +7,5 @@
 class Renderer {
 public:
 	void draw_model(Model* model, Shader* shader, MeshManager& mm, TextureManager& tl);
-	void draw_mesh(Mesh* mesh, Shader* shader, MeshManager& mm, TextureManager& tl);
+	void draw_mesh(const Mesh& mesh, const Material& material, Shader* shader, MeshManager& mm, TextureManager& tl);
 };

@@ -1,6 +1,5 @@
 #pragma once
 #include <unordered_map>
-#include <unordered_set>
 #include "Mesh.h"
 
 struct OGLMeshInfo {
@@ -9,9 +8,8 @@ struct OGLMeshInfo {
 
 class MeshManager {
 public:
-	void ogl_load_mesh(Mesh* target);
-	OGLMeshInfo get_ogl_info(Mesh* mesh);
+	void load_data(Mesh& mesh, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
+	OGLMeshInfo info(const Mesh& mesh);
 private:
-	std::unordered_map<std::string, size_t> loaded_meshes; // the meshes loaded by OpenGL identified by their path mapped to their index in the container.
-	std::vector<OGLMeshInfo> meshes;
+	std::unordered_map<std::string, OGLMeshInfo> loaded_meshes; // The meshes loaded by OpenGL identified by their path mapped to OpenGL info struct
 };
