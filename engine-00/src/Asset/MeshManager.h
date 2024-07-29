@@ -1,6 +1,6 @@
 #pragma once
-#include <unordered_map>
 #include "Mesh.h"
+#include <unordered_map>
 
 struct OGLMeshInfo {
 	unsigned int vao, vbo, ebo;

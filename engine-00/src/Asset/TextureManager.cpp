@@ -40,17 +40,18 @@ unsigned int TextureManager::load_file(const std::string& path) {
 		stbi_set_flip_vertically_on_load(prior_flip_setting);
 	}
 	else {
+		std::cout << "skipping loading texture " << path << " - already loaded" << std::endl;
 		tex_id = textures_loaded.find(path)->second;
 	}
 	return tex_id;
 }
 
-unsigned int TextureManager::load_data_compressed(const std::string& path, unsigned char* compressed_data, unsigned int size) {
+unsigned int TextureManager::load_data_compressed(const std::string& path, const void* compressed_data, unsigned int size) {
 	bool already_loaded = (textures_loaded.find(path) != textures_loaded.end());
 	unsigned int tex_id = 0;
 	if (!already_loaded) {
 		int width, height, num_channels;
-		void* data = stbi_load_from_memory(compressed_data, size, &width, &height, &num_channels, 0);
+		void* data = stbi_load_from_memory((unsigned char*)compressed_data, size, &width, &height, &num_channels, 0);
 		if (data) {
 			Format format;
 			if (num_channels == 1) format = RED;
@@ -64,6 +65,7 @@ unsigned int TextureManager::load_data_compressed(const std::string& path, unsig
 		}
 	}
 	else {
+		std::cout << "skipping loading texture " << path << " - already loaded" << std::endl;
 		tex_id = textures_loaded.find(path)->second;
 	}
 	return tex_id;
@@ -82,6 +84,7 @@ unsigned int TextureManager::load_data(const std::string& path, const void* data
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	std::cout << "loading texture " << path << std::endl;
 	textures_loaded.emplace(path, tex_id);
 	return tex_id;
 }

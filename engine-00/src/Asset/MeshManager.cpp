@@ -5,7 +5,7 @@
 void MeshManager::load_data(Mesh& mesh, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
 	bool already_loaded = (loaded_meshes.find(mesh.name) != loaded_meshes.end());
 	if (!already_loaded) {
-		std::cout << "loading mesh \"" << mesh.name << "\"" << std::endl;
+		std::cout << "loading mesh " << mesh.name << std::endl;
 		unsigned int vao, vbo, ebo;
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);

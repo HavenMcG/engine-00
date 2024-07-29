@@ -1,6 +1,6 @@
 #pragma once
+#include "Texture.h"
 #include <unordered_map>
-#include <string>
 
 enum TextureType {
 	Diffuse,
@@ -27,7 +27,7 @@ enum Format {
 class TextureManager {
 public:
 	unsigned int load_file(const std::string& path);
-	unsigned int load_data_compressed(const std::string& path, unsigned char* data, unsigned int size);
+	unsigned int load_data_compressed(const std::string& path, const void* data, unsigned int size);
 	unsigned int load_data(const std::string& path, const void* data, Format format, int width, int height);
 	bool id(const std::string& path, unsigned int& id);
 

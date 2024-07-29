@@ -156,9 +156,10 @@ std::vector<Texture> ModelLoader::Private::load_material_textures(Model* model, 
 		mat->GetTexture(ai_ttype, i, &path);
 		const aiTexture* ai_tex = scene->GetEmbeddedTexture(path.C_Str());
 		TextureType ttype = Private::to_texture_type(ai_ttype);
-		std::string full_path = model->name.substr(0, model->name.find_last_of('/') + 1) + path.C_Str();
+		std::string full_path;
 		bool embedded = (ai_tex != nullptr);
 		if (embedded) {
+			full_path = model->name + "/" + path.C_Str();
 			bool compressed = (ai_tex->mHeight == 0);
 			if (compressed) {
 				tm.load_data_compressed(full_path, (unsigned char*)ai_tex->pcData, ai_tex->mWidth);
@@ -168,13 +169,10 @@ std::vector<Texture> ModelLoader::Private::load_material_textures(Model* model, 
 			}
 		}
 		else {
+			full_path = model->name.substr(0, model->name.find_last_of('/')) + "/" + path.C_Str();
 			tm.load_file(full_path);
 		}
 		textures.push_back(Texture{ full_path });
-	}
-	std::cout << "loading textures\n";
-	for (int i = 0; i < textures.size(); ++i) {
-		std::cout << textures[i].name << std::endl;
 	}
 	return textures;
 }

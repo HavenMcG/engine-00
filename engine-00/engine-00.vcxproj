@@ -135,33 +135,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\external\src\glad.c" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshManager.cpp" />
-    <ClCompile Include="ModelLoader.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="src\engine-00\Camera.cpp" />
+    <ClCompile Include="src\engine-00\main.cpp" />
+    <ClCompile Include="src\Asset\Mesh.cpp" />
+    <ClCompile Include="src\Asset\MeshManager.cpp" />
+    <ClCompile Include="src\Asset\ModelLoader.cpp" />
+    <ClCompile Include="src\engine-00\Renderer.cpp" />
+    <ClCompile Include="src\engine-00\Shader.cpp" />
+    <ClCompile Include="src\Asset\Texture.cpp" />
+    <ClCompile Include="src\Asset\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshManager.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelLoader.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="src\engine-00\Camera.h" />
+    <ClInclude Include="src\Asset\Material.h" />
+    <ClInclude Include="src\Asset\Mesh.h" />
+    <ClInclude Include="src\Asset\MeshManager.h" />
+    <ClInclude Include="src\Asset\Model.h" />
+    <ClInclude Include="src\Asset\ModelLoader.h" />
+    <ClInclude Include="src\engine-00\Renderer.h" />
+    <ClInclude Include="src\engine-00\Shader.h" />
+    <ClInclude Include="src\Asset\Texture.h" />
+    <ClInclude Include="src\Asset\TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="colors.frag.glsl" />
-    <None Include="colors.vert.glsl" />
-    <None Include="lightSource.frag.glsl" />
-    <None Include="lightSource.vert.glsl" />
+    <None Include="src\engine-00\colors.frag.glsl" />
+    <None Include="src\engine-00\colors.vert.glsl" />
+    <None Include="src\engine-00\lightSource.frag.glsl" />
+    <None Include="src\engine-00\lightSource.vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

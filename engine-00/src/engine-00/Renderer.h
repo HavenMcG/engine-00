@@ -1,8 +1,8 @@
 #pragma once
-#include "Model.h"
+#include "../Asset/Model.h"
 #include "Shader.h"
-#include "TextureManager.h"
-#include "MeshManager.h"
+#include "../Asset/TextureManager.h"
+#include "../Asset/MeshManager.h"
 
 class Renderer {
 public:

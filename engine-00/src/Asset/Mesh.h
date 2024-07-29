@@ -16,5 +16,4 @@ struct Mesh {
 	std::string name;
 	size_t num_indices;
 	Mesh(const std::string&);
-private:
 };

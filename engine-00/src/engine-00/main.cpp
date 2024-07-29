@@ -7,10 +7,10 @@
 #include "Shader.h"
 #include "Camera.h"
 #include <vector>
-#include "Model.h"
-#include "ModelLoader.h"
+#include "../Asset/Model.h"
+#include "../Asset/ModelLoader.h"
 #include "Renderer.h"
-#include "TextureManager.h"
+#include "../Asset/TextureManager.h"
 
 int window_width = 1800;
 int window_height = 1200;
@@ -66,7 +66,7 @@ int main() {
 	glfwSwapBuffers(window);
 
 	// load shaders from their source files
-	Shader my_shader("colors.vert.glsl","colors.frag.glsl");
+	Shader my_shader("src/engine-00/colors.vert.glsl","src/engine-00/colors.frag.glsl");
 
 	// load models
 	// resources/objects/backpack/backpack.obj
