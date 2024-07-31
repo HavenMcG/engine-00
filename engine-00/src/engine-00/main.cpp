@@ -4,13 +4,12 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "Shader.h"
 #include "Camera.h"
 #include <vector>
-#include "../Asset/Model.h"
 #include "../Asset/ModelLoader.h"
-#include "Renderer.h"
-#include "../Asset/TextureManager.h"
+#include "../HECS/Component/ModelManager.h"
+#include "../HECS/Component/Transform3dManager.h"
+#include "../HECS/System/Renderer.h"
 
 int window_width = 1800;
 int window_height = 1200;
@@ -71,12 +70,28 @@ int main() {
 	// load models
 	// resources/objects/backpack/backpack.obj
 	// ../../Random Assets/forest-monster/forest-monster-final_FIXED.glb
-	TextureManager tm;
-	MeshManager mm;
+	TextureManager texture_m;
+	MeshManager mesh_m;
 	ModelLoader ml;
-	Model monster;
-	ml.read_model(&monster, "../resources/models/forest-monster/forest-monster-final_FIXED.glb", tm, mm);
+	Model monster_model;
+	ml.read_model(&monster_model, "../resources/models/forest-monster/forest-monster-final_FIXED.obj", texture_m, mesh_m);
 	//ml.ogl_load_model(&monster);
+
+	Transform3dManager transform_m;
+	ModelManager model_m;
+
+	Entity monster = 7;
+	transform_m.add_component(monster, glm::vec3{ 0.0f, 0.0f, 0.0f });
+	model_m.add_component(monster, monster_model);
+
+	Entity monster2 = 11;
+	transform_m.add_component(monster2, glm::vec3{ -20.0f, 0.0f, -20.0f });
+	model_m.add_component(monster2, monster_model);
+
+	//tm.unload(monster.materials[0].diffuses[0]);
+	//tm.unload(monster.materials[1].diffuses[0]);
+	//tm.load(monster.materials[0].diffuses[0]);
+	//tm.load(monster.materials[1].diffuses[0]);
 
 	// instantiate renderer
 	Renderer r;
@@ -99,12 +114,15 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		transform_m.rotate(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
+		transform_m.rotate(monster2, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
+
 		my_shader.use();
 
 		glm::mat4 view = my_cam.view_matrix();
 		my_shader.set_mat4("view", view);
 
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f); // args: fov, aspect ratio, near plane distance, far plane distance
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 10000.0f); // args: fov, aspect ratio, near plane distance, far plane distance
 		my_shader.set_mat4("projection", projection);
 
 		glm::mat4 model = glm::mat4(1.0f);
@@ -121,7 +139,7 @@ int main() {
 		my_shader.set_vec3("light.specular", specular_color);
 		my_shader.set_float("material.shininess", 32.0f);
 
-		r.draw_model(&monster, &my_shader, mm, tm);
+		r.draw_models(model_m, transform_m, mesh_m, texture_m, my_shader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

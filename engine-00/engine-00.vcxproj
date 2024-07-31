@@ -81,6 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -95,6 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,7 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,6 +127,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,10 +143,13 @@
     <ClCompile Include="src\Asset\Mesh.cpp" />
     <ClCompile Include="src\Asset\MeshManager.cpp" />
     <ClCompile Include="src\Asset\ModelLoader.cpp" />
-    <ClCompile Include="src\engine-00\Renderer.cpp" />
+    <ClCompile Include="src\engine-00\SimpleRenderer.cpp" />
     <ClCompile Include="src\engine-00\Shader.cpp" />
     <ClCompile Include="src\Asset\Texture.cpp" />
     <ClCompile Include="src\Asset\TextureManager.cpp" />
+    <ClCompile Include="src\HECS\Component\ModelManager.cpp" />
+    <ClCompile Include="src\HECS\Component\Transform3dManager.cpp" />
+    <ClCompile Include="src\HECS\System\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine-00\Camera.h" />
@@ -152,10 +158,14 @@
     <ClInclude Include="src\Asset\MeshManager.h" />
     <ClInclude Include="src\Asset\Model.h" />
     <ClInclude Include="src\Asset\ModelLoader.h" />
-    <ClInclude Include="src\engine-00\Renderer.h" />
+    <ClInclude Include="src\engine-00\SimpleRenderer.h" />
     <ClInclude Include="src\engine-00\Shader.h" />
     <ClInclude Include="src\Asset\Texture.h" />
     <ClInclude Include="src\Asset\TextureManager.h" />
+    <ClInclude Include="src\HECS\Component\ModelManager.h" />
+    <ClInclude Include="src\HECS\Component\Transform3dManager.h" />
+    <ClInclude Include="src\HECS\Entity\Entity.h" />
+    <ClInclude Include="src\HECS\System\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\engine-00\colors.frag.glsl" />

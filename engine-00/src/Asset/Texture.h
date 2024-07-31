@@ -2,6 +2,6 @@
 #include <string>
 
 struct Texture {
-	std::string name;
+	std::string path;
 	Texture(const std::string& name);
 };
