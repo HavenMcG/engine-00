@@ -152,6 +152,7 @@
     <ClCompile Include="src\HECS\System\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Asset\Upload\AssetUploader.h" />
     <ClInclude Include="src\engine-00\Camera.h" />
     <ClInclude Include="src\Asset\Material.h" />
     <ClInclude Include="src\Asset\Mesh.h" />
@@ -172,6 +173,8 @@
     <None Include="src\engine-00\colors.vert.glsl" />
     <None Include="src\engine-00\lightSource.frag.glsl" />
     <None Include="src\engine-00\lightSource.vert.glsl" />
+    <None Include="src\engine-00\Shaders\material.frag.glsl" />
+    <None Include="src\engine-00\Shaders\material.vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

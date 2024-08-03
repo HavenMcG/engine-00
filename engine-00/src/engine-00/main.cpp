@@ -65,33 +65,31 @@ int main() {
 	glfwSwapBuffers(window);
 
 	// load shaders from their source files
-	Shader my_shader("src/engine-00/colors.vert.glsl","src/engine-00/colors.frag.glsl");
+	Shader my_shader("src/engine-00/Shaders/material.vert.glsl","src/engine-00/Shaders/material.frag.glsl");
 
 	// load models
 	// resources/objects/backpack/backpack.obj
 	// ../../Random Assets/forest-monster/forest-monster-final_FIXED.glb
-	TextureManager texture_m;
-	MeshManager mesh_m;
 	ModelLoader ml;
+	ModelManager model_m;
+
 	Model monster_model;
-	ml.read_model(&monster_model, "../resources/models/forest-monster/forest-monster-final_FIXED.obj", texture_m, mesh_m);
+	ml.read_model(&monster_model, "../resources/models/forest-monster/forest-monster-final_FIXED.obj", model_m.texture_m, model_m.mesh_m);
+
+	Model hex_2d;
+	ml.read_model(&hex_2d, "../resources/models/2d-hex/2d-hex.glb", model_m.texture_m, model_m.mesh_m);
+
 	//ml.ogl_load_model(&monster);
 
 	Transform3dManager transform_m;
-	ModelManager model_m;
 
 	Entity monster = 7;
 	transform_m.add_component(monster, glm::vec3{ 0.0f, 0.0f, 0.0f });
 	model_m.add_component(monster, monster_model);
 
-	Entity monster2 = 11;
-	transform_m.add_component(monster2, glm::vec3{ -20.0f, 0.0f, -20.0f });
-	model_m.add_component(monster2, monster_model);
-
-	//tm.unload(monster.materials[0].diffuses[0]);
-	//tm.unload(monster.materials[1].diffuses[0]);
-	//tm.load(monster.materials[0].diffuses[0]);
-	//tm.load(monster.materials[1].diffuses[0]);
+	Entity hex = 11;
+	transform_m.add_component(hex, glm::vec3{ -20.0f, 0.0f, -20.0f });
+	model_m.add_component(hex, hex_2d);
 
 	// instantiate renderer
 	Renderer r;
@@ -115,7 +113,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		transform_m.rotate(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
-		transform_m.rotate(monster2, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
+		transform_m.rotate(hex, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
 
 		my_shader.use();
 
@@ -125,8 +123,7 @@ int main() {
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 10000.0f); // args: fov, aspect ratio, near plane distance, far plane distance
 		my_shader.set_mat4("projection", projection);
 
-		glm::mat4 model = glm::mat4(1.0f);
-		my_shader.set_mat4("model", model);
+		// setting model matrix is done in the renderer
 
 		my_shader.set_vec3("light_pos_world", glm::vec3{ 0.0f, 0.0f, 4.0f });
 
@@ -137,9 +134,9 @@ int main() {
 		my_shader.set_vec3("light.ambient", ambient_color);
 		my_shader.set_vec3("light.diffuse", diffuse_color);
 		my_shader.set_vec3("light.specular", specular_color);
-		my_shader.set_float("material.shininess", 32.0f);
+		my_shader.set_float("material.shininess", 16.0f);
 
-		r.draw_models(model_m, transform_m, mesh_m, texture_m, my_shader);
+		r.draw_models(view, my_shader, model_m, transform_m);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

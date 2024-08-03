@@ -7,5 +7,5 @@
 
 class Renderer {
 public:
-	void draw_models(ModelManager& model_m, Transform3dManager& transform_m, MeshManager& mesh_m, TextureManager& texture_m, Shader& shader);
+	void draw_models(glm::mat4 view_matrix, Shader& shader, ModelManager& model_m, Transform3dManager& transform_m);
 };

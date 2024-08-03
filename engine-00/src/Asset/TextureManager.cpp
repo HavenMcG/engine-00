@@ -139,11 +139,10 @@ bool TextureManager::load_embedded(const std::string& path) {
 	return status;
 }
 
-bool TextureManager::id(const std::string& path, unsigned int& id) {
+std::expected<unsigned int, bool> TextureManager::id(const std::string& path) const {
 	auto r = textures_loaded.find(path);
-	if (r == textures_loaded.end()) return false;
+	if (r == textures_loaded.end()) return std::unexpected(false);
 	else {
-		id = r->second;
-		return true;
+		return r->second;
 	}
 }

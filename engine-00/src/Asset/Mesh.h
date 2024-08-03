@@ -13,7 +13,8 @@ struct Vertex {
 };
 
 struct Mesh {
-	std::string name;
+	// The unique identifier of the mesh.
+	std::string path;
 	size_t num_indices;
 	Mesh(const std::string&);
 };

@@ -7,7 +7,7 @@
 struct ModelLoader::Private {
 	static void process_node(Model* model, aiNode* node, const aiScene* scene, TextureManager& tl, MeshManager& mm);
 	static std::pair<Mesh, Material> process_mesh(Model* model, aiMesh* mesh, const aiScene* scene, TextureManager& tl, MeshManager& mm);
-	static std::vector<Texture> load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_tex_type, TextureManager& tl);
+	static std::vector<TextureAssignment> load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_tex_type, TextureManager& tl);
 	static TextureType to_texture_type(aiTextureType ai_ttype);
 };
 
@@ -135,12 +135,27 @@ std::pair<Mesh, Material> ModelLoader::Private::process_mesh(Model* model, aiMes
 		}
 	}
 
-	Material new_mat{};
 	// process material
+	Material new_mat{};
 	if (mesh->mMaterialIndex >= 0) {
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+		// process textures
 		new_mat.diffuses = load_material_textures(model, scene, material, aiTextureType_DIFFUSE, tm);
 		new_mat.speculars = load_material_textures(model, scene, material, aiTextureType_SPECULAR, tm);
+
+		// process other fields
+		aiColor3D ai_color_diffuse;
+		material->Get(AI_MATKEY_COLOR_DIFFUSE, ai_color_diffuse);
+		new_mat.color_diffuse = { ai_color_diffuse.r, ai_color_diffuse.g, ai_color_diffuse.b };
+
+		aiColor3D ai_color_specular;
+		material->Get(AI_MATKEY_COLOR_SPECULAR, ai_color_specular);
+		new_mat.color_specular = { ai_color_specular.r, ai_color_specular.g, ai_color_specular.b };
+
+		float shininess;
+		material->Get(AI_MATKEY_SHININESS, shininess);
+		new_mat.shininess = shininess;
 	}
 
 	std::string mesh_name = model->name + "/" + mesh->mName.C_Str();
@@ -149,8 +164,8 @@ std::pair<Mesh, Material> ModelLoader::Private::process_mesh(Model* model, aiMes
 	return { new_mesh, new_mat };
 }
 
-std::vector<Texture> ModelLoader::Private::load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, TextureManager& tm) {
-	std::vector<Texture> textures;
+std::vector<TextureAssignment> ModelLoader::Private::load_material_textures(Model* model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, TextureManager& tm) {
+	std::vector<TextureAssignment> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(ai_ttype); ++i) {
 		aiString path;
 		mat->GetTexture(ai_ttype, i, &path);
@@ -172,7 +187,9 @@ std::vector<Texture> ModelLoader::Private::load_material_textures(Model* model, 
 			full_path = model->name.substr(0, model->name.find_last_of('/')) + "/" + path.C_Str();
 			tm.load_file(full_path);
 		}
-		textures.push_back(Texture{ full_path });
+		TextureAssignment ta{ Texture{ full_path} };
+		mat->Get(AI_MATKEY_TEXBLEND(ai_ttype, i), ta.blend_strength);
+		textures.push_back(ta);
 	}
 	return textures;
 }

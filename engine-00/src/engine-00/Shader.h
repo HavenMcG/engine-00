@@ -3,6 +3,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "../Asset/Material.h"
+#include "../Asset/TextureManager.h"
 
 class Shader {
 public:
@@ -25,6 +27,7 @@ public:
 	void set_mat2(const std::string& name, const glm::mat2& mat) const;
 	void set_mat3(const std::string& name, const glm::mat3& mat) const;
 	void set_mat4(const std::string& name, const glm::mat4& mat) const;
+	void set_material(const std::string& name, const Material& material, const TextureManager& texture_m) const;
 
 private:
 	// the program id

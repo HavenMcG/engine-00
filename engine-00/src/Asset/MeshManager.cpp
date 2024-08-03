@@ -3,9 +3,9 @@
 #include <iostream>
 
 void MeshManager::load_data(Mesh& mesh, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
-	bool already_loaded = (loaded_meshes.find(mesh.name) != loaded_meshes.end());
+	bool already_loaded = (loaded_meshes.find(mesh.path) != loaded_meshes.end());
 	if (!already_loaded) {
-		std::cout << "loading mesh " << mesh.name << std::endl;
+		std::cout << "loading mesh " << mesh.path << std::endl;
 		unsigned int vao, vbo, ebo;
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);
@@ -33,12 +33,12 @@ void MeshManager::load_data(Mesh& mesh, const std::vector<Vertex>& vertices, con
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		mesh.num_indices = indices.size();
-		loaded_meshes.emplace(mesh.name, OGLMeshInfo{ vao, vbo, ebo });
+		loaded_meshes.emplace(mesh.path, OGLMeshInfo{ vao, vbo, ebo });
 	}
 }
 
 OGLMeshInfo MeshManager::info(const Mesh& mesh) {
-	auto result = loaded_meshes.find(mesh.name);
+	auto result = loaded_meshes.find(mesh.path);
 	if (result != loaded_meshes.end()) return result->second;
 	else return OGLMeshInfo{};
 }

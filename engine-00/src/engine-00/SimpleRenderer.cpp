@@ -15,14 +15,14 @@ void SimpleRenderer::draw_mesh(const Mesh& mesh, const Material& material, Shade
 	int total_textures = 0;
 	for (int i = 0; i < material.diffuses.size() && i <= 1; ++i, ++total_textures) { // temp
 		glActiveTexture(GL_TEXTURE0 + total_textures);
-		tl.id(material.diffuses[0].path, id);
+		id = *tl.id(material.diffuses[0].texture.path);
 		shader->set_int("material.texture_diffuse1", 0); // temp
 		glBindTexture(GL_TEXTURE_2D, id);
 	}
 	
 	for (int i = 0; i < material.speculars.size() && i <= 1; ++i, ++total_textures) { // temp
 		glActiveTexture(GL_TEXTURE0 + total_textures);
-		tl.id(material.speculars[0].path, id);
+		id = *tl.id(material.speculars[0].texture.path);
 		shader->set_int("material.texture_specular1", 1); // temp
 		glBindTexture(GL_TEXTURE_2D, id);
 	}

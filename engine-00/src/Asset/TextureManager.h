@@ -32,7 +32,7 @@ class TextureManager {
 public:
 	bool load(const Texture& texture);
 	bool unload(const Texture& texture);
-	bool id(const std::string& path, unsigned int& id);
+	std::expected<unsigned int, bool> id(const std::string& path) const;
 
 	TextureManager() = default;
 	TextureManager(const TextureManager&) = delete;
