@@ -1,8 +1,7 @@
 #pragma once
 #include "../Entity/Entity.h"
 #include "../../Asset/Model.h"
-#include "../../Asset/MeshManager.h"
-#include "../../Asset/TextureManager.h"
+#include "../../Asset/Storing/OpenGL/OglAssetStore.h"
 #include <unordered_map>
 #include <expected>
 
@@ -13,8 +12,8 @@ public:
 	const std::vector<Model>& models();
 	std::expected<void, bool> add_component(Entity e, Model& model);
 
-	MeshManager mesh_m;
-	TextureManager texture_m;
+	OglAssetStore store; // how can I generalize this?
+
 private:
 	std::unordered_map<Entity, EntityType> map_; // map_[0] would contain the index of the actual component data for Entity 0
 

@@ -2,8 +2,6 @@
 #include "../Component/Transform3dManager.h"
 #include "../Component/ModelManager.h"
 #include "../../engine-00/Shader.h"
-#include "../../Asset/MeshManager.h"
-#include "../../Asset/TextureManager.h"
 
 class Renderer {
 public:

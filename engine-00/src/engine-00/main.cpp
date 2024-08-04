@@ -6,10 +6,11 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "Camera.h"
 #include <vector>
-#include "../Asset/ModelLoader.h"
 #include "../HECS/Component/ModelManager.h"
 #include "../HECS/Component/Transform3dManager.h"
 #include "../HECS/System/Renderer.h"
+#include "../Asset/Storing/OpenGL/OglAssetStore.h"
+#include "../Asset/Loading/Assimp/AssimpAssetLoader.h"
 
 int window_width = 1800;
 int window_height = 1200;
@@ -70,18 +71,20 @@ int main() {
 	// load models
 	// resources/objects/backpack/backpack.obj
 	// ../../Random Assets/forest-monster/forest-monster-final_FIXED.glb
-	ModelLoader ml;
 	ModelManager model_m;
+	Transform3dManager transform_m;
 
-	Model monster_model;
-	ml.read_model(&monster_model, "../resources/models/forest-monster/forest-monster-final_FIXED.obj", model_m.texture_m, model_m.mesh_m);
+	AssetStore& as = model_m.store;
 
-	Model hex_2d;
-	ml.read_model(&hex_2d, "../resources/models/2d-hex/2d-hex.glb", model_m.texture_m, model_m.mesh_m);
+	AssimpAssetLoader aal;
+	AssetLoader& al = aal;
+
+	Model monster_model = *al.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", as);
+
+	Model hex_2d = *al.load_model("../resources/models/2d-hex/2d-hex.glb", as);
 
 	//ml.ogl_load_model(&monster);
 
-	Transform3dManager transform_m;
 
 	Entity monster = 7;
 	transform_m.add_component(monster, glm::vec3{ 0.0f, 0.0f, 0.0f });

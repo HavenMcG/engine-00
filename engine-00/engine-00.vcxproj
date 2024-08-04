@@ -138,41 +138,40 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\external\src\glad.c" />
+    <ClCompile Include="src\Asset\Experimental\TextureStore.cpp" />
+    <ClCompile Include="src\Asset\Loading\Assimp\AssimpAssetLoader.cpp" />
+    <ClCompile Include="src\Asset\Storing\OpenGL\OglAssetStore.cpp" />
     <ClCompile Include="src\engine-00\Camera.cpp" />
     <ClCompile Include="src\engine-00\main.cpp" />
-    <ClCompile Include="src\Asset\Mesh.cpp" />
-    <ClCompile Include="src\Asset\MeshManager.cpp" />
-    <ClCompile Include="src\Asset\ModelLoader.cpp" />
-    <ClCompile Include="src\engine-00\SimpleRenderer.cpp" />
     <ClCompile Include="src\engine-00\Shader.cpp" />
-    <ClCompile Include="src\Asset\Texture.cpp" />
-    <ClCompile Include="src\Asset\TextureManager.cpp" />
     <ClCompile Include="src\HECS\Component\ModelManager.cpp" />
     <ClCompile Include="src\HECS\Component\Transform3dManager.cpp" />
     <ClCompile Include="src\HECS\System\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Asset\Upload\AssetUploader.h" />
+    <ClInclude Include="src\Asset\Data.h" />
+    <ClInclude Include="src\Asset\Experimental\TextureStore.h" />
+    <ClInclude Include="src\Asset\Loading\AssetLoader.h" />
+    <ClInclude Include="src\Asset\Loading\Assimp\AssimpAssetLoader.h" />
+    <ClInclude Include="src\Asset\Storing\AssetStore.h" />
+    <ClInclude Include="src\Asset\Storing\OpenGL\OglAssetStore.h" />
     <ClInclude Include="src\engine-00\Camera.h" />
     <ClInclude Include="src\Asset\Material.h" />
     <ClInclude Include="src\Asset\Mesh.h" />
-    <ClInclude Include="src\Asset\MeshManager.h" />
     <ClInclude Include="src\Asset\Model.h" />
-    <ClInclude Include="src\Asset\ModelLoader.h" />
-    <ClInclude Include="src\engine-00\SimpleRenderer.h" />
     <ClInclude Include="src\engine-00\Shader.h" />
     <ClInclude Include="src\Asset\Texture.h" />
-    <ClInclude Include="src\Asset\TextureManager.h" />
+    <ClInclude Include="src\Error\Error.h" />
     <ClInclude Include="src\HECS\Component\ModelManager.h" />
     <ClInclude Include="src\HECS\Component\Transform3dManager.h" />
     <ClInclude Include="src\HECS\Entity\Entity.h" />
     <ClInclude Include="src\HECS\System\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\engine-00\colors.frag.glsl" />
-    <None Include="src\engine-00\colors.vert.glsl" />
-    <None Include="src\engine-00\lightSource.frag.glsl" />
-    <None Include="src\engine-00\lightSource.vert.glsl" />
+    <None Include="src\engine-00\Shaders\colors.frag.glsl" />
+    <None Include="src\engine-00\Shaders\colors.vert.glsl" />
+    <None Include="src\engine-00\Shaders\lightSource.frag.glsl" />
+    <None Include="src\engine-00\Shaders\lightSource.vert.glsl" />
     <None Include="src\engine-00\Shaders\material.frag.glsl" />
     <None Include="src\engine-00\Shaders\material.vert.glsl" />
   </ItemGroup>
