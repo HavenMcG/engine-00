@@ -33,6 +33,7 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	// create a GLFW window object
 	GLFWwindow* window = glfwCreateWindow(window_width, window_height, "LearnOpenGL", NULL, NULL);
 	if (window == NULL) {
@@ -48,6 +49,7 @@ int main() {
 		return -1;
 	}
 
+	// depth testing prevents triangles that are supposed to be behind something rendering on top of it
 	glEnable(GL_DEPTH_TEST);
 
 	// tell OpenGL the size of the rendering window/viewport
@@ -65,27 +67,29 @@ int main() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glfwSwapBuffers(window);
 
-	// load shaders from their source files
-	Shader my_shader("src/engine-00/Shaders/material.vert.glsl","src/engine-00/Shaders/material.frag.glsl");
-
-	// load models
-	// resources/objects/backpack/backpack.obj
-	// ../../Random Assets/forest-monster/forest-monster-final_FIXED.glb
+	// Instantiate component managers
 	ModelManager model_m;
 	Transform3dManager transform_m;
 
-	AssetStore& as = model_m.store;
+	// Instantiate asset store
+	OglAssetStore ogl_store;
+	AssetStore& assets = ogl_store;
 
+	// Instantiate asset loader
 	AssimpAssetLoader aal;
-	AssetLoader& al = aal;
+	AssetLoader& asset_loader = aal;
 
-	Model monster_model = *al.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", as);
+	// Instantiate renderer
+	Renderer renderer;
 
-	Model hex_2d = *al.load_model("../resources/models/2d-hex/2d-hex.glb", as);
+	// Load shaders
+	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
 
-	//ml.ogl_load_model(&monster);
+	// Load assets
+	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
+	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
 
-
+	// Set up entities
 	Entity monster = 7;
 	transform_m.add_component(monster, glm::vec3{ 0.0f, 0.0f, 0.0f });
 	model_m.add_component(monster, monster_model);
@@ -94,9 +98,7 @@ int main() {
 	transform_m.add_component(hex, glm::vec3{ -20.0f, 0.0f, -20.0f });
 	model_m.add_component(hex, hex_2d);
 
-	// instantiate renderer
-	Renderer r;
-
+	// Set camera start position
 	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 50.0f });
 	my_cam.look_at(glm::vec3{ 0.0f, 17.0f, 0.0f });
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
@@ -139,7 +141,7 @@ int main() {
 		my_shader.set_vec3("light.specular", specular_color);
 		my_shader.set_float("material.shininess", 16.0f);
 
-		r.draw_models(view, my_shader, model_m, transform_m);
+		renderer.draw_models(view, my_shader, model_m, transform_m, ogl_store);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

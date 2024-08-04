@@ -32,7 +32,6 @@ std::expected<Model, bool> AssimpAssetLoader::load_model(const std::string& path
 
 void AssimpAssetLoader::Private::process_node(Model& model, aiNode* node, const aiScene* scene, AssetStore& store) {
 	// process all the node's meshes (if any)
-	// potential bug - if multiple nodes contain meshes with the same name only the first will be loaded
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		std::pair<Mesh, Material> match = process_mesh(model, mesh, scene, store);
@@ -45,72 +44,81 @@ void AssimpAssetLoader::Private::process_node(Model& model, aiNode* node, const 
 	}
 }
 
-std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model, aiMesh* mesh, const aiScene* scene, AssetStore& store) {
-	MeshData mesh_data{};
+std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model, aiMesh* ai_mesh, const aiScene* scene, AssetStore& store) {
+	std::string mesh_name = model.name + "/" + ai_mesh->mName.C_Str();
+	Mesh mesh{ mesh_name };
 	std::vector<std::string> textures;
-	// process vertices
-	for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
-		Vertex vertex;
-		vertex.position = {
-			mesh->mVertices[i].x,
-			mesh->mVertices[i].y,
-			mesh->mVertices[i].z
-		};
-		vertex.normal = {
-			mesh->mNormals[i].x,
-			mesh->mNormals[i].y,
-			mesh->mNormals[i].z
-		};
+	if (!store.loaded(mesh)) {
+		MeshData mesh_data{};
 
-		if (mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
-			glm::vec2 tex_coords{
-				mesh->mTextureCoords[0][i].x,
-				mesh->mTextureCoords[0][i].y
+		// process vertices
+		for (unsigned int i = 0; i < ai_mesh->mNumVertices; ++i) {
+			Vertex vertex;
+			vertex.position = {
+				ai_mesh->mVertices[i].x,
+				ai_mesh->mVertices[i].y,
+				ai_mesh->mVertices[i].z
 			};
-			vertex.tex_coords = tex_coords;
-		}
-		else {
-			vertex.tex_coords = glm::vec2{ 0.0f, 0.0f };
+			vertex.normal = {
+				ai_mesh->mNormals[i].x,
+				ai_mesh->mNormals[i].y,
+				ai_mesh->mNormals[i].z
+			};
+
+			if (ai_mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
+				glm::vec2 tex_coords{
+					ai_mesh->mTextureCoords[0][i].x,
+					ai_mesh->mTextureCoords[0][i].y
+				};
+				vertex.tex_coords = tex_coords;
+			}
+			else {
+				vertex.tex_coords = glm::vec2{ 0.0f, 0.0f };
+			}
+
+			mesh_data.vertices.push_back(vertex);
 		}
 
-		mesh_data.vertices.push_back(vertex);
+		// process indices
+		for (unsigned int i = 0; i < ai_mesh->mNumFaces; ++i) {
+			aiFace face = ai_mesh->mFaces[i];
+			for (unsigned int j = 0; j < face.mNumIndices; ++j) {
+				mesh_data.indices.push_back(face.mIndices[j]);
+			}
+		}
+		mesh.num_indices = mesh_data.indices.size();
+
+		// load mesh
+		store.load(mesh, mesh_data);
 	}
-
-	// process indices
-	for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
-		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; ++j) {
-			mesh_data.indices.push_back(face.mIndices[j]);
-		}
+	else {
+		mesh = *store.key(mesh);
 	}
 
 	// process material
-	Material new_mat{};
-	if (mesh->mMaterialIndex >= 0) {
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+	Material material{};
+	if (ai_mesh->mMaterialIndex >= 0) {
+		aiMaterial* ai_material = scene->mMaterials[ai_mesh->mMaterialIndex];
 
 		// process textures
-		new_mat.diffuses = load_material_textures(model, scene, material, aiTextureType_DIFFUSE, store);
-		new_mat.speculars = load_material_textures(model, scene, material, aiTextureType_SPECULAR, store);
+		material.diffuses = load_material_textures(model, scene, ai_material, aiTextureType_DIFFUSE, store);
+		material.speculars = load_material_textures(model, scene, ai_material, aiTextureType_SPECULAR, store);
 
 		// process other fields
 		aiColor3D ai_color_diffuse;
-		material->Get(AI_MATKEY_COLOR_DIFFUSE, ai_color_diffuse);
-		new_mat.color_diffuse = { ai_color_diffuse.r, ai_color_diffuse.g, ai_color_diffuse.b };
+		ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, ai_color_diffuse);
+		material.color_diffuse = { ai_color_diffuse.r, ai_color_diffuse.g, ai_color_diffuse.b };
 
 		aiColor3D ai_color_specular;
-		material->Get(AI_MATKEY_COLOR_SPECULAR, ai_color_specular);
-		new_mat.color_specular = { ai_color_specular.r, ai_color_specular.g, ai_color_specular.b };
+		ai_material->Get(AI_MATKEY_COLOR_SPECULAR, ai_color_specular);
+		material.color_specular = { ai_color_specular.r, ai_color_specular.g, ai_color_specular.b };
 
 		float shininess;
-		material->Get(AI_MATKEY_SHININESS, shininess);
-		new_mat.shininess = shininess;
+		ai_material->Get(AI_MATKEY_SHININESS, shininess);
+		material.shininess = shininess;
 	}
 
-	std::string mesh_name = model.name + "/" + mesh->mName.C_Str();
-	Mesh new_mesh{ mesh_name, mesh_data.indices.size() };
-	store.load(new_mesh, mesh_data);
-	return { new_mesh, new_mat };
+	return { mesh, material };
 }
 
 std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_textures(Model& model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, AssetStore& store) {

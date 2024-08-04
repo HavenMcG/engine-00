@@ -12,8 +12,6 @@ public:
 	const std::vector<Model>& models();
 	std::expected<void, bool> add_component(Entity e, Model& model);
 
-	OglAssetStore store; // how can I generalize this?
-
 private:
 	std::unordered_map<Entity, EntityType> map_; // map_[0] would contain the index of the actual component data for Entity 0
 

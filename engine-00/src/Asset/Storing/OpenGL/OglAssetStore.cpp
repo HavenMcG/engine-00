@@ -52,7 +52,7 @@ std::expected<void, ErrorCode> OglAssetStore::unload(const Mesh& mesh) {
 		glDeleteVertexArrays(1, &md.vao);
 		glDeleteBuffers(1, &md.vbo);
 		glDeleteBuffers(1, &md.ebo);
-		loaded_meshes_.erase(mesh.path);
+		loaded_meshes_.erase(mesh);
 	}
 	else {
 		std::cout << "could not unload mesh " << mesh.path << " - not loaded" << std::endl;
@@ -61,11 +61,17 @@ std::expected<void, ErrorCode> OglAssetStore::unload(const Mesh& mesh) {
 }
 
 bool OglAssetStore::loaded(const Mesh& mesh) {
-    return loaded_meshes_.contains(mesh.path);
+    return loaded_meshes_.contains(mesh);
+}
+
+std::expected<Mesh, ErrorCode> OglAssetStore::key(const Mesh& mesh) {
+	auto result = loaded_meshes_.find(mesh);
+	if (result != loaded_meshes_.end()) return result->first;
+	else return std::unexpected(false);
 }
 
 std::expected<OGLMeshInfo, bool> OglAssetStore::info(const Mesh& mesh) const {
-	auto result = loaded_meshes_.find(mesh.path);
+	auto result = loaded_meshes_.find(mesh);
 	if (result != loaded_meshes_.end()) return result->second;
 	else return std::unexpected(false);
 }
@@ -111,7 +117,7 @@ std::expected<void, ErrorCode> OglAssetStore::unload(const Texture& texture) {
 		std::cout << "unloading texture " << texture.path << std::endl;
 		OGLTextureInfo td = result.value();
 		glDeleteTextures(1, &td.id);
-		loaded_textures_.erase(texture.path);
+		loaded_textures_.erase(texture);
 	}
 	else {
 		std::cout << "could not unload texture " << texture.path << " - not loaded" << std::endl;
@@ -120,11 +126,17 @@ std::expected<void, ErrorCode> OglAssetStore::unload(const Texture& texture) {
 }
 
 bool OglAssetStore::loaded(const Texture& texture) {
-	return loaded_textures_.contains(texture.path);
+	return loaded_textures_.contains(texture);
+}
+
+std::expected<Texture, ErrorCode> OglAssetStore::key(const Texture& texture) {
+	auto result = loaded_textures_.find(texture);
+	if (result != loaded_textures_.end()) return result->first;
+	else return std::unexpected(false);
 }
 
 std::expected<OGLTextureInfo, ErrorCode> OglAssetStore::info(const Texture& texture) const {
-	auto result = loaded_textures_.find(texture.path);
+	auto result = loaded_textures_.find(texture);
 	if (result != loaded_textures_.end()) return result->second;
 	else return std::unexpected(false);
 }
