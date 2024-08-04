@@ -32,7 +32,7 @@ std::expected<Model, bool> AssimpAssetLoader::load_model(const std::string& path
 
 void AssimpAssetLoader::Private::process_node(Model& model, aiNode* node, const aiScene* scene, AssetStore& store) {
 	// process all the node's meshes (if any)
-	// potential bug - if multiple nodes contain meshes (or embedded textures) with the same name only the first will be loaded
+	// potential bug - if multiple nodes contain meshes with the same name only the first will be loaded
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		std::pair<Mesh, Material> match = process_mesh(model, mesh, scene, store);
