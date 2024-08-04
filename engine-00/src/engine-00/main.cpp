@@ -28,10 +28,10 @@ void mouse_callback(GLFWwindow* window, double x_pos, double y_pos);
 void processInput(GLFWwindow* window);
 
 int main() {
-	// initialize GLFW, specify which OpenGL version we are targeting (3.3), and which profile to use (core)
+	// initialize GLFW, specify which OpenGL version we are targeting (4.0), and which profile to use (core)
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// create a GLFW window object
@@ -133,7 +133,7 @@ int main() {
 		my_shader.set_vec3("light_pos_world", glm::vec3{ 0.0f, 0.0f, 4.0f });
 
 		glm::vec3 light_color{ 1.0f, 1.0f, 1.0f };
-		glm::vec3 diffuse_color = light_color * glm::vec3(0.5f);
+		glm::vec3 diffuse_color = light_color * glm::vec3(1.0f);
 		glm::vec3 ambient_color = light_color * glm::vec3(1.0f);
 		glm::vec3 specular_color = light_color * glm::vec3(1.0f);
 		my_shader.set_vec3("light.ambient", ambient_color);

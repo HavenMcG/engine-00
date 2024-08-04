@@ -143,12 +143,14 @@ void Shader::set_material(const std::string& name, const Material& material, con
 	for (int i = 0; i < material.diffuses.size(); ++i) {
 		set_int(name + ".diffuse_textures[" + std::to_string(i) + "]", store.info(material.diffuses[i].texture)->id);
 		set_int(name + ".diffuse_blend_strengths[" + std::to_string(i) + "]", material.diffuses[i].blend_strength);
+		set_int(name + ".diffuse_blend_ops[" + std::to_string(i) + "]", material.diffuses[i].blend_op);
 	}
 	set_int(name + ".num_diffuse_textures", material.diffuses.size());
 
 	for (int i = 0; i < material.speculars.size(); ++i) {
 		set_int(name + ".specular_textures[" + std::to_string(i) + "]", store.info(material.speculars[i].texture)->id);
 		set_int(name + ".specular_blend_strengths[" + std::to_string(i) + "]", material.speculars[i].blend_strength);
+		set_int(name + ".specular_blend_ops[" + std::to_string(i) + "]", material.speculars[i].blend_op);
 	}
 	set_int(name + ".num_specular_textures", material.speculars.size());
 

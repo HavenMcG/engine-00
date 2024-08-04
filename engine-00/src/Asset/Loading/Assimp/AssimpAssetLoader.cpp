@@ -12,6 +12,7 @@ struct AssimpAssetLoader::Private {
 	static std::vector<TextureAssignment> load_material_textures(Model& model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_tex_type, AssetStore& store);
 	static bool load_file(Texture& texture, AssetStore& store);
 	static bool load_compressed(Texture& texture, AssetStore& store, const void* compressed_data, unsigned int size);
+	static TextureBlendOp to_blend_op(aiTextureOp in);
 };
 
 std::expected<Model, bool> AssimpAssetLoader::load_model(const std::string& path, AssetStore& store) {
@@ -148,7 +149,14 @@ std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_texture
 		float blend_strength = 1.0f;
 		mat->Get(AI_MATKEY_TEXBLEND(ai_ttype, i), blend_strength);
 
-		TextureAssignment ta{ texture, blend_strength };
+		aiTextureOp ai_blend_op = aiTextureOp_Multiply;
+		mat->Get(AI_MATKEY_TEXOP(ai_ttype, i), ai_blend_op);
+
+		TextureAssignment ta{ 
+			texture, 
+			blend_strength, 
+			to_blend_op(ai_blend_op) 
+		};
 		textures.push_back(ta);
 	}
 	return textures;
@@ -197,4 +205,19 @@ bool AssimpAssetLoader::Private::load_compressed(Texture& texture, AssetStore& s
 	}
 	stbi_image_free(data);
 	return status;
+}
+
+TextureBlendOp AssimpAssetLoader::Private::to_blend_op(aiTextureOp in) {
+	switch (in) {
+		case aiTextureOp_Multiply: return Multiply; break;
+		case aiTextureOp_Add: return Add; break;
+		case aiTextureOp_Subtract:
+		case aiTextureOp_Divide:
+		case aiTextureOp_SmoothAdd:
+		case aiTextureOp_SignedAdd:
+		case _aiTextureOp_Force32Bit:
+		default:
+			return Multiply;
+			break;
+	}
 }
