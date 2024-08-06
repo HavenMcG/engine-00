@@ -6,9 +6,10 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "Camera.h"
 #include <vector>
-#include "../HECS/Component/ModelManager.h"
-#include "../HECS/Component/Transform3dManager.h"
+#include "../HECS/Component/Model.h"
+#include "../HECS/Component/Transform.h"
 #include "../HECS/System/Renderer.h"
+#include "../HECS/System/TransformSystem.h"
 #include "../Asset/Storing/OpenGL/OglAssetStore.h"
 #include "../Asset/Loading/Assimp/AssimpAssetLoader.h"
 
@@ -67,9 +68,6 @@ int main() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glfwSwapBuffers(window);
 
-	// Instantiate component managers
-	ModelManager model_m;
-	Transform3dManager transform_m;
 
 	// Instantiate asset store
 	OglAssetStore ogl_store;
@@ -79,23 +77,28 @@ int main() {
 	AssimpAssetLoader aal;
 	AssetLoader& asset_loader = aal;
 
-	// Instantiate renderer
-	Renderer renderer;
-
-	// Load shaders
-	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
-
 	// Load assets
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
 
+	// Load shaders
+	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
+
+	// Instantiate component collections
+	ModelCollection model_m;
+	TransformCollection transform_col;
+
+	// Instantiate systems
+	TransformSystem transform_sys{ transform_col };
+	Renderer renderer;
+
 	// Set up entities
 	Entity monster = 7;
-	transform_m.add_component(monster, glm::vec3{ 0.0f, 0.0f, 0.0f });
+	transform_col.add_component(monster);
 	model_m.add_component(monster, monster_model);
 
 	Entity hex = 11;
-	transform_m.add_component(hex, glm::vec3{ -20.0f, 0.0f, -20.0f });
+	transform_col.add_component(hex, TransformComponent{ glm::vec3{ -20.0f, 0.0f, -20.0f }, glm::quat{ 1, 0 ,0 ,0 } });
 	model_m.add_component(hex, hex_2d);
 
 	// Set camera start position
@@ -117,8 +120,8 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		transform_m.rotate(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
-		transform_m.rotate(hex, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
+		transform_sys.rotate_degrees(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
+		transform_sys.rotate_degrees(hex, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
 
 		my_shader.use();
 
@@ -141,7 +144,7 @@ int main() {
 		my_shader.set_vec3("light.specular", specular_color);
 		my_shader.set_float("material.shininess", 16.0f);
 
-		renderer.draw_models(view, my_shader, model_m, transform_m, ogl_store);
+		renderer.draw_models(view, my_shader, model_m, transform_col, ogl_store);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -29,4 +29,10 @@ public:
 private:
 	std::unordered_map<Mesh, OGLMeshInfo> loaded_meshes_;
 	std::unordered_map<Texture, OGLTextureInfo> loaded_textures_;
+
+	std::vector<unsigned int> mesh_vaos_;
+	std::vector<unsigned int> mesh_vbos_;
+	std::vector<unsigned int> mesh_ebos_;
+
+	std::vector<unsigned int> texture_ids_;
 };

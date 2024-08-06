@@ -18,81 +18,105 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
+    <ClCompile Include="src\Asset\Experimental\TextureStore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MeshManager.cpp">
+    <ClCompile Include="src\Asset\Loading\Assimp\AssimpAssetLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="src\Asset\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Asset\Storing\OpenGL\OglAssetStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Asset\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine-00\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine-00\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine-00\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HECS\Component\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HECS\Component\Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HECS\System\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HECS\System\TransformSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="src\Asset\Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="src\Asset\Experimental\TextureStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
+    <ClInclude Include="src\Asset\Loading\AssetLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelLoader.h">
+    <ClInclude Include="src\Asset\Loading\Assimp\AssimpAssetLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
+    <ClInclude Include="src\Asset\Storing\AssetStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="src\Asset\Storing\OpenGL\OglAssetStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureManager.h">
+    <ClInclude Include="src\engine-00\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MeshManager.h">
+    <ClInclude Include="src\Asset\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="src\Asset\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
+    <ClInclude Include="src\engine-00\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Asset\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Error\Error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HECS\Component\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HECS\Component\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HECS\Entity\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HECS\System\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HECS\System\TransformSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="colors.frag.glsl">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="colors.vert.glsl">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="lightSource.frag.glsl">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="lightSource.vert.glsl">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
+    <None Include="src\engine-00\Shaders\colors.frag.glsl" />
+    <None Include="src\engine-00\Shaders\colors.vert.glsl" />
+    <None Include="src\engine-00\Shaders\lightSource.frag.glsl" />
+    <None Include="src\engine-00\Shaders\lightSource.vert.glsl" />
+    <None Include="src\engine-00\Shaders\material.frag.glsl" />
+    <None Include="src\engine-00\Shaders\material.vert.glsl" />
   </ItemGroup>
 </Project>

@@ -146,9 +146,10 @@
     <ClCompile Include="src\engine-00\Camera.cpp" />
     <ClCompile Include="src\engine-00\main.cpp" />
     <ClCompile Include="src\engine-00\Shader.cpp" />
-    <ClCompile Include="src\HECS\Component\ModelManager.cpp" />
-    <ClCompile Include="src\HECS\Component\Transform3dManager.cpp" />
+    <ClCompile Include="src\HECS\Component\Model.cpp" />
+    <ClCompile Include="src\HECS\Component\Transform.cpp" />
     <ClCompile Include="src\HECS\System\Renderer.cpp" />
+    <ClCompile Include="src\HECS\System\TransformSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asset\Data.h" />
@@ -160,14 +161,14 @@
     <ClInclude Include="src\engine-00\Camera.h" />
     <ClInclude Include="src\Asset\Material.h" />
     <ClInclude Include="src\Asset\Mesh.h" />
-    <ClInclude Include="src\Asset\Model.h" />
     <ClInclude Include="src\engine-00\Shader.h" />
     <ClInclude Include="src\Asset\Texture.h" />
     <ClInclude Include="src\Error\Error.h" />
-    <ClInclude Include="src\HECS\Component\ModelManager.h" />
-    <ClInclude Include="src\HECS\Component\Transform3dManager.h" />
+    <ClInclude Include="src\HECS\Component\Model.h" />
+    <ClInclude Include="src\HECS\Component\Transform.h" />
     <ClInclude Include="src\HECS\Entity\Entity.h" />
     <ClInclude Include="src\HECS\System\Renderer.h" />
+    <ClInclude Include="src\HECS\System\TransformSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\engine-00\Shaders\colors.frag.glsl" />

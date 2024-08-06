@@ -5,21 +5,21 @@
 const int MAX_DIFFUSE_TEXTURES = 8;
 const int MAX_SPECULAR_TEXTURES = 8;
 
-void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelManager& model_m, Transform3dManager& transform_m, const OglAssetStore& assets) {
+void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, const OglAssetStore& assets) {
 	// we need to find all entities with both a model and a transform
 	// there will be fewer entities with models so we'll start there
-	for (int model_index = 0; model_index < model_m.size(); ++model_index) {
+	for (int model_index = 0; model_index < models.size(); ++model_index) {
 		// check if corresponding position component exists:
-		Entity e = model_m.owners()[model_index];
-		auto transform = transform_m.get_component(e);
+		Entity e = models.owners()[model_index];
+		auto transform = transforms.component(e);
 		if (transform.has_value()) {
-			const Model& model = model_m.models()[model_index];
+			const Model& model = models.models()[model_index];
 
 			glm::mat4 model_matrix = glm::mat4(1.0f);
 			// translate:
-			model_matrix = glm::translate(model_matrix, transform->position);
+			model_matrix = glm::translate(model_matrix, transform->world_position);
 			// rotate:
-			model_matrix *= glm::mat4_cast(transform->rotation);
+			model_matrix *= glm::mat4_cast(transform->world_rotation);
 
 			// set model matrix uniform:
 			shader.set_mat4("model", model_matrix);

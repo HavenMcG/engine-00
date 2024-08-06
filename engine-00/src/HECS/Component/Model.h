@@ -1,11 +1,19 @@
 #pragma once
 #include "../Entity/Entity.h"
-#include "../../Asset/Model.h"
 #include "../../Asset/Storing/OpenGL/OglAssetStore.h"
 #include <unordered_map>
 #include <expected>
+#include <string>
+#include "../../Asset/Mesh.h"
+#include "../../Asset/Material.h"
 
-class ModelManager {
+struct Model {
+	std::string name; // for models loaded from files, the name is the model's filepath
+	std::vector<Mesh> meshes;
+	std::vector<Material> materials;
+};
+
+class ModelCollection {
 public:
 	size_t size();
 	const std::vector<Entity>& owners();

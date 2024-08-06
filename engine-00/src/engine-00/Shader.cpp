@@ -139,16 +139,16 @@ void Shader::set_mat4(const std::string& name, const glm::mat4& mat) {
 	glUniformMatrix4fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::set_material(const std::string& name, const Material& material, const OglAssetStore& store) {
+void Shader::set_material(const std::string& name, const Material& material, const OglAssetStore& assets) {
 	for (int i = 0; i < material.diffuses.size(); ++i) {
-		set_int(name + ".diffuse_textures[" + std::to_string(i) + "]", store.info(material.diffuses[i].texture)->id);
+		set_int(name + ".diffuse_textures[" + std::to_string(i) + "]", assets.info(material.diffuses[i].texture)->id);
 		set_int(name + ".diffuse_blend_strengths[" + std::to_string(i) + "]", material.diffuses[i].blend_strength);
 		set_int(name + ".diffuse_blend_ops[" + std::to_string(i) + "]", material.diffuses[i].blend_op);
 	}
 	set_int(name + ".num_diffuse_textures", material.diffuses.size());
 
 	for (int i = 0; i < material.speculars.size(); ++i) {
-		set_int(name + ".specular_textures[" + std::to_string(i) + "]", store.info(material.speculars[i].texture)->id);
+		set_int(name + ".specular_textures[" + std::to_string(i) + "]", assets.info(material.speculars[i].texture)->id);
 		set_int(name + ".specular_blend_strengths[" + std::to_string(i) + "]", material.speculars[i].blend_strength);
 		set_int(name + ".specular_blend_ops[" + std::to_string(i) + "]", material.speculars[i].blend_op);
 	}
