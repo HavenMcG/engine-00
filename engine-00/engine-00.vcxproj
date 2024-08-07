@@ -161,6 +161,7 @@
     <ClInclude Include="src\engine-00\Camera.h" />
     <ClInclude Include="src\Asset\Material.h" />
     <ClInclude Include="src\Asset\Mesh.h" />
+    <ClInclude Include="src\engine-00\HexGrid.h" />
     <ClInclude Include="src\engine-00\Shader.h" />
     <ClInclude Include="src\Asset\Texture.h" />
     <ClInclude Include="src\Error\Error.h" />

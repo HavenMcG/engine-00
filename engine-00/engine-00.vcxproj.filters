@@ -110,6 +110,9 @@
     <ClInclude Include="src\HECS\System\TransformSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\engine-00\HexGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\engine-00\Shaders\colors.frag.glsl" />

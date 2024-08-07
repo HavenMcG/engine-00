@@ -5,5 +5,5 @@
 
 class Renderer {
 public:
-	void draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& model_m, TransformCollection& transform_m, const OglAssetStore& assets);
+	void draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, const OglAssetStore& assets);
 };

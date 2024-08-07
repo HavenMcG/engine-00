@@ -10,8 +10,8 @@ struct AssimpAssetLoader::Private {
 	static void process_node(Model& model, aiNode* node, const aiScene* scene, AssetStore& store);
 	static std::pair<Mesh, Material> process_mesh(Model& model, aiMesh* mesh, const aiScene* scene, AssetStore& store);
 	static std::vector<TextureAssignment> load_material_textures(Model& model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_tex_type, AssetStore& store);
-	static bool load_file(Texture& texture, AssetStore& store);
-	static bool load_compressed(Texture& texture, AssetStore& store, const void* compressed_data, unsigned int size);
+	static std::expected<Texture, ErrorCode>  load_file(const std::string& path, AssetStore& store);
+	static std::expected<Texture, ErrorCode> load_compressed(AssetStore& store, const void* compressed_data, unsigned int size);
 	static TextureBlendOp to_blend_op(aiTextureOp in);
 };
 
@@ -47,54 +47,47 @@ void AssimpAssetLoader::Private::process_node(Model& model, aiNode* node, const 
 
 std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model, aiMesh* ai_mesh, const aiScene* scene, AssetStore& store) {
 	std::string mesh_name = model.name + "/" + ai_mesh->mName.C_Str();
-	Mesh mesh{ mesh_name };
 	std::vector<std::string> textures;
-	if (!store.loaded(mesh)) {
-		MeshData mesh_data{};
+	MeshData mesh_data{};
 
-		// process vertices
-		for (unsigned int i = 0; i < ai_mesh->mNumVertices; ++i) {
-			Vertex vertex;
-			vertex.position = {
-				ai_mesh->mVertices[i].x,
-				ai_mesh->mVertices[i].y,
-				ai_mesh->mVertices[i].z
+	// process vertices
+	for (unsigned int i = 0; i < ai_mesh->mNumVertices; ++i) {
+		Vertex vertex;
+		vertex.position = {
+			ai_mesh->mVertices[i].x,
+			ai_mesh->mVertices[i].y,
+			ai_mesh->mVertices[i].z
+		};
+		vertex.normal = {
+			ai_mesh->mNormals[i].x,
+			ai_mesh->mNormals[i].y,
+			ai_mesh->mNormals[i].z
+		};
+
+		if (ai_mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
+			glm::vec2 tex_coords{
+				ai_mesh->mTextureCoords[0][i].x,
+				ai_mesh->mTextureCoords[0][i].y
 			};
-			vertex.normal = {
-				ai_mesh->mNormals[i].x,
-				ai_mesh->mNormals[i].y,
-				ai_mesh->mNormals[i].z
-			};
-
-			if (ai_mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
-				glm::vec2 tex_coords{
-					ai_mesh->mTextureCoords[0][i].x,
-					ai_mesh->mTextureCoords[0][i].y
-				};
-				vertex.tex_coords = tex_coords;
-			}
-			else {
-				vertex.tex_coords = glm::vec2{ 0.0f, 0.0f };
-			}
-
-			mesh_data.vertices.push_back(vertex);
+			vertex.tex_coords = tex_coords;
+		}
+		else {
+			vertex.tex_coords = glm::vec2{ 0.0f, 0.0f };
 		}
 
-		// process indices
-		for (unsigned int i = 0; i < ai_mesh->mNumFaces; ++i) {
-			aiFace face = ai_mesh->mFaces[i];
-			for (unsigned int j = 0; j < face.mNumIndices; ++j) {
-				mesh_data.indices.push_back(face.mIndices[j]);
-			}
-		}
-		mesh.num_indices = mesh_data.indices.size();
+		mesh_data.vertices.push_back(vertex);
+	}
 
-		// load mesh
-		store.load(mesh, mesh_data);
+	// process indices
+	for (unsigned int i = 0; i < ai_mesh->mNumFaces; ++i) {
+		aiFace face = ai_mesh->mFaces[i];
+		for (unsigned int j = 0; j < face.mNumIndices; ++j) {
+			mesh_data.indices.push_back(face.mIndices[j]);
+		}
 	}
-	else {
-		mesh = *store.key(mesh);
-	}
+
+	// load mesh
+	Mesh mesh = *store.load(mesh_data);
 
 	// process material
 	Material material{};
@@ -125,24 +118,25 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_textures(Model& model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, AssetStore& store) {
 	std::vector<TextureAssignment> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(ai_ttype); ++i) {
-		aiString path;
-		mat->GetTexture(ai_ttype, i, &path);
-		const aiTexture* ai_tex = scene->GetEmbeddedTexture(path.C_Str());
-		Texture texture{};
+		aiString ai_path;
+		mat->GetTexture(ai_ttype, i, &ai_path);
+		const aiTexture* ai_tex = scene->GetEmbeddedTexture(ai_path.C_Str());
+		std::string path;
+		Texture texture{0,0};
 		bool embedded = (ai_tex != nullptr);
 		if (embedded) {
-			texture.path = model.name + "/" + path.C_Str();
+			path = model.name + "/" + ai_path.C_Str();
 			bool compressed = (ai_tex->mHeight == 0);
 			if (compressed) {
-				load_compressed(texture, store, (unsigned char*)ai_tex->pcData, ai_tex->mWidth);
+				texture = *load_compressed(store, (unsigned char*)ai_tex->pcData, ai_tex->mWidth);
 			}
 			else {
-				store.load(texture, TextureData{ ai_tex->pcData, RGBA, static_cast<int>(ai_tex->mWidth), static_cast<int>(ai_tex->mHeight) });
+				texture = *store.load(TextureData{ ai_tex->pcData, RGBA, static_cast<int>(ai_tex->mWidth), static_cast<int>(ai_tex->mHeight) });
 			}
 		}
 		else {
-			texture.path = model.name.substr(0, model.name.find_last_of('/')) + "/" + path.C_Str();
-			load_file(texture, store);
+			path = model.name.substr(0, model.name.find_last_of('/')) + "/" + ai_path.C_Str();
+			texture = *load_file(path, store);
 		}
 
 		// get other texture assignment properties
@@ -162,49 +156,61 @@ std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_texture
 	return textures;
 }
 
-bool AssimpAssetLoader::Private::load_file(Texture& texture, AssetStore& store) {
-	bool status;
+std::expected<Texture, ErrorCode>  AssimpAssetLoader::Private::load_file(const std::string& path, AssetStore& store) {
 	int prior_flip_setting = stbi__vertically_flip_on_load_global;
 	//stbi_set_flip_vertically_on_load(true);
 	int width, height, nr_components;
-	unsigned char* data = stbi_load(texture.path.c_str(), &width, &height, &nr_components, 0);
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nr_components, 0);
+	bool succeeded = false;
+	Texture texture{ 0,0 };
+	ErrorCode error;
 	if (data) {
 		Format format;
 		if (nr_components == 1) format = RED;
 		else if (nr_components == 3) format = RGB;
 		else format = RGBA;
 
-		store.load(texture, TextureData{ data, format, width, height });
-		status = true;
+		auto result = store.load(TextureData{ data, format, width, height });
+		if (result.has_value()) {
+			texture = *result;
+			succeeded = true;
+		}
+		else error = result.error();
 	}
 	else {
-		std::cout << "Texture failed to load at path: " << texture.path << std::endl;
-		status = false;
+		std::cout << "Texture failed to load at path: " << path << std::endl;
 	}
 	stbi_image_free(data);
 	stbi_set_flip_vertically_on_load(prior_flip_setting);
-	return status;
+	if (succeeded) return texture;
+	else return std::unexpected(error);
 }
 
-bool AssimpAssetLoader::Private::load_compressed(Texture& texture, AssetStore& store, const void* compressed_data, unsigned int size) {
-	bool status;
+std::expected<Texture, ErrorCode>  AssimpAssetLoader::Private::load_compressed(AssetStore& store, const void* compressed_data, unsigned int size) {
 	int width, height, num_channels;
 	void* data = stbi_load_from_memory((unsigned char*)compressed_data, size, &width, &height, &num_channels, 0);
+	bool succeeded = false;
+	Texture texture{ 0,0 };
+	ErrorCode error;
 	if (data) {
 		Format format;
 		if (num_channels == 1) format = RED;
 		else if (num_channels == 3) format = RGB;
 		else format = RGBA;
 
-		store.load(texture, TextureData{ data, format, width, height });
-		status = true;
+		auto r = store.load(TextureData{ data, format, width, height });
+		if (r.has_value()) {
+			texture = *r;
+			succeeded = true;
+		}
+		else error = r.error();
 	}
 	else {
 		std::cout << "Compressed embedded texture failed to load." << std::endl;
-		status = false;
 	}
 	stbi_image_free(data);
-	return status;
+	if (succeeded) return texture;
+	else return std::unexpected(error);
 }
 
 TextureBlendOp AssimpAssetLoader::Private::to_blend_op(aiTextureOp in) {

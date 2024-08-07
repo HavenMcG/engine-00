@@ -6,6 +6,7 @@ const int MAX_DIFFUSE_TEXTURES = 8;
 const int MAX_SPECULAR_TEXTURES = 8;
 
 void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, const OglAssetStore& assets) {
+	shader.use();
 	// we need to find all entities with both a model and a transform
 	// there will be fewer entities with models so we'll start there
 	for (int model_index = 0; model_index < models.size(); ++model_index) {
@@ -41,20 +42,20 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 				for (int i = 0; i < material.diffuses.size() && i <= MAX_DIFFUSE_TEXTURES; ++i, ++total_textures) {
 					glActiveTexture(GL_TEXTURE0 + total_textures);
 					shader.set_int("material.diffuse_textures[" + std::to_string(i) + "]", total_textures);
-					id = assets.info(material.diffuses[0].texture)->id;
+					id = assets.tex_ogl_ids_[material.diffuses[i].texture.index()];
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 
 				for (int i = 0; i < material.speculars.size() && i <= MAX_SPECULAR_TEXTURES; ++i, ++total_textures) {
 					glActiveTexture(GL_TEXTURE0 + total_textures);
 					shader.set_int("material.specular_textures[" + std::to_string(i) + "]", total_textures);
-					id = assets.info(material.speculars[0].texture)->id;
+					id = assets.tex_ogl_ids_[material.speculars[i].texture.index()];
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 
 				// draw mesh
-				glBindVertexArray(assets.info(mesh)->vao);
-				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_INT, 0);
+				glBindVertexArray(assets.mesh_vaos_[mesh.index()]);
+				glDrawElements(GL_TRIANGLES, assets.mesh_index_counts_[mesh.index()], GL_UNSIGNED_INT, 0);
 			}
 		}
 	}
