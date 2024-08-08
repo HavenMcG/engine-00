@@ -2,12 +2,10 @@
 
 in vec3 FragPos;
 
-uniform mat4 view;
-uniform mat4 projection;
 uniform float scale = 8.0;
-uniform float radius = 10.0;
-uniform float offset = 0.268;
-uniform float power = 1.0;
+uniform float radius = 1.0;
+uniform float offset = 0.0;
+uniform float power = 4.0;
 uniform bool hide_incomplete = false;
 uniform vec4 color = vec4(0.0, 0.6, 1.0, 1.0);
 
@@ -51,7 +49,8 @@ vec2 calculate_local_center(vec2 uv, float r) {
 }
 
 void main() {
-    vec2 uv = (FragPos.xz - vec2(0.5, 0.5)) * scale;
+    //vec2 uv = (FragPos.xz - vec2(0.5, 0.5)) * scale;
+    vec2 uv = FragPos.xz;
     float r = (radius * sqrt(3) + offset) / 2.0;
     vec2 local_center = calculate_local_center(uv, r);
     vec2 local_coords = uv - local_center;

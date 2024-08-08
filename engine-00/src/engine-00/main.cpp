@@ -101,8 +101,9 @@ int main() {
 	model_m.add_component(monster, monster_model);
 
 	Entity hex_tile = 11;
-	transform_col.add_component(hex_tile, TransformComponent{ glm::vec3{ -20.0f, 0.0f, -20.0f }, glm::quat{ 1.0f, 0.0f, 0.0f, 0.0f } });
+	transform_col.add_component(hex_tile);
 	model_m.add_component(hex_tile, hex_2d);
+	transform_sys.rotate_degrees(hex_tile, 0.0f, 30.0f, 0.0f);
 
 	// Set camera start position
 	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 50.0f });
@@ -168,7 +169,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		transform_sys.rotate_degrees(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
-		transform_sys.rotate_degrees(hex_tile, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
+		//transform_sys.rotate_degrees(hex_tile, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
 
 		my_shader.use();
 
