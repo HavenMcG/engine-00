@@ -5,7 +5,7 @@ in vec3 FragPos;
 uniform float scale = 8.0;
 uniform float radius = 1.0;
 uniform float offset = 0.0;
-uniform float power = 4.0;
+uniform float power = 12.0;
 uniform bool hide_incomplete = false;
 uniform vec4 color = vec4(0.0, 0.6, 1.0, 1.0);
 
@@ -17,7 +17,7 @@ const vec2 AXIS[3] = vec2[3](
     vec2(-sqrt(3) * 0.5, 0.5)
 );
 
-float is_in_hex(float hex_radius, vec2 local_point) {
+float distance_from_center(float hex_radius, vec2 local_point) {
     float max_r = 0.0;
     for (int i = 0; i < 3; i++) {
         float r = dot(local_point, AXIS[i]);
@@ -58,11 +58,14 @@ void main() {
     if (hide_incomplete && (abs(local_center.x) > scale / 2.0 - radius || abs(local_center.y) > scale / 2.0 - radius * sqrt(3))) {
         FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
-    else if (is_in_hex(radius, local_coords) <= 1.0) {
-        float rad = is_in_hex(radius, local_coords);
+    else if (distance_from_center(radius, local_coords) <= 1.0) {
+        float rad = distance_from_center(radius, local_coords);
         rad = pow(rad, power);
         FragColor = vec4(color.rgb, rad);
     }
+    // else if (distance_from_center(radius, local_coords) >= 0.97) {
+    //     FragColor = vec4(color.rgb, 1);
+    // }
     else {
         FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     }

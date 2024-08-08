@@ -36,6 +36,7 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 16); // Enable MSAA
 
 	// create a GLFW window object
 	GLFWwindow* window = glfwCreateWindow(window_width, window_height, "LearnOpenGL", NULL, NULL);
@@ -54,6 +55,13 @@ int main() {
 
 	// depth testing prevents triangles that are supposed to be behind something rendering on top of it
 	glEnable(GL_DEPTH_TEST);
+
+	// Enable blending to draw on top with transparency
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Enable MSAA
+	glEnable(GL_MULTISAMPLE);
 
 	// tell OpenGL the size of the rendering window/viewport
 	glViewport(0, 0, window_width, window_height);
@@ -149,10 +157,6 @@ int main() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-	// Enable blending to draw on top with transparency
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// RENDER LOOP
 	while (!glfwWindowShouldClose(window)) {
