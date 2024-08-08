@@ -12,6 +12,7 @@ struct Texture {
 	Texture(unsigned int index, unsigned char generation);
 	unsigned int index() const;
 	unsigned char generation() const;
+	static unsigned char calc_id(unsigned int index, unsigned char generation);
 };
 
 struct TextureInfo {

@@ -13,6 +13,8 @@
 #include "../Asset/Storing/OpenGL/OglAssetStore.h"
 #include "../Asset/Loading/Assimp/AssimpAssetLoader.h"
 
+#include "HexGrid.h"
+
 int window_width = 1800;
 int window_height = 1200;
 
@@ -83,6 +85,7 @@ int main() {
 
 	// Load shaders
 	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
+	Shader hex_grid_shader("src/engine-00/Shaders/hexGrid.vert.glsl", "src/engine-00/Shaders/hexGrid.frag.glsl");
 
 	// Instantiate component collections
 	ModelCollection model_m;
@@ -97,14 +100,58 @@ int main() {
 	transform_col.add_component(monster);
 	model_m.add_component(monster, monster_model);
 
-	Entity hex = 11;
-	transform_col.add_component(hex, TransformComponent{ glm::vec3{ -20.0f, 0.0f, -20.0f }, glm::quat{ 1, 0 ,0 ,0 } });
-	model_m.add_component(hex, hex_2d);
+	Entity hex_tile = 11;
+	transform_col.add_component(hex_tile, TransformComponent{ glm::vec3{ -20.0f, 0.0f, -20.0f }, glm::quat{ 1.0f, 0.0f, 0.0f, 0.0f } });
+	model_m.add_component(hex_tile, hex_2d);
 
 	// Set camera start position
 	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 50.0f });
 	my_cam.look_at(glm::vec3{ 0.0f, 17.0f, 0.0f });
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
+
+	// Hex Testing
+	Layout l{ pointy, glm::vec2{10,10}, glm::vec2{0,0} };
+	glm::vec2 pixel = hex_to_pixel(l, Hex{ 1,-2,1 });
+	std::cout << pixel.x << "," << pixel.y << std::endl;
+
+	FractionalHex hex = pixel_to_hex(l, glm::vec2{ 25,-32 });
+	std::cout << hex.q << "," << hex.r << "," << hex.s << std::endl;
+
+	float vertices[] = {
+		 1.0f,  0.0f, 1.0f,
+		 1.0f, 0.0f, -1.0f,
+		-1.0f, 0.0f, -1.0f,
+		-1.0f,  0.0f, 1.0f
+	};
+	unsigned int indices[] = {
+		0, 1, 3,
+		1, 2, 3
+	};
+
+	unsigned int hex_vao;
+	unsigned int hex_vbo;
+	unsigned int hex_ebo;
+	glGenVertexArrays(1, &hex_vao);
+	glGenBuffers(1, &hex_vbo);
+	glGenBuffers(1, &hex_ebo);
+
+	glBindVertexArray(hex_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, hex_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hex_ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	// Enable blending to draw on top with transparency
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// RENDER LOOP
 	while (!glfwWindowShouldClose(window)) {
@@ -121,7 +168,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		transform_sys.rotate_degrees(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
-		transform_sys.rotate_degrees(hex, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
+		transform_sys.rotate_degrees(hex_tile, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
 
 		my_shader.use();
 
@@ -145,6 +192,14 @@ int main() {
 		my_shader.set_float("material.shininess", 16.0f);
 
 		renderer.draw_models(view, my_shader, model_m, transform_col, ogl_store);
+
+
+		hex_grid_shader.use();
+		hex_grid_shader.set_mat4("model", glm::mat4(1.0f));
+		hex_grid_shader.set_mat4("view", view);
+		hex_grid_shader.set_mat4("projection", projection);
+		glBindVertexArray(hex_vao);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -17,3 +17,10 @@ unsigned int Texture::index() const {
 unsigned char Texture::generation() const {
 	return (id >> TEXTURE_INDEX_BITS) & TEXTURE_GENERATION_MASK;
 }
+
+unsigned char Texture::calc_id(unsigned int index, unsigned char generation) {
+	unsigned int sim_id = 0;
+	sim_id |= (index & TEXTURE_INDEX_MASK);
+	sim_id |= (generation & TEXTURE_GENERATION_MASK) << TEXTURE_INDEX_BITS;
+	return sim_id;
+}

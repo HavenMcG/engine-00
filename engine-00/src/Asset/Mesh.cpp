@@ -17,3 +17,10 @@ unsigned int Mesh::index() const {
 unsigned char Mesh::generation() const {
 	return (id >> MESH_INDEX_BITS) & MESH_GENERATION_MASK;
 }
+
+unsigned int Mesh::calc_id(unsigned int index, unsigned char generation) {
+	unsigned int sim_id = 0;
+	sim_id |= (index & MESH_INDEX_MASK);
+	sim_id |= (generation & MESH_GENERATION_MASK) << MESH_INDEX_BITS;
+	return sim_id;
+}
