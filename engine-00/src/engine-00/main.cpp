@@ -15,6 +15,10 @@
 
 #include "HexGrid.h"
 
+glm::vec3 normalize_rgb(glm::vec3 rgb) {
+	return glm::vec3{ rgb.r / 255,rgb.g / 255,rgb.b / 255 };
+}
+
 int window_width = 1800;
 int window_height = 1200;
 
@@ -90,13 +94,14 @@ int main() {
 	// Load assets
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
+	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 6.0f, 138.0f, 44.0f });
 
 	// Load shaders
 	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
-	Shader hex_grid_shader("src/engine-00/Shaders/hexGrid.vert.glsl", "src/engine-00/Shaders/hexGrid.frag.glsl");
+	Shader hex_grid_shader("src/engine-00/Shaders/hexGrid.vert.glsl", "src/engine-00/Shaders/hexGridV2.frag.glsl");
 
 	// Instantiate component collections
-	ModelCollection model_m;
+	ModelCollection model_col;
 	TransformCollection transform_col;
 
 	// Instantiate systems
@@ -104,14 +109,14 @@ int main() {
 	Renderer renderer;
 
 	// Set up entities
-	Entity monster = 7;
+	/*Entity monster = 7;
 	transform_col.add_component(monster);
-	model_m.add_component(monster, monster_model);
+	model_col.add_component(monster, monster_model);*/
 
-	Entity hex_tile = 11;
+	/*Entity hex_tile = 11;
 	transform_col.add_component(hex_tile);
-	model_m.add_component(hex_tile, hex_2d);
-	transform_sys.rotate_degrees(hex_tile, 0.0f, 30.0f, 0.0f);
+	model_col.add_component(hex_tile, hex_2d);
+	transform_sys.rotate_degrees(hex_tile, 0.0f, 30.0f, 0.0f);*/
 
 	// Set camera start position
 	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 50.0f });
@@ -119,18 +124,59 @@ int main() {
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
 
 	// Hex Testing
-	Layout l{ pointy, glm::vec2{10,10}, glm::vec2{0,0} };
-	glm::vec2 pixel = hex_to_pixel(l, Hex{ 1,-2,1 });
-	std::cout << pixel.x << "," << pixel.y << std::endl;
+	Layout l{ pointy, glm::vec2{1,1}, glm::vec2{0,0} };
 
-	FractionalHex hex = pixel_to_hex(l, glm::vec2{ 25,-32 });
-	std::cout << hex.q << "," << hex.r << "," << hex.s << std::endl;
+	glm::vec2 uv{ -49, -49.5 };
+	Hex containing_hex = hex_round(pixel_to_hex(l, uv));
+	glm::vec2 local_center = hex_to_pixel(l, containing_hex);
+	glm::vec2 local_coords = uv - local_center;
+	std::cout << "containing hex: " << containing_hex.q << "," << containing_hex.r << "," << containing_hex.s << std::endl;
+	std::cout << "local_center: " << local_center.x << "," << local_center.y << std::endl;
+	std::cout << "local_coords: " << local_coords.x << "," << local_coords.y << std::endl;
 
+	auto distance_from_center = [](glm::mat3x2 axes, float hex_radius, glm::vec2 local_point) -> float {
+		float max_r = 0.0;
+		for (int i = 0; i < 3; i++) {
+			float r = glm::dot(local_point, axes[i]);
+			r /= (sqrt(3) * 0.5 * hex_radius);
+			max_r = std::max(max_r, abs(r));
+		}
+		return max_r;
+	};
+	float distance = distance_from_center(l.orientation.axes(), l.size.x, local_coords);
+	std::cout << "distance: " << distance << std::endl;
+
+	// maps
+	std::unordered_map<Hex, int> hex_map = rectangle_map_pointy<int>(0, 9, 0, 5);
+	std::vector<Entity> hex_entities{};
+
+	int i = 100;
+	for (auto r : hex_map) {
+		hex_entities.push_back(i);
+		glm::vec2 p = hex_to_pixel(l, r.first);
+		transform_col.add_component(i, TransformComponent{ glm::vec3{ p.x, -0.003, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }) });
+		model_col.add_component(i, hex_2d);
+		++i;
+	}
+
+	// hex shader uniforms
+	hex_grid_shader.use();
+	hex_grid_shader.set_mat2("hex_layout.orientation.forward", l.orientation.forward_matrix());
+	hex_grid_shader.set_mat2("hex_layout.orientation.inverse", l.orientation.inverse_matrix());
+	hex_grid_shader.set_float("hex_layout.orientation.start_angle", l.orientation.angle());
+	hex_grid_shader.set_vec2("hex_layout.size", l.size);
+	hex_grid_shader.set_vec2("hex_layout.origin", l.origin);
+	hex_grid_shader.set_mat3x2("axes", l.orientation.axes());
+	hex_grid_shader.set_vec4("color", glm::vec4{ 0.8, 0.8, 0.8, 1.0 });
+	hex_grid_shader.set_float("power", 32.0f);
+
+
+	// plane for hex shader
 	float vertices[] = {
-		 1.0f,  0.0f, 1.0f,
-		 1.0f, 0.0f, -1.0f,
-		-1.0f, 0.0f, -1.0f,
-		-1.0f,  0.0f, 1.0f
+		 0.5f,  0.0f, 0.5f,
+		 0.5f, 0.0f, -0.5f,
+		-0.5f, 0.0f, -0.5f,
+		-0.5f,  0.0f, 0.5f
 	};
 	unsigned int indices[] = {
 		0, 1, 3,
@@ -172,7 +218,7 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		transform_sys.rotate_degrees(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
+		//transform_sys.rotate_degrees(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
 		//transform_sys.rotate_degrees(hex_tile, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
 
 		my_shader.use();
@@ -196,7 +242,7 @@ int main() {
 		my_shader.set_vec3("light.specular", specular_color);
 		my_shader.set_float("material.shininess", 16.0f);
 
-		renderer.draw_models(view, my_shader, model_m, transform_col, ogl_store);
+		renderer.draw_models(view, my_shader, model_col, transform_col, ogl_store);
 
 
 		hex_grid_shader.use();

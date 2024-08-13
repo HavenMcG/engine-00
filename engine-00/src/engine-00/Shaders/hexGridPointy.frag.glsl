@@ -11,19 +11,18 @@ uniform vec4 color = vec4(0.0, 0.6, 1.0, 1.0);
 
 out vec4 FragColor;
 
-// flat top
-const vec2 AXIS[3] = vec2[3](
-    vec2(sqrt(3) * 0.5, 0.5),
-    vec2(0.0, 1.0),
-    vec2(-sqrt(3) * 0.5, 0.5)
-);
 
-// pointy top
 // const vec2 AXIS[3] = vec2[3](
-//     vec2(-0.5, sqrt(3) * 0.5),
+//     vec2(0.5, sqrt(3) * 0.5),
 //     vec2(1.0, 0.0),
-//     vec2(0.5, sqrt(3) * 0.5)
+//     vec2(-0.5, sqrt(3) * 0.5)
 // );
+
+const vec2 AXIS[3] = vec2[3](
+    vec2(1.0, 0.0),                          // Horizontal axis
+    vec2(0.5, sqrt(3) * 0.5),                // 60 degrees from the x-axis
+    vec2(-0.5, sqrt(3) * 0.5)                // 120 degrees from the x-axis
+);
 
 float distance_from_center(float hex_radius, vec2 local_point) {
     float max_r = 0.0;
@@ -36,17 +35,17 @@ float distance_from_center(float hex_radius, vec2 local_point) {
 }
 
 float snap_to_center(float local_coord, float hex_radius) {
-    return floor((local_coord + hex_radius) / (2.0 * hex_radius)) * 2.0 * hex_radius;
+    return floor((local_coord + hex_radius) / (sqrt(3) * hex_radius)) * sqrt(3) * hex_radius;
 }
 
 vec2 calculate_local_center(vec2 uv, float r) {
-    float x_coord_1 = snap_to_center(uv.x, r * sqrt(3));
-    float y_coord_1 = snap_to_center(uv.y, r);
+    float x_coord_1 = snap_to_center(uv.x, r);
+    float y_coord_1 = snap_to_center(uv.y, r * sqrt(3));
     vec2 point_1 = vec2(x_coord_1, y_coord_1);
     
-    float x_coord_2 = snap_to_center(uv.x - r * sqrt(3), r * sqrt(3));
-    float y_coord_2 = snap_to_center(uv.y - r, r);
-    vec2 point_2 = vec2(x_coord_2, y_coord_2) + vec2(r * sqrt(3), r);
+    float x_coord_2 = snap_to_center(uv.x - r, r);
+    float y_coord_2 = snap_to_center(uv.y - r * sqrt(3), r * sqrt(3));
+    vec2 point_2 = vec2(x_coord_2, y_coord_2) + vec2(r, r * sqrt(3));
     
     if (length(uv - point_1) < length(uv - point_2)) {
         return point_1;

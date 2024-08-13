@@ -20,6 +20,7 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 			// translate:
 			model_matrix = glm::translate(model_matrix, transform->world_position);
 			// rotate:
+			//model_matrix *= transform->world_rotation;
 			model_matrix *= glm::mat4_cast(transform->world_rotation);
 
 			// set model matrix uniform:

@@ -135,6 +135,10 @@ void Shader::set_mat3(const std::string& name, const glm::mat3& mat) {
 	glUniformMatrix3fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
+void Shader::set_mat3x2(const std::string& name, const glm::mat3x2& mat) {
+	glUniformMatrix3x2fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
 void Shader::set_mat4(const std::string& name, const glm::mat4& mat) {
 	glUniformMatrix4fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }

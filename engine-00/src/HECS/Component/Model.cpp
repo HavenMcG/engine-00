@@ -14,7 +14,7 @@ const std::vector<Model>& ModelCollection::models() {
 }
 
 std::expected<void, bool> ModelCollection::add_component(Entity e, Model& model) {
-    std::cout << "creating model component for entity " << e << std::endl;
+    //std::cout << "creating model component for entity " << e << std::endl;
     if (!map_.emplace(e, owners_.size()).second) return std::unexpected(false);
     owners_.push_back(e);
     models_.push_back(model);

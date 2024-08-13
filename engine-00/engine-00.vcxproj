@@ -144,6 +144,7 @@
     <ClCompile Include="src\Asset\Storing\OpenGL\OglAssetStore.cpp" />
     <ClCompile Include="src\Asset\Texture.cpp" />
     <ClCompile Include="src\engine-00\Camera.cpp" />
+    <ClCompile Include="src\engine-00\HexGrid.cpp" />
     <ClCompile Include="src\engine-00\main.cpp" />
     <ClCompile Include="src\engine-00\Shader.cpp" />
     <ClCompile Include="src\HECS\Component\Model.cpp" />
@@ -176,6 +177,8 @@
     <None Include="src\engine-00\Shaders\colors.vert.glsl" />
     <None Include="src\engine-00\Shaders\hexGrid.frag.glsl" />
     <None Include="src\engine-00\Shaders\hexGrid.vert.glsl" />
+    <None Include="src\engine-00\Shaders\hexGridPointy.frag.glsl" />
+    <None Include="src\engine-00\Shaders\hexGridV2.frag.glsl" />
     <None Include="src\engine-00\Shaders\lightSource.frag.glsl" />
     <None Include="src\engine-00\Shaders\lightSource.vert.glsl" />
     <None Include="src\engine-00\Shaders\material.frag.glsl" />

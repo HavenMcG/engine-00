@@ -57,6 +57,9 @@
     <ClCompile Include="src\HECS\System\TransformSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine-00\HexGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asset\Data.h">
@@ -123,5 +126,7 @@
     <None Include="src\engine-00\Shaders\material.vert.glsl" />
     <None Include="src\engine-00\Shaders\hexGrid.frag.glsl" />
     <None Include="src\engine-00\Shaders\hexGrid.vert.glsl" />
+    <None Include="src\engine-00\Shaders\hexGridPointy.frag.glsl" />
+    <None Include="src\engine-00\Shaders\hexGridV2.frag.glsl" />
   </ItemGroup>
 </Project>

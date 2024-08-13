@@ -2,6 +2,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include <unordered_map>
+#include <unordered_set>
 
 template <typename Number, int w>
 struct Hex_ { // Both storage types, both constructors
@@ -18,14 +20,35 @@ typedef Hex_<int, 0> HexDifference;
 typedef Hex_<float, 1> FractionalHex;
 typedef Hex_<float, 0> FractionalHexDifference;
 
-struct Orientation {
-	const glm::mat2 forward;
-	const glm::mat2 inverse;
-	const float start_angle;
+bool operator==(Hex lhs, Hex rhs);
+
+const glm::mat3x2 AXES{
+	3.0f/2.0f, sqrt(3.0f)/2.0f,
+	0.0f, sqrt(3.0f),
+	-3.0f/2.0f, sqrt(3.0f)/2.0f
 };
 
-const Orientation pointy = Orientation{ glm::mat2{ sqrt(3.0f), sqrt(3.0f) / 2.0f, 0.0f, 3.0f / 2.0f }, glm::mat2{ sqrt(3.0f) / 3.0f, -1.0f / 3.0f, 0.0f, 2.0f / 3.0f }, 0.5f };
-const Orientation flat = Orientation{ glm::mat2{ 3.0f / 2.0f, 0.0f, sqrt(3.0f) / 2.0f, sqrt(3.0) }, glm::mat2{ 2.0f / 3.0f, 0.0f, -1.0f / 3.0f, sqrt(3.0f) / 3.0f }, 0.0f };
+struct Orientation {
+	float angle() const;
+	glm::mat3x2 axes() const;
+	glm::mat2 forward_matrix() const;
+	glm::mat2 inverse_matrix() const;
+	Orientation(float angle);
+private:
+	float angle_;
+	glm::mat3x2 axes_;
+	glm::mat2 forward_;
+	glm::mat2 inverse_;
+	void calc_axes();
+	void calc_forward();
+};
+
+const Orientation pointy = Orientation{ 
+	-0.5f
+};
+const Orientation flat = Orientation{
+	0.0f
+};
 
 struct Layout {
 	const Orientation orientation;
@@ -33,17 +56,102 @@ struct Layout {
 	const glm::vec2 origin;
 };
 
-glm::vec2 hex_to_pixel(Layout layout, Hex h) {
-	const Orientation& m = layout.orientation;
-	float x = (m.forward[0][0] * h.q + m.forward[0][1] * h.r) * layout.size.x;
-	float y = (m.forward[1][0] * h.q + m.forward[1][1] * h.r) * layout.size.y;
-	return glm::vec2{ x + layout.origin.x, y + layout.origin.y };
+glm::vec2 hex_to_pixel(Layout layout, Hex h);
+
+FractionalHex pixel_to_hex(Layout layout, glm::vec2 p);
+
+Hex add(Hex a, Hex b);
+
+Hex subtract(Hex a, Hex b);
+
+Hex multiply(Hex a, int k);
+
+int hex_length(Hex hex);
+
+int hex_distance(Hex a, Hex b);
+
+const Hex HEX_DIRECTIONS[] = {
+	Hex{1,0,-1}, Hex{1,-1,0}, Hex{0,-1,1},
+	Hex{-1,0,1}, Hex{-1,1,0}, Hex{0,1,-1}
+};
+
+Hex hex_direction(int direction);
+
+Hex hex_neighbor(Hex hex, int direction);
+
+Hex hex_round(FractionalHex h);
+
+float lerp(double a, double b, double t);
+
+FractionalHex hex_lerp(Hex a, Hex b, double t);
+
+std::vector<Hex> line(Hex a, Hex b);
+
+namespace std {
+	template <> struct hash<Hex> {
+		size_t operator()(const Hex& h) const {
+			size_t hq = hash<int>()(h.q);
+			size_t hr = hash<int>()(h.r);
+			return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
+		}
+	};
 }
 
-FractionalHex pixel_to_hex(Layout layout, glm::vec2 p) {
-	const Orientation& m = layout.orientation;
-	glm::vec2 pt{ (p.x - layout.origin.x) / layout.size.x, (p.y - layout.origin.y) / layout.size.y };
-	float q = m.inverse[0][0] * pt.x + m.inverse[0][1] * pt.y;
-	float r = m.inverse[1][0] * pt.x + m.inverse[1][1] * pt.y;
-	return FractionalHex(q, r, -q - r);
+template<typename T>
+std::unordered_map<Hex, T> parallelogram_map(int q_start, int q_end, int r_start, int r_end) {
+	std::unordered_map<Hex, T> map;
+	for (int q = q_start; q <= q_end; ++q) {
+		for (int r = r_start; r <= r_end; ++r) {
+			map.emplace(Hex{ q, r, -q - r }, T{});
+		}
+	}
+	return map;
+}
+
+template<typename T>
+std::unordered_map<Hex, T> triangle_map(int q_start, int r_start, int size, int orientation) {
+	std::unordered_map<Hex, T> map;
+	for (int q = q_start; q <= size; ++q) {
+		for (int r = 0; r <= size - q; ++r) {
+			map.emplace(Hex{ q,r,-q - r }, T{});
+		}
+	}
+	return map;
+}
+
+template<typename T>
+std::unordered_map<Hex, T> hexagon_map(int radius) {
+	std::unordered_map<Hex, T> map;
+	for (int q = -radius; q <= radius; ++q) {
+		int r1 = std::max(-radius, -q - radius);
+		int r2 = std::min(radius, -q + radius);
+		for (int r = r1; r <= r2; ++r) {
+			map.emplace(Hex{ q,r,-q - r }, T{});
+		}
+	}
+	return map;
+}
+
+template<typename T>
+std::unordered_map<Hex, T> rectangle_map_pointy(int left, int right, int top, int bottom) {
+	std::unordered_map<Hex, T> map;
+	for (int r = top; r <= bottom; ++r) {
+		int r_offset = floor(r / 2.0);
+		for (int q = left - r_offset; q <= right - r_offset; ++q) {
+			map.emplace(Hex{ q,r,-q - r }, T{});
+		}
+	}
+	return map;
+}
+
+template<typename T>
+std::unordered_map<Hex, T> rectangle_map_flat(int left, int right, int top, int bottom) {
+	std::unordered_map<Hex, T> map;
+	for (int q = left; q <= right; ++q) {
+		int q_offset = floor(q / 2.0);
+		for (int r = top - q_offset; r <= bottom - q_offset; ++r) {
+			map.emplace(Hex{ q,r,-q - r }, T{});
+		}
+	}
+	return map;
 }
