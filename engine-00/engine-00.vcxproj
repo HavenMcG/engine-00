@@ -138,10 +138,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\external\src\glad.c" />
-    <ClCompile Include="src\Asset\Experimental\TextureStore.cpp" />
-    <ClCompile Include="src\Asset\Loading\Assimp\AssimpAssetLoader.cpp" />
+    <ClCompile Include="src\Asset\Loader\Assimp\AssimpAssetLoader.cpp" />
     <ClCompile Include="src\Asset\Mesh.cpp" />
-    <ClCompile Include="src\Asset\Storing\OpenGL\OglAssetStore.cpp" />
+    <ClCompile Include="src\Asset\Store\OpenGL\OglAssetStore.cpp" />
     <ClCompile Include="src\Asset\Texture.cpp" />
     <ClCompile Include="src\engine-00\Camera.cpp" />
     <ClCompile Include="src\engine-00\HexGrid.cpp" />
@@ -154,15 +153,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asset\Data.h" />
-    <ClInclude Include="src\Asset\Experimental\TextureStore.h" />
-    <ClInclude Include="src\Asset\Loading\AssetLoader.h" />
-    <ClInclude Include="src\Asset\Loading\Assimp\AssimpAssetLoader.h" />
-    <ClInclude Include="src\Asset\Storing\AssetStore.h" />
-    <ClInclude Include="src\Asset\Storing\OpenGL\OglAssetStore.h" />
+    <ClInclude Include="src\Asset\Loader\AssetLoader.h" />
+    <ClInclude Include="src\Asset\Loader\Assimp\AssimpAssetLoader.h" />
+    <ClInclude Include="src\Asset\Store\AssetStore.h" />
+    <ClInclude Include="src\Asset\Store\OpenGL\OglAssetStore.h" />
     <ClInclude Include="src\engine-00\Camera.h" />
     <ClInclude Include="src\Asset\Material.h" />
     <ClInclude Include="src\Asset\Mesh.h" />
     <ClInclude Include="src\engine-00\HexGrid.h" />
+    <ClInclude Include="src\engine-00\RayCast.h" />
     <ClInclude Include="src\engine-00\Shader.h" />
     <ClInclude Include="src\Asset\Texture.h" />
     <ClInclude Include="src\Error\Error.h" />

@@ -5,22 +5,23 @@
 #include <unordered_map>
 #include <unordered_set>
 
-template <typename Number, int w>
+template <typename Number>
 struct Hex_ { // Both storage types, both constructors
 	union {
-		const Number v[3];
-		struct { const Number q, r, s; };
+		Number v[3];
+		struct { Number q, r, s; };
 	};
 
 	Hex_(Number q_, Number r_) : v{ q_, r_, -q_ - r_ } {}
 	Hex_(Number q_, Number r_, Number s_) : v{ q_, r_, s_ } {}
 };
-typedef Hex_<int, 1> Hex;
-typedef Hex_<int, 0> HexDifference;
-typedef Hex_<float, 1> FractionalHex;
-typedef Hex_<float, 0> FractionalHexDifference;
+typedef Hex_<int> Hex;
+typedef Hex_<float> FractionalHex;
 
-bool operator==(Hex lhs, Hex rhs);
+template <typename Number>
+bool operator==(Hex_<Number> lhs, Hex_<Number> rhs) {
+	return (lhs.q == rhs.q) && (lhs.r == rhs.r);
+}
 
 const glm::mat3x2 AXES{
 	3.0f/2.0f, sqrt(3.0f)/2.0f,
@@ -118,7 +119,6 @@ std::unordered_map<Hex, T> triangle_map(int q_start, int r_start, int size, int 
 	}
 	return map;
 }
-
 template<typename T>
 std::unordered_map<Hex, T> hexagon_map(int radius) {
 	std::unordered_map<Hex, T> map;
@@ -155,3 +155,9 @@ std::unordered_map<Hex, T> rectangle_map_flat(int left, int right, int top, int 
 	}
 	return map;
 }
+
+std::unordered_set<Hex> parallelogram_set(int q_start, int q_end, int r_start, int r_end);
+std::unordered_set<Hex> triangle_set(int q_start, int r_start, int size, int orientation);
+std::unordered_set<Hex> hexagon_set(int radius);
+std::unordered_set<Hex> rectangle_set_pointy(int left, int right, int top, int bottom);
+std::unordered_set<Hex> rectangle_set_flat(int left, int right, int top, int bottom);

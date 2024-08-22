@@ -89,3 +89,7 @@ void Camera::look_at(glm::vec3 world_coord) {
 	pitch_ = glm::degrees(asin(d.y));
 	update_vectors();
 }
+
+glm::vec3 Camera::direction_forward() const {
+	return front_;
+}

@@ -4,7 +4,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "../Asset/Material.h"
-#include "../Asset/Storing/OpenGL/OglAssetStore.h"
+#include "../Asset/Store/OpenGL/OglAssetStore.h"
 
 class Shader {
 public:

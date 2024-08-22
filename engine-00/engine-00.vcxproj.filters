@@ -21,16 +21,13 @@
     <ClCompile Include="..\external\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Asset\Experimental\TextureStore.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Asset\Loading\Assimp\AssimpAssetLoader.cpp">
+    <ClCompile Include="src\Asset\Loader\Assimp\AssimpAssetLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Asset\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Asset\Storing\OpenGL\OglAssetStore.cpp">
+    <ClCompile Include="src\Asset\Store\OpenGL\OglAssetStore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Asset\Texture.cpp">
@@ -65,19 +62,16 @@
     <ClInclude Include="src\Asset\Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Asset\Experimental\TextureStore.h">
+    <ClInclude Include="src\Asset\Loader\AssetLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Asset\Loading\AssetLoader.h">
+    <ClInclude Include="src\Asset\Loader\Assimp\AssimpAssetLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Asset\Loading\Assimp\AssimpAssetLoader.h">
+    <ClInclude Include="src\Asset\Store\AssetStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Asset\Storing\AssetStore.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Asset\Storing\OpenGL\OglAssetStore.h">
+    <ClInclude Include="src\Asset\Store\OpenGL\OglAssetStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\engine-00\Camera.h">
@@ -114,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\engine-00\HexGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine-00\RayCast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

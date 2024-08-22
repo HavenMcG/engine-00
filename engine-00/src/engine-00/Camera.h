@@ -18,6 +18,7 @@ public:
 
 	glm::mat4 view_matrix() const;
 	glm::vec3 position() const;
+	glm::vec3 direction_forward() const;
 
 	void move(Direction d, float amount);
 	void move_to(glm::vec3 world_coord);

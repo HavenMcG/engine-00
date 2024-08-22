@@ -10,13 +10,14 @@
 #include "../HECS/Component/Transform.h"
 #include "../HECS/System/Renderer.h"
 #include "../HECS/System/TransformSystem.h"
-#include "../Asset/Storing/OpenGL/OglAssetStore.h"
-#include "../Asset/Loading/Assimp/AssimpAssetLoader.h"
+#include "../Asset/Store/OpenGL/OglAssetStore.h"
+#include "../Asset/Loader/Assimp/AssimpAssetLoader.h"
+#include "RayCast.h"
 
 #include "HexGrid.h"
 
 glm::vec3 normalize_rgb(glm::vec3 rgb) {
-	return glm::vec3{ rgb.r / 255,rgb.g / 255,rgb.b / 255 };
+	return glm::vec3{ rgb.r / 255, rgb.g / 255, rgb.b / 255 };
 }
 
 int window_width = 1800;
@@ -82,7 +83,6 @@ int main() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glfwSwapBuffers(window);
 
-
 	// Instantiate asset store
 	OglAssetStore ogl_store;
 	AssetStore& assets = ogl_store;
@@ -95,6 +95,8 @@ int main() {
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
 	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 6.0f, 138.0f, 44.0f });
+	Model selected_hex = hex_2d;
+	selected_hex.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 255.0f, 0.0f, 0.0f });
 
 	// Load shaders
 	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
@@ -123,36 +125,14 @@ int main() {
 	my_cam.look_at(glm::vec3{ 0.0f, 17.0f, 0.0f });
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
 
-	// Hex Testing
-	Layout l{ pointy, glm::vec2{1,1}, glm::vec2{0,0} };
-
-	glm::vec2 uv{ -49, -49.5 };
-	Hex containing_hex = hex_round(pixel_to_hex(l, uv));
-	glm::vec2 local_center = hex_to_pixel(l, containing_hex);
-	glm::vec2 local_coords = uv - local_center;
-	std::cout << "containing hex: " << containing_hex.q << "," << containing_hex.r << "," << containing_hex.s << std::endl;
-	std::cout << "local_center: " << local_center.x << "," << local_center.y << std::endl;
-	std::cout << "local_coords: " << local_coords.x << "," << local_coords.y << std::endl;
-
-	auto distance_from_center = [](glm::mat3x2 axes, float hex_radius, glm::vec2 local_point) -> float {
-		float max_r = 0.0;
-		for (int i = 0; i < 3; i++) {
-			float r = glm::dot(local_point, axes[i]);
-			r /= (sqrt(3) * 0.5 * hex_radius);
-			max_r = std::max(max_r, abs(r));
-		}
-		return max_r;
-	};
-	float distance = distance_from_center(l.orientation.axes(), l.size.x, local_coords);
-	std::cout << "distance: " << distance << std::endl;
-
 	// maps
+	Layout l{ pointy, glm::vec2{1,1}, glm::vec2{0,0} };
 	std::unordered_map<Hex, int> hex_map = rectangle_map_pointy<int>(0, 9, 0, 5);
-	std::vector<Entity> hex_entities{};
+	std::unordered_set<Hex> selection = hexagon_set(1);
 
 	int i = 100;
-	for (auto r : hex_map) {
-		hex_entities.push_back(i);
+	for (auto& r : hex_map) {
+		r.second = i;
 		glm::vec2 p = hex_to_pixel(l, r.first);
 		transform_col.add_component(i, TransformComponent{ glm::vec3{ p.x, -0.003, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }) });
 		model_col.add_component(i, hex_2d);
@@ -169,7 +149,6 @@ int main() {
 	hex_grid_shader.set_mat3x2("axes", l.orientation.axes());
 	hex_grid_shader.set_vec4("color", glm::vec4{ 0.8, 0.8, 0.8, 1.0 });
 	hex_grid_shader.set_float("power", 32.0f);
-
 
 	// plane for hex shader
 	float vertices[] = {
@@ -203,6 +182,9 @@ int main() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	// track the previously selected hex
+	Hex prev_sel = hex_map.begin()->first;
 
 	// RENDER LOOP
 	while (!glfwWindowShouldClose(window)) {
@@ -244,7 +226,6 @@ int main() {
 
 		renderer.draw_models(view, my_shader, model_col, transform_col, ogl_store);
 
-
 		hex_grid_shader.use();
 		hex_grid_shader.set_mat4("model", glm::mat4(1.0f));
 		hex_grid_shader.set_mat4("view", view);
@@ -252,11 +233,22 @@ int main() {
 		glBindVertexArray(hex_vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+		// find which hex we're looking at:
+		Ray ray{ my_cam.position(), my_cam.direction_forward() };
+		auto intersection_point = intersection_point_xz(ray);
+		if (intersection_point.has_value()) {
+			model_col.models_[model_col.map_[hex_map[prev_sel]]] = hex_2d;
+			Hex selo = hex_round(pixel_to_hex(l, glm::vec2{ intersection_point->x, intersection_point->z }));
+			if (hex_map.contains(selo)) {
+				if (selo != prev_sel) std::cout << "hex: " << selo.q << "," << selo.r << std::endl;
+				model_col.models_[model_col.map_[hex_map[selo]]] = selected_hex;
+				prev_sel = selo;
+			}
+		}
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 	}
-
 	glfwTerminate();
 }
 

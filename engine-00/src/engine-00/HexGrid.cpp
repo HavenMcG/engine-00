@@ -43,10 +43,6 @@ void Orientation::calc_forward() {
 	};
 }
 
-bool operator==(Hex lhs, Hex rhs) {
-	return (lhs.q == rhs.q) && (lhs.r == rhs.r);
-}
-
 glm::vec2 hex_to_pixel(Layout layout, Hex h) {
 	glm::vec2 result = glm::vec2(h.q, h.r) * layout.orientation.forward_matrix() * layout.size;
 	return glm::vec2(result.x + layout.origin.x, result.y + layout.origin.y);
@@ -125,4 +121,58 @@ std::vector<Hex> line(Hex a, Hex b) {
 		results.push_back(hex_round(hex_lerp(a, b, step * i)));
 	}
 	return results;
+}
+
+std::unordered_set<Hex> parallelogram_set(int q_start, int q_end, int r_start, int r_end) {
+	std::unordered_set<Hex> set;
+	for (int q = q_start; q <= q_end; ++q) {
+		for (int r = r_start; r <= r_end; ++r) {
+			set.emplace(Hex{ q, r, -q - r });
+		}
+	}
+	return set;
+}
+
+std::unordered_set<Hex> triangle_set(int q_start, int r_start, int size, int orientation) {
+	std::unordered_set<Hex> set;
+	for (int q = q_start; q <= size; ++q) {
+		for (int r = 0; r <= size - q; ++r) {
+			set.emplace(Hex{ q,r,-q - r });
+		}
+	}
+	return set;
+}
+
+std::unordered_set<Hex> hexagon_set(int radius) {
+	std::unordered_set<Hex> set;
+	for (int q = -radius; q <= radius; ++q) {
+		int r1 = std::max(-radius, -q - radius);
+		int r2 = std::min(radius, -q + radius);
+		for (int r = r1; r <= r2; ++r) {
+			set.emplace(Hex{ q,r,-q - r });
+		}
+	}
+	return set;
+}
+
+std::unordered_set<Hex> rectangle_set_pointy(int left, int right, int top, int bottom) {
+	std::unordered_set<Hex> set;
+	for (int r = top; r <= bottom; ++r) {
+		int r_offset = floor(r / 2.0);
+		for (int q = left - r_offset; q <= right - r_offset; ++q) {
+			set.emplace(Hex{ q,r,-q - r });
+		}
+	}
+	return set;
+}
+
+std::unordered_set<Hex> rectangle_set_flat(int left, int right, int top, int bottom) {
+	std::unordered_set<Hex> set;
+	for (int q = left; q <= right; ++q) {
+		int q_offset = floor(q / 2.0);
+		for (int r = top - q_offset; r <= bottom - q_offset; ++r) {
+			set.emplace(Hex{ q,r,-q - r });
+		}
+	}
+	return set;
 }

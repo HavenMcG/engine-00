@@ -1,7 +1,7 @@
 #pragma once
 #include "../Data.h"
 #include "../../HECS/Component/Model.h"
-#include "../Storing/AssetStore.h"
+#include "../Store/AssetStore.h"
 #include <expected>
 #include <string>
 
