@@ -17,7 +17,7 @@
 #include "HexGrid.h"
 
 glm::vec3 normalize_rgb(glm::vec3 rgb) {
-	return glm::vec3{ rgb.r / 255, rgb.g / 255, rgb.b / 255 };
+	return rgb/255.0f;
 }
 
 int window_width = 1800;
@@ -74,7 +74,7 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// tell glfw that it should hide the mouse cursor and capture it
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	// register mouse callback
 	glfwSetCursorPosCallback(window, mouse_callback);
 
@@ -121,8 +121,8 @@ int main() {
 	transform_sys.rotate_degrees(hex_tile, 0.0f, 30.0f, 0.0f);*/
 
 	// Set camera start position
-	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 50.0f });
-	my_cam.look_at(glm::vec3{ 0.0f, 17.0f, 0.0f });
+	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 20.0f });
+	my_cam.look_at(glm::vec3{ 0.0f, 0.0f, 0.0f });
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
 
 	// maps
@@ -234,7 +234,20 @@ int main() {
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// find which hex we're looking at:
-		Ray ray{ my_cam.position(), my_cam.direction_forward() };
+		double cursor_pos_x = 0, cursor_pos_y = 0;
+		glfwGetCursorPos(window, &cursor_pos_x, &cursor_pos_y);
+		float ndc_x = 2.0f * static_cast<float>(cursor_pos_x) / window_width - 1.0f;
+		float ndc_y = 1.0f - 2.0f * static_cast<float>(cursor_pos_y) / window_height;
+		glm::vec3 ndc_near{ ndc_x, ndc_y, -1 };
+		glm::vec3 ndc_far{ ndc_x, ndc_y, 1 };
+		glm::mat4 inverse_view_projection = glm::inverse(projection * view);
+		glm::vec4 world_near = inverse_view_projection * glm::vec4{ ndc_near, 1.0f };
+		glm::vec4 world_far = inverse_view_projection * glm::vec4{ ndc_far, 1.0f };
+		glm::vec3 world_near_pos = glm::vec3{ world_near } / world_near.w;
+		glm::vec3 world_far_pos = glm::vec3{ world_far } / world_far.w;
+		glm::vec3 ray_direction = glm::normalize(world_far_pos - world_near_pos);
+
+		Ray ray{ my_cam.position(), ray_direction };
 		auto intersection_point = intersection_point_xz(ray);
 		if (intersection_point.has_value()) {
 			model_col.models_[model_col.map_[hex_map[prev_sel]]] = hex_2d;
@@ -293,5 +306,5 @@ void mouse_callback(GLFWwindow* window, double x_pos, double y_pos) {
 	x_offset *= sensitivity;
 	y_offset *= sensitivity;
 
-	my_cam.look_adjust(x_offset, y_offset);
+	//my_cam.look_adjust(x_offset, y_offset);
 }

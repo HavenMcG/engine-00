@@ -33,23 +33,27 @@ glm::vec3 Camera::position() const {
 }
 
 void Camera::move(Direction d, float amount) {
-	if (d == Forward) {
-		position_ += amount * front_;
-	}
-	else if (d == Backward) {
-		position_ -= amount * front_;
-	}
-	else if (d == Left) {
-		position_ -= right_ * amount;
-	}
-	else if (d == Right) {
-		position_ += right_ * amount;
-	}
-	else if (d == Up) {
-		position_ += amount * world_up_;
-	}
-	else if (d == Down) {
-		position_ -= amount * world_up_;
+	switch (d) {
+		case Forward:
+			position_ += amount * glm::vec3{ front_.x, 0, front_.z };
+			break;
+		case Backward:
+			position_ -= amount * glm::vec3{ front_.x, 0, front_.z };
+			break;
+		case Left:
+			position_ -= right_ * amount;
+			break;
+		case Right:
+			position_ += right_ * amount;
+			break;
+		case Up:
+			position_ += amount * world_up_;
+			break;
+		case Down:
+			position_ -= amount * world_up_;
+			break;
+		default:
+			break;
 	}
 }
 
