@@ -43,12 +43,12 @@ void Orientation::calc_forward() {
 	};
 }
 
-glm::vec2 hex_to_pixel(Layout layout, Hex h) {
+glm::vec2 hex_to_cartesian(Layout layout, Hex h) {
 	glm::vec2 result = glm::vec2(h.q, h.r) * layout.orientation.forward_matrix() * layout.size;
 	return glm::vec2(result.x + layout.origin.x, result.y + layout.origin.y);
 }
 
-FractionalHex pixel_to_hex(Layout layout, glm::vec2 p) {
+FractionalHex cartesian_to_hex(Layout layout, glm::vec2 p) {
 	glm::vec2 result = (p - layout.origin) / layout.size * layout.orientation.inverse_matrix();
 	return FractionalHex(result.x, result.y, -result.x - result.y);
 }

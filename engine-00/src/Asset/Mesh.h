@@ -12,25 +12,16 @@ const unsigned int MESH_INDEX_MASK = (1 << MESH_INDEX_BITS) - 1;
 const unsigned int MESH_GENERATION_BITS = 8;
 const unsigned int MESH_GENERATION_MASK = (1 << MESH_INDEX_BITS) - 1;
 
+// We've split up our 30 bits into 22 bits for the index and 8 bits for the generation.
+// This means that we support a maximum of 4 million simultaneous entities.
+// It also means that we can only distinguish between 256 different entities created at the same index slot.
+// If more than 256 entities are created at the same index slot, the generation value will wrap around
+// and our new entity will get the same ID as an old entity.
+
 struct Mesh {
 	unsigned int id;
 	Mesh(unsigned int index, unsigned char generation);
 	unsigned int index() const;
 	unsigned char generation() const;
 	static unsigned int calc_id(unsigned int index, unsigned char generation);
-};
-
-struct MeshInfo {
-	// The unique identifier of the mesh. Used to compare meshes - same path means they are considered equal.
-	// If you are not loading from disk you can make the path whatever you'd like.
-	std::string path;
-};
-
-bool operator==(const MeshInfo& lhs, const MeshInfo& rhs);
-
-// To hash a mesh we simply hash it's path
-template<> struct std::hash<MeshInfo> {
-	std::size_t operator()(const MeshInfo& mesh_info) const {
-		return std::hash<std::string>{}(mesh_info.path);
-	}
 };

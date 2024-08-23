@@ -1,9 +1,5 @@
 #include "Mesh.h"
 
-bool operator==(const MeshInfo& lhs, const MeshInfo& rhs) {
-	return lhs.path == rhs.path;
-}
-
 Mesh::Mesh(unsigned int index, unsigned char generation) {
 	id = 0;
 	id |= (index & MESH_INDEX_MASK);

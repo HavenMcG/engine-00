@@ -103,6 +103,9 @@ int main() {
 	Shader hex_grid_shader("src/engine-00/Shaders/hexGrid.vert.glsl", "src/engine-00/Shaders/hexGridV2.frag.glsl");
 
 	// Instantiate component collections
+	EntityCollection entities;
+
+	// Instantiate component collections
 	ModelCollection model_col;
 	TransformCollection transform_col;
 
@@ -111,14 +114,9 @@ int main() {
 	Renderer renderer;
 
 	// Set up entities
-	/*Entity monster = 7;
+	/*Entity monster = entities.create_entity();
 	transform_col.add_component(monster);
 	model_col.add_component(monster, monster_model);*/
-
-	/*Entity hex_tile = 11;
-	transform_col.add_component(hex_tile);
-	model_col.add_component(hex_tile, hex_2d);
-	transform_sys.rotate_degrees(hex_tile, 0.0f, 30.0f, 0.0f);*/
 
 	// Set camera start position
 	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 20.0f });
@@ -127,16 +125,15 @@ int main() {
 
 	// maps
 	Layout l{ pointy, glm::vec2{1,1}, glm::vec2{0,0} };
-	std::unordered_map<Hex, int> hex_map = rectangle_map_pointy<int>(0, 9, 0, 5);
+	std::unordered_map<Hex, Entity> hex_map = rectangle_map_pointy<Entity>(0, 9, 0, 5);
 	std::unordered_set<Hex> selection = hexagon_set(1);
 
-	int i = 100;
 	for (auto& r : hex_map) {
-		r.second = i;
-		glm::vec2 p = hex_to_pixel(l, r.first);
-		transform_col.add_component(i, TransformComponent{ glm::vec3{ p.x, -0.003, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }) });
-		model_col.add_component(i, hex_2d);
-		++i;
+		Entity e = entities.create_entity();
+		r.second = e;
+		glm::vec2 p = hex_to_cartesian(l, r.first);
+		transform_col.add_component(e, TransformComponent{ glm::vec3{ p.x, -0.003, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }) });
+		model_col.add_component(e, hex_2d);
 	}
 
 	// hex shader uniforms
@@ -233,7 +230,7 @@ int main() {
 		glBindVertexArray(hex_vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		// find which hex we're looking at:
+		// find which hex the cursor is hovering:
 		double cursor_pos_x = 0, cursor_pos_y = 0;
 		glfwGetCursorPos(window, &cursor_pos_x, &cursor_pos_y);
 		float ndc_x = 2.0f * static_cast<float>(cursor_pos_x) / window_width - 1.0f;
@@ -251,7 +248,7 @@ int main() {
 		auto intersection_point = intersection_point_xz(ray);
 		if (intersection_point.has_value()) {
 			model_col.models_[model_col.map_[hex_map[prev_sel]]] = hex_2d;
-			Hex selo = hex_round(pixel_to_hex(l, glm::vec2{ intersection_point->x, intersection_point->z }));
+			Hex selo = hex_round(cartesian_to_hex(l, glm::vec2{ intersection_point->x, intersection_point->z }));
 			if (hex_map.contains(selo)) {
 				if (selo != prev_sel) std::cout << "hex: " << selo.q << "," << selo.r << std::endl;
 				model_col.models_[model_col.map_[hex_map[selo]]] = selected_hex;

@@ -148,6 +148,7 @@
     <ClCompile Include="src\engine-00\Shader.cpp" />
     <ClCompile Include="src\HECS\Component\Model.cpp" />
     <ClCompile Include="src\HECS\Component\Transform.cpp" />
+    <ClCompile Include="src\HECS\Entity\Entity.cpp" />
     <ClCompile Include="src\HECS\System\Renderer.cpp" />
     <ClCompile Include="src\HECS\System\TransformSystem.cpp" />
   </ItemGroup>

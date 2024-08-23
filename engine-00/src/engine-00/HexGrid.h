@@ -57,9 +57,9 @@ struct Layout {
 	const glm::vec2 origin;
 };
 
-glm::vec2 hex_to_pixel(Layout layout, Hex h);
+glm::vec2 hex_to_cartesian(Layout layout, Hex h);
 
-FractionalHex pixel_to_hex(Layout layout, glm::vec2 p);
+FractionalHex cartesian_to_hex(Layout layout, glm::vec2 p);
 
 Hex add(Hex a, Hex b);
 
