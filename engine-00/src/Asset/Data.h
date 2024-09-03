@@ -15,6 +15,19 @@ struct MeshData {
 	std::vector<unsigned int> indices;
 };
 
+const MeshData BASIC_QUAD_MESH_DATA {
+	std::vector<Vertex> {
+		{ { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+		{ { 0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
+		{ { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+		{ { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } }
+	},
+	std::vector<unsigned int> {
+		0, 1, 3,
+		1, 2, 3
+	}
+};
+
 enum TextureType {
 	Diffuse,
 	Specular,

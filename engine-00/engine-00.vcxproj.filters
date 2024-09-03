@@ -60,6 +60,12 @@
     <ClCompile Include="src\HECS\Entity\Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\UI\Ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HECS\Component\Parent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asset\Data.h">
@@ -116,17 +122,25 @@
     <ClInclude Include="src\engine-00\RayCast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\UI\Ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HECS\Component\Parent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\engine-00\Shaders\colors.frag.glsl" />
-    <None Include="src\engine-00\Shaders\colors.vert.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\colors.frag.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\colors.vert.glsl" />
     <None Include="src\engine-00\Shaders\lightSource.frag.glsl" />
     <None Include="src\engine-00\Shaders\lightSource.vert.glsl" />
     <None Include="src\engine-00\Shaders\material.frag.glsl" />
     <None Include="src\engine-00\Shaders\material.vert.glsl" />
-    <None Include="src\engine-00\Shaders\hexGrid.frag.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\hexGridOld.frag.glsl" />
     <None Include="src\engine-00\Shaders\hexGrid.vert.glsl" />
-    <None Include="src\engine-00\Shaders\hexGridPointy.frag.glsl" />
-    <None Include="src\engine-00\Shaders\hexGridV2.frag.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\hexGridPointy.frag.glsl" />
+    <None Include="src\engine-00\Shaders\hexGrid.frag.glsl" />
+    <None Include="src\engine-00\Shaders\gui.frag.glsl" />
+    <None Include="src\engine-00\Shaders\gui.vert.glsl" />
   </ItemGroup>
 </Project>

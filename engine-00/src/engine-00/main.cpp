@@ -100,7 +100,8 @@ int main() {
 
 	// Load shaders
 	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
-	Shader hex_grid_shader("src/engine-00/Shaders/hexGrid.vert.glsl", "src/engine-00/Shaders/hexGridV2.frag.glsl");
+	Shader hex_grid_shader("src/engine-00/Shaders/hexGrid.vert.glsl", "src/engine-00/Shaders/hexGrid.frag.glsl");
+	Shader gui_shader("src/engine-00/Shaders/gui.vert.glsl", "src/engine-00/Shaders/gui.frag.glsl");
 
 	// Instantiate component collections
 	EntityCollection entities;
@@ -109,14 +110,32 @@ int main() {
 	ModelCollection model_col;
 	TransformCollection transform_col;
 
+	// !!TEMP GUI STUFF!!
+	Mesh gui_quad = *ogl_store.load(BASIC_QUAD_MESH_DATA);
+	Material gui_material{};
+	gui_material.color_diffuse = normalize_rgb({ 145.0f, 91.0f, 4.0f });
+	gui_material.color_specular = { 1.0f, 1.0f, 1.0f };
+	Model gui_model_1 = { "gui_model_1", { gui_quad }, { gui_material } };
+	TransformComponent gui_transform_1{};
+
+	ModelCollection gui_model_col;
+	TransformCollection gui_transform_col;
+
+	Entity gui_element_1 = entities.create_entity();
+	gui_model_col.add_component(gui_element_1, gui_model_1);
+	gui_transform_col.add_component(gui_element_1, gui_transform_1);
+
+	gui_transform_col.set_world_position(gui_element_1, { 0.0f, 0.0f, 0.0f });
+	// !!END!!
+
 	// Instantiate systems
 	TransformSystem transform_sys{ transform_col };
 	Renderer renderer;
 
 	// Set up entities
-	/*Entity monster = entities.create_entity();
+	Entity monster = entities.create_entity();
 	transform_col.add_component(monster);
-	model_col.add_component(monster, monster_model);*/
+	model_col.add_component(monster, monster_model);
 
 	// Set camera start position
 	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 20.0f });
@@ -222,6 +241,7 @@ int main() {
 		my_shader.set_float("material.shininess", 16.0f);
 
 		renderer.draw_models(view, my_shader, model_col, transform_col, ogl_store);
+		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);
 
 		hex_grid_shader.use();
 		hex_grid_shader.set_mat4("model", glm::mat4(1.0f));

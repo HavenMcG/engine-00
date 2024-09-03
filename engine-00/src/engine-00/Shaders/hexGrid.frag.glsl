@@ -1,81 +1,144 @@
 #version 330 core
 
-in vec3 FragPos;
+struct Hex {
+    int q, r, s;
+};
 
-uniform float scale = 8.0;
-uniform float radius = 1.0;
-uniform float offset = 0.0;
-uniform float power = 12.0;
-uniform bool hide_incomplete = false;
-uniform vec4 color = vec4(0.0, 0.6, 1.0, 1.0);
+struct FractionalHex {
+    float q, r, s;
+};
 
-out vec4 FragColor;
+bool hex_equal(Hex lhs, Hex rhs) {
+    return (lhs.q == rhs.q) && (lhs.r == rhs.r);
+}
 
-// flat top
-const vec2 AXIS[3] = vec2[3](
-    vec2(sqrt(3) * 0.5, 0.5),
-    vec2(0.0, 1.0),
-    vec2(-sqrt(3) * 0.5, 0.5)
+struct Orientation {
+    mat2 forward;
+    mat2 inverse;
+    float start_angle;
+};
+
+struct HexLayout {
+    Orientation orientation;
+    vec2 size;
+    vec2 origin;
+};
+
+vec2 hex_to_pixel(HexLayout l, Hex h) {
+    vec2 result = vec2(h.q, h.r) * l.orientation.forward * l.size;
+    return vec2(result.x + l.origin.x, result.y + l.origin.y);
+}
+
+FractionalHex pixel_to_hex(HexLayout l, vec2 p) {
+    vec2 result = (p - l.origin) / l.size * l.orientation.inverse;
+    return FractionalHex(result.x, result.y, -result.x - result.y);
+}
+
+Hex add(Hex a, Hex b) {
+    return Hex(a.q + b.q, a.r + b.r, a.s + b.s);
+}
+
+Hex subtract(Hex a, Hex b) {
+    return Hex(a.q - b.q, a.r - b.r, a.s - b.s);
+}
+
+Hex multiply(Hex a, int k) {
+    return Hex(a.q * k, a.r * k, a.s * k);
+}
+
+int hex_length(Hex hex) {
+    return int((abs(hex.q) + abs(hex.r) + abs(hex.s)) / 2);
+}
+
+int hex_distance(Hex a, Hex b) {
+    return hex_length(subtract(a, b));
+}
+
+// Constants for hex directions
+const Hex HEX_DIRECTIONS[6] = Hex[6](
+    Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
+    Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
 );
 
-// pointy top
-// const vec2 AXIS[3] = vec2[3](
-//     vec2(-0.5, sqrt(3) * 0.5),
-//     vec2(1.0, 0.0),
-//     vec2(0.5, sqrt(3) * 0.5)
-// );
+Hex hex_direction(int direction) {
+    return HEX_DIRECTIONS[direction];
+}
 
-float distance_from_center(float hex_radius, vec2 local_point) {
+Hex hex_neighbor(Hex hex, int direction) {
+    return add(hex, hex_direction(direction));
+}
+
+Hex hex_round(FractionalHex h) {
+    int q = int(round(h.q));
+    int r = int(round(h.r));
+    int s = int(round(h.s));
+    float q_diff = abs(q - h.q);
+    float r_diff = abs(r - h.r);
+    float s_diff = abs(s - h.s);
+    if (q_diff > r_diff && q_diff > s_diff) {
+        q = -r - s;
+    } else if (r_diff > s_diff) {
+        r = -q - s;
+    } else {
+        s = -q - r;
+    }
+    return Hex(q, r, s);
+}
+
+float lerp(float a, float b, float t) {
+    return a * (1.0 - t) + b * t;
+}
+
+FractionalHex hex_lerp(Hex a, Hex b, float t) {
+    return FractionalHex(
+        lerp(a.q, b.q, t),
+        lerp(a.r, b.r, t),
+        lerp(a.s, b.s, t)
+    );
+}
+
+void line(Hex a, Hex b, out Hex line[1000], out int line_length) {
+    int n = hex_distance(a, b);
+    float h_step = 1.0 / max(n, 1);
+    line_length = 0;
+    for (int i = 0; i <= n && i < 1000; ++i) {
+        line[i] = hex_round(hex_lerp(a, b, h_step * i));
+        ++line_length;
+    }
+}
+
+float distance_from_center(mat3x2 axes, float hex_radius, vec2 local_point) {
     float max_r = 0.0;
     for (int i = 0; i < 3; i++) {
-        float r = dot(local_point, AXIS[i]);
+        float r = dot(local_point, normalize(axes[i]));
         r /= (sqrt(3) * 0.5 * hex_radius);
         max_r = max(max_r, abs(r));
     }
     return max_r;
 }
 
-float snap_to_center(float local_coord, float hex_radius) {
-    return floor((local_coord + hex_radius) / (2.0 * hex_radius)) * 2.0 * hex_radius;
-}
+in vec3 FragPos;
 
-vec2 calculate_local_center(vec2 uv, float r) {
-    float x_coord_1 = snap_to_center(uv.x, r * sqrt(3));
-    float y_coord_1 = snap_to_center(uv.y, r);
-    vec2 point_1 = vec2(x_coord_1, y_coord_1);
-    
-    float x_coord_2 = snap_to_center(uv.x - r * sqrt(3), r * sqrt(3));
-    float y_coord_2 = snap_to_center(uv.y - r, r);
-    vec2 point_2 = vec2(x_coord_2, y_coord_2) + vec2(r * sqrt(3), r);
-    
-    if (length(uv - point_1) < length(uv - point_2)) {
-        return point_1;
-    }
-    else {
-        return point_2;
-    }
-}
+uniform HexLayout hex_layout;
+uniform mat3x2 axes;
+uniform vec4 color;
+uniform float power = 8.0;
+
+out vec4 FragColor;
 
 void main() {
-    //vec2 uv = (FragPos.xz - vec2(0.5, 0.5)) * scale;
     vec2 uv = FragPos.xz;
-    float r = (radius * sqrt(3) + offset) / 2.0;
-    vec2 local_center = calculate_local_center(uv, r);
+    float radius = hex_layout.size.x;
+
+    vec2 local_center = hex_to_pixel(hex_layout, hex_round(pixel_to_hex(hex_layout, uv)));
     vec2 local_coords = uv - local_center;
-    
-    if (hide_incomplete && (abs(local_center.x) > scale / 2.0 - radius || abs(local_center.y) > scale / 2.0 - radius * sqrt(3))) {
-        FragColor = vec4(0.0, 0.0, 0.0, 0.0);
-    }
-    else if (distance_from_center(radius, local_coords) <= 1.0) {
-        float rad = distance_from_center(radius, local_coords);
-        rad = pow(rad, power);
+
+    float d = distance_from_center(axes, radius, local_coords);
+    if (d <= 1.0) {
+        float rad = pow(d, power);
         FragColor = vec4(color.rgb, rad);
     }
-    // else if (distance_from_center(radius, local_coords) >= 0.97) {
-    //     FragColor = vec4(color.rgb, 1);
-    // }
     else {
         FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
-    //FragColor = vec4(1.0, 0.0, 0.0, 0.0);
 }

@@ -147,10 +147,12 @@
     <ClCompile Include="src\engine-00\main.cpp" />
     <ClCompile Include="src\engine-00\Shader.cpp" />
     <ClCompile Include="src\HECS\Component\Model.cpp" />
+    <ClCompile Include="src\HECS\Component\Parent.cpp" />
     <ClCompile Include="src\HECS\Component\Transform.cpp" />
     <ClCompile Include="src\HECS\Entity\Entity.cpp" />
     <ClCompile Include="src\HECS\System\Renderer.cpp" />
     <ClCompile Include="src\HECS\System\TransformSystem.cpp" />
+    <ClCompile Include="src\UI\Ui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asset\Data.h" />
@@ -167,18 +169,22 @@
     <ClInclude Include="src\Asset\Texture.h" />
     <ClInclude Include="src\Error\Error.h" />
     <ClInclude Include="src\HECS\Component\Model.h" />
+    <ClInclude Include="src\HECS\Component\Parent.h" />
     <ClInclude Include="src\HECS\Component\Transform.h" />
     <ClInclude Include="src\HECS\Entity\Entity.h" />
     <ClInclude Include="src\HECS\System\Renderer.h" />
     <ClInclude Include="src\HECS\System\TransformSystem.h" />
+    <ClInclude Include="src\UI\Ui.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\engine-00\Shaders\colors.frag.glsl" />
-    <None Include="src\engine-00\Shaders\colors.vert.glsl" />
-    <None Include="src\engine-00\Shaders\hexGrid.frag.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\colors.frag.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\colors.vert.glsl" />
+    <None Include="src\engine-00\Shaders\gui.frag.glsl" />
+    <None Include="src\engine-00\Shaders\gui.vert.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\hexGridOld.frag.glsl" />
     <None Include="src\engine-00\Shaders\hexGrid.vert.glsl" />
-    <None Include="src\engine-00\Shaders\hexGridPointy.frag.glsl" />
-    <None Include="src\engine-00\Shaders\hexGridV2.frag.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\hexGridPointy.frag.glsl" />
+    <None Include="src\engine-00\Shaders\hexGrid.frag.glsl" />
     <None Include="src\engine-00\Shaders\lightSource.frag.glsl" />
     <None Include="src\engine-00\Shaders\lightSource.vert.glsl" />
     <None Include="src\engine-00\Shaders\material.frag.glsl" />

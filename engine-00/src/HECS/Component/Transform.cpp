@@ -39,10 +39,28 @@ std::expected<TransformComponent, bool> TransformCollection::component(Entity e)
     };
 }
 
-std::expected<glm::vec3, bool> TransformCollection::position(Entity e) const {
+std::expected<glm::vec3, bool> TransformCollection::world_position(Entity e) const {
     auto r = indices_.find(e);
     if (r == indices_.end()) return std::unexpected(false);
     return world_positions_[r->second];
+}
+
+std::expected<void, ErrorCode> TransformCollection::set_world_position(Entity e, glm::vec3 new_position) {
+    auto r = indices_.find(e);
+    if (r == indices_.end()) return std::unexpected(false);
+    world_positions_[r->second] = new_position;
+}
+
+std::expected<glm::quat, ErrorCode> TransformCollection::world_rotation(Entity e) const {
+    auto r = indices_.find(e);
+    if (r == indices_.end()) return std::unexpected(false);
+    return world_rotations_[r->second];
+}
+
+std::expected<void, ErrorCode> TransformCollection::set_world_rotation(Entity e, glm::quat new_rotation) {
+    auto r = indices_.find(e);
+    if (r == indices_.end()) return std::unexpected(false);
+    world_rotations_[r->second] = new_rotation;
 }
 
 std::expected<void, bool> TransformCollection::add_component(Entity e) {
