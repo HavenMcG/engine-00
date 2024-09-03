@@ -93,60 +93,76 @@ void Shader::use() {
 }
 
 // utility uniform functions
-	// ------------------------------------------------------------------------
-void Shader::set_bool(const std::string& name, bool value) const
-{
+void Shader::set_bool(const std::string& name, bool value) {
 	glUniform1i(glGetUniformLocation(id(), name.c_str()), (int)value);
 }
-// ------------------------------------------------------------------------
-void Shader::set_int(const std::string& name, int value) const
-{
+
+void Shader::set_int(const std::string& name, int value) {
 	glUniform1i(glGetUniformLocation(id(), name.c_str()), value);
 }
-// ------------------------------------------------------------------------
-void Shader::set_float(const std::string& name, float value) const
-{
+
+void Shader::set_float(const std::string& name, float value) {
 	glUniform1f(glGetUniformLocation(id(), name.c_str()), value);
 }
-// ------------------------------------------------------------------------
-void Shader::set_vec2(const std::string& name, const glm::vec2& value) const
-{
+
+void Shader::set_vec2(const std::string& name, const glm::vec2& value) {
 	glUniform2fv(glGetUniformLocation(id(), name.c_str()), 1, &value[0]);
 }
-void Shader::set_vec2(const std::string& name, float x, float y) const
-{
+
+void Shader::set_vec2(const std::string& name, float x, float y) {
 	glUniform2f(glGetUniformLocation(id(), name.c_str()), x, y);
 }
-// ------------------------------------------------------------------------
-void Shader::set_vec3(const std::string& name, const glm::vec3& value) const
-{
+
+void Shader::set_vec3(const std::string& name, const glm::vec3& value) {
 	glUniform3fv(glGetUniformLocation(id(), name.c_str()), 1, &value[0]);
 }
-void Shader::set_vec3(const std::string& name, float x, float y, float z) const
-{
+void Shader::set_vec3(const std::string& name, float x, float y, float z) {
 	glUniform3f(glGetUniformLocation(id(), name.c_str()), x, y, z);
 }
-// ------------------------------------------------------------------------
-void Shader::set_vec4(const std::string& name, const glm::vec4& value) const
-{
+
+void Shader::set_vec4(const std::string& name, const glm::vec4& value) {
 	glUniform4fv(glGetUniformLocation(id(), name.c_str()), 1, &value[0]);
 }
-void Shader::set_vec4(const std::string& name, float x, float y, float z, float w) const
-{
+void Shader::set_vec4(const std::string& name, float x, float y, float z, float w) {
 	glUniform4f(glGetUniformLocation(id(), name.c_str()), x, y, z, w);
 }
-// ------------------------------------------------------------------------
-void Shader::set_mat2(const std::string& name, const glm::mat2& mat) const
-{
+
+void Shader::set_mat2(const std::string& name, const glm::mat2& mat) {
 	glUniformMatrix2fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
-// ------------------------------------------------------------------------
-void Shader::set_mat3(const std::string& name, const glm::mat3& mat) const
-{
+
+void Shader::set_mat3(const std::string& name, const glm::mat3& mat) {
 	glUniformMatrix3fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
-// ------------------------------------------------------------------------
-void Shader::set_mat4(const std::string& name, const glm::mat4& mat) const
-{
+
+void Shader::set_mat3x2(const std::string& name, const glm::mat3x2& mat) {
+	glUniformMatrix3x2fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+void Shader::set_mat4(const std::string& name, const glm::mat4& mat) {
 	glUniformMatrix4fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+void Shader::set_material(const std::string& name, const Material& material, const OglAssetStore& assets) {
+	for (int i = 0; i < material.diffuses.size(); ++i) {
+		// potential bug: are we using the Sampler id or the Texture id???
+		set_int(name + ".diffuse_textures[" + std::to_string(i) + "]", assets.tex_ogl_ids_[material.diffuses[i].texture.index()]);
+		set_int(name + ".diffuse_blend_strengths[" + std::to_string(i) + "]", material.diffuses[i].blend_strength);
+		set_int(name + ".diffuse_blend_ops[" + std::to_string(i) + "]", material.diffuses[i].blend_op);
+	}
+	set_int(name + ".num_diffuse_textures", material.diffuses.size());
+
+	for (int i = 0; i < material.speculars.size(); ++i) {
+		// potential bug: are we using the Sampler id or the Texture id???
+		set_int(name + ".specular_textures[" + std::to_string(i) + "]", assets.tex_ogl_ids_[material.speculars[i].texture.index()]);
+		set_int(name + ".specular_blend_strengths[" + std::to_string(i) + "]", material.speculars[i].blend_strength);
+		set_int(name + ".specular_blend_ops[" + std::to_string(i) + "]", material.speculars[i].blend_op);
+	}
+	set_int(name + ".num_specular_textures", material.speculars.size());
+
+	set_vec3(name + ".diffuse_color", material.color_diffuse);
+
+	set_vec3(name + ".specular_color", material.color_specular);
+
+	set_float(name + ".shininess", material.shininess);
 }

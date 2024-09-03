@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -81,6 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -95,6 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,6 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,6 +127,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,27 +138,57 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\external\src\glad.c" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="ModelLoader.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="src\Asset\Loader\Assimp\AssimpAssetLoader.cpp" />
+    <ClCompile Include="src\Asset\Mesh.cpp" />
+    <ClCompile Include="src\Asset\Store\OpenGL\OglAssetStore.cpp" />
+    <ClCompile Include="src\Asset\Texture.cpp" />
+    <ClCompile Include="src\engine-00\Camera.cpp" />
+    <ClCompile Include="src\engine-00\HexGrid.cpp" />
+    <ClCompile Include="src\engine-00\main.cpp" />
+    <ClCompile Include="src\engine-00\Shader.cpp" />
+    <ClCompile Include="src\HECS\Component\Model.cpp" />
+    <ClCompile Include="src\HECS\Component\Parent.cpp" />
+    <ClCompile Include="src\HECS\Component\Transform.cpp" />
+    <ClCompile Include="src\HECS\Entity\Entity.cpp" />
+    <ClCompile Include="src\HECS\System\Renderer.cpp" />
+    <ClCompile Include="src\HECS\System\TransformSystem.cpp" />
+    <ClCompile Include="src\UI\Ui.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelLoader.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="src\Asset\Data.h" />
+    <ClInclude Include="src\Asset\Loader\AssetLoader.h" />
+    <ClInclude Include="src\Asset\Loader\Assimp\AssimpAssetLoader.h" />
+    <ClInclude Include="src\Asset\Store\AssetStore.h" />
+    <ClInclude Include="src\Asset\Store\OpenGL\OglAssetStore.h" />
+    <ClInclude Include="src\engine-00\Camera.h" />
+    <ClInclude Include="src\Asset\Material.h" />
+    <ClInclude Include="src\Asset\Mesh.h" />
+    <ClInclude Include="src\engine-00\HexGrid.h" />
+    <ClInclude Include="src\engine-00\RayCast.h" />
+    <ClInclude Include="src\engine-00\Shader.h" />
+    <ClInclude Include="src\Asset\Texture.h" />
+    <ClInclude Include="src\Error\Error.h" />
+    <ClInclude Include="src\HECS\Component\Model.h" />
+    <ClInclude Include="src\HECS\Component\Parent.h" />
+    <ClInclude Include="src\HECS\Component\Transform.h" />
+    <ClInclude Include="src\HECS\Entity\Entity.h" />
+    <ClInclude Include="src\HECS\System\Renderer.h" />
+    <ClInclude Include="src\HECS\System\TransformSystem.h" />
+    <ClInclude Include="src\UI\Ui.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="colors.frag.glsl" />
-    <None Include="colors.vert.glsl" />
-    <None Include="lightSource.frag.glsl" />
-    <None Include="lightSource.vert.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\colors.frag.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\colors.vert.glsl" />
+    <None Include="src\engine-00\Shaders\gui.frag.glsl" />
+    <None Include="src\engine-00\Shaders\gui.vert.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\hexGridOld.frag.glsl" />
+    <None Include="src\engine-00\Shaders\hexGrid.vert.glsl" />
+    <None Include="src\engine-00\Shaders\Redundant\hexGridPointy.frag.glsl" />
+    <None Include="src\engine-00\Shaders\hexGrid.frag.glsl" />
+    <None Include="src\engine-00\Shaders\lightSource.frag.glsl" />
+    <None Include="src\engine-00\Shaders\lightSource.vert.glsl" />
+    <None Include="src\engine-00\Shaders\material.frag.glsl" />
+    <None Include="src\engine-00\Shaders\material.vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
