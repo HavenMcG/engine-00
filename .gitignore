@@ -3,6 +3,7 @@
 **.exe
 **.pdb
 **.dll
+/Debug
 /engine-00/x64
 /x64/*
 !/x64/Debug
