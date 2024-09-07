@@ -16,8 +16,20 @@
 
 #include "HexGrid.h"
 
+#include "../HECS/Component/Parent.h"
+#include "../HECS/System/Hierarchy.h"
+
 glm::vec3 normalize_rgb(glm::vec3 rgb) {
 	return rgb/255.0f;
+}
+
+void print(const std::vector<Entity>& ets, const RelationCollection& rc) {
+	std::cout << std::endl;
+	std::cout << "==================================================================================" << std::endl;
+	for (Entity et : ets) {
+		std::cout << std::endl;
+		rc.print(et);
+	}
 }
 
 int window_width = 1800;
@@ -116,26 +128,77 @@ int main() {
 	gui_material.color_diffuse = normalize_rgb({ 145.0f, 91.0f, 4.0f });
 	gui_material.color_specular = { 1.0f, 1.0f, 1.0f };
 	Model gui_model_1 = { "gui_model_1", { gui_quad }, { gui_material } };
-	TransformComponent gui_transform_1{};
+	Transform gui_transform_1{};
 
 	ModelCollection gui_model_col;
 	TransformCollection gui_transform_col;
+	RelationCollection relation_col;
 
 	Entity gui_element_1 = entities.create_entity();
 	gui_model_col.add_component(gui_element_1, gui_model_1);
 	gui_transform_col.add_component(gui_element_1, gui_transform_1);
 
-	gui_transform_col.set_world_position(gui_element_1, { 0.0f, 0.0f, 0.0f });
-	// !!END!!
+	gui_transform_col.set_position(gui_element_1, { 0.0f, 0.0f, 0.0f });
+	// !!END GUI!!
 
 	// Instantiate systems
 	TransformSystem transform_sys{ transform_col };
 	Renderer renderer;
+	HierarchySystem hierarchy_sys{ relation_col, transform_col };
 
 	// Set up entities
 	Entity monster = entities.create_entity();
 	transform_col.add_component(monster);
 	model_col.add_component(monster, monster_model);
+
+	// !!TEMP BOUNDING BOX STUFF!!
+	Cuboid bound = *model_col.bounding_box(monster, assets);
+
+	glm::vec3 center{};
+	center.x = bound.p1.x + bound.size().x / 2.0f;
+	center.y = 0;
+	center.z = bound.p1.z + bound.size().z / 2.0f;
+
+	float desired_size = 2.0f;
+	float scale_x = desired_size / bound.size().x;
+	float scale_z = desired_size / bound.size().z;
+	float scale = std::min(scale_x, scale_z);
+
+	transform_col.set_scale(monster, glm::vec3{ scale,scale,scale });
+	auto act_scale = *transform_col.scale(monster);
+	std::cout << std::endl;
+	std::cout << "scale: " << act_scale.x << " " << act_scale.y << " " << act_scale.z << std::endl;
+	glm::vec3 act_dimensions = bound.size() * act_scale;
+	std::cout << "dimensions: " << act_dimensions.x << " x " << act_dimensions.y << " x " << act_dimensions.z << std::endl;
+	std::cout << "center: " << center.x << ", " << center.y << ", " << center.z << std::endl;
+
+	glm::vec3 t = glm::vec3{ 0, 0, 0 } - center;
+	transform_col.set_position_offset(monster, t * scale);
+
+	Mesh bounding_box_mesh = *assets.load(bound.generate_mesh());
+	Material bounding_box_material{};
+	bounding_box_material.color_diffuse = normalize_rgb({ 255.0f, 255.0f, 255.0f });
+	bounding_box_material.color_specular = { 1.0f, 1.0f, 1.0f };
+	bounding_box_material.opacity = 0.5f;
+	Model bounding_box_model = { "bounding_box", { bounding_box_mesh }, { bounding_box_material } };
+
+	Entity monster_bounding_box = entities.create_entity();
+	ModelCollection transparent_model_col;
+	transparent_model_col.add_component(monster_bounding_box, bounding_box_model);
+	transform_col.add_component(monster_bounding_box);
+	relation_col.make_child(monster_bounding_box, monster);
+	transform_col.set_position_offset(monster_bounding_box, *transform_col.position_offset(monster));
+
+	glm::vec3 act_world_pos = *transform_col.world_position(monster);
+	std::cout << "world position: " << act_world_pos.x << ", " << act_world_pos.y << ", " << act_world_pos.z << std::endl;
+	glm::vec3 act_local_pos = *transform_col.position(monster);
+	std::cout << "local position: " << act_local_pos.x << ", " << act_local_pos.y << ", " << act_local_pos.z << std::endl;
+
+	Entity monster_owner = entities.create_entity();
+	transform_col.add_component(monster_owner);
+	transform_col.set_position(monster_owner, { 3,0,3 });
+	relation_col.make_child(monster, monster_owner);
+	// !!END BOUNDING BOX!!
 
 	// Set camera start position
 	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 20.0f });
@@ -151,7 +214,7 @@ int main() {
 		Entity e = entities.create_entity();
 		r.second = e;
 		glm::vec2 p = hex_to_cartesian(l, r.first);
-		transform_col.add_component(e, TransformComponent{ glm::vec3{ p.x, -0.003, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }) });
+		transform_col.add_component(e, Transform{ glm::vec3{ p.x, -0.003, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }), glm::vec3{ 1,1,1 } });
 		model_col.add_component(e, hex_2d);
 	}
 
@@ -216,6 +279,8 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		relation_col.pc.binary_insertion_sort();
+		hierarchy_sys.apply_parent_transforms();
 		//transform_sys.rotate_degrees(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
 		//transform_sys.rotate_degrees(hex_tile, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
 
@@ -241,6 +306,7 @@ int main() {
 		my_shader.set_float("material.shininess", 16.0f);
 
 		renderer.draw_models(view, my_shader, model_col, transform_col, ogl_store);
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, ogl_store);
 		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);
 
 		hex_grid_shader.use();
@@ -270,7 +336,7 @@ int main() {
 			model_col.models_[model_col.map_[hex_map[prev_sel]]] = hex_2d;
 			Hex selo = hex_round(cartesian_to_hex(l, glm::vec2{ intersection_point->x, intersection_point->z }));
 			if (hex_map.contains(selo)) {
-				if (selo != prev_sel) std::cout << "hex: " << selo.q << "," << selo.r << std::endl;
+				//if (selo != prev_sel) std::cout << "hex: " << selo.q << "," << selo.r << std::endl;
 				model_col.models_[model_col.map_[hex_map[selo]]] = selected_hex;
 				prev_sel = selo;
 			}

@@ -27,6 +27,7 @@ struct Material {
     vec3 diffuse_color;
     vec3 specular_color;
 	float shininess;
+    float opacity;
 };
 
 in vec3 frag_pos;
@@ -68,5 +69,5 @@ void main() {
 	vec3 specular = light.specular * spec * vec3(texture(material.specular_textures[0], tex_coords));
 
 	vec3 result = ambient + diffuse + specular;
-	frag_color = vec4(result, 1.0);
+	frag_color = vec4(result, material.opacity);
 }

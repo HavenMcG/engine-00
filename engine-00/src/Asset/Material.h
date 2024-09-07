@@ -20,4 +20,5 @@ struct Material {
 	glm::vec3 color_diffuse;
 	glm::vec3 color_specular;
 	float shininess;
+	float opacity = 1.0f;
 };

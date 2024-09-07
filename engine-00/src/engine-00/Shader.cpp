@@ -165,4 +165,6 @@ void Shader::set_material(const std::string& name, const Material& material, con
 	set_vec3(name + ".specular_color", material.color_specular);
 
 	set_float(name + ".shininess", material.shininess);
+
+	set_float(name + ".opacity", material.opacity);
 }

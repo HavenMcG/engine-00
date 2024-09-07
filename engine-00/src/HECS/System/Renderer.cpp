@@ -1,6 +1,8 @@
 #include "Renderer.h"
 #include <glad/glad.h>
 #include <glm/gtc/matrix_inverse.hpp>
+#include <iostream>
+#include <iomanip>
 
 const int MAX_DIFFUSE_TEXTURES = 8;
 const int MAX_SPECULAR_TEXTURES = 8;
@@ -12,16 +14,26 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 	for (int model_index = 0; model_index < models.size(); ++model_index) {
 		// check if corresponding position component exists:
 		Entity e = models.owners()[model_index];
-		auto transform = transforms.component(e);
+		auto transform = transforms.world_transform(e);
 		if (transform.has_value()) {
 			const Model& model = models.models()[model_index];
 
 			glm::mat4 model_matrix = glm::mat4(1.0f);
 			// translate:
-			model_matrix = glm::translate(model_matrix, transform->world_position);
+			model_matrix = glm::translate(model_matrix, transform->position + transform->position_offset);
 			// rotate:
-			//model_matrix *= transform->world_rotation;
-			model_matrix *= glm::mat4_cast(transform->world_rotation);
+			model_matrix *= glm::mat4_cast(transform->rotation);
+			// scale:
+			model_matrix *= glm::scale(glm::mat4(1.0f), transform->scale);
+
+			/*std::cout << std::endl;
+			std::cout << "Model Matrix: " << std::endl;
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					std::cout << std::setw(8) << model_matrix[i][j] << " ";
+				}
+				std::cout << std::endl;
+			}*/
 
 			// set model matrix uniform:
 			shader.set_mat4("model", model_matrix);
@@ -69,7 +81,7 @@ void Renderer::draw_ui(Shader& shader, ModelCollection& models, TransformCollect
 	for (int model_index = 0; model_index < models.size(); ++model_index) {
 		// check if corresponding position component exists:
 		Entity e = models.owners()[model_index];
-		auto transform = transforms.component(e);
+		auto transform = transforms.world_transform(e);
 		if (transform.has_value()) {
 			const Model& model = models.models()[model_index];
 
@@ -77,9 +89,9 @@ void Renderer::draw_ui(Shader& shader, ModelCollection& models, TransformCollect
 			shader.set_mat4("view", view_matrix);
 			glm::mat4 model_matrix = glm::mat4(1.0f);
 			// translate:
-			model_matrix = glm::translate(model_matrix, transform->world_position);
+			model_matrix = glm::translate(model_matrix, transform->position);
 			// rotate:
-			model_matrix *= glm::mat4_cast(transform->world_rotation);
+			model_matrix *= glm::mat4_cast(transform->rotation);
 
 			// set model matrix uniform:
 			shader.set_mat4("model", model_matrix);

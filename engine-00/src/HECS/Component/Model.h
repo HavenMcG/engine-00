@@ -5,6 +5,9 @@
 #include <string>
 #include "../../Asset/Mesh.h"
 #include "../../Asset/Material.h"
+#include "../../Asset/Data.h"
+#include "../../Error/Error.h"
+#include "../../Asset/Store/AssetStore.h"
 
 struct Model {
 	std::string name; // for models loaded from files, the name is the model's filepath
@@ -18,6 +21,9 @@ public:
 	const std::vector<Entity>& owners();
 	const std::vector<Model>& models();
 	std::expected<void, bool> add_component(Entity e, Model& model);
+
+	// individual getters/setters
+	std::expected<Cuboid, ErrorCode> bounding_box(Entity e, const AssetStore& as);
 
 //private:
 	std::unordered_map<Entity, EntityType> map_; // map_[0] would contain the index of the actual component data for Entity 0

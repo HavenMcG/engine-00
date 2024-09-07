@@ -138,6 +138,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\external\src\glad.c" />
+    <ClCompile Include="src\Asset\Data.cpp" />
     <ClCompile Include="src\Asset\Loader\Assimp\AssimpAssetLoader.cpp" />
     <ClCompile Include="src\Asset\Mesh.cpp" />
     <ClCompile Include="src\Asset\Store\OpenGL\OglAssetStore.cpp" />
@@ -146,10 +147,12 @@
     <ClCompile Include="src\engine-00\HexGrid.cpp" />
     <ClCompile Include="src\engine-00\main.cpp" />
     <ClCompile Include="src\engine-00\Shader.cpp" />
+    <ClCompile Include="src\HECS\Component\Component.cpp" />
     <ClCompile Include="src\HECS\Component\Model.cpp" />
     <ClCompile Include="src\HECS\Component\Parent.cpp" />
     <ClCompile Include="src\HECS\Component\Transform.cpp" />
     <ClCompile Include="src\HECS\Entity\Entity.cpp" />
+    <ClCompile Include="src\HECS\System\Hierarchy.cpp" />
     <ClCompile Include="src\HECS\System\Renderer.cpp" />
     <ClCompile Include="src\HECS\System\TransformSystem.cpp" />
     <ClCompile Include="src\UI\Ui.cpp" />
@@ -168,10 +171,12 @@
     <ClInclude Include="src\engine-00\Shader.h" />
     <ClInclude Include="src\Asset\Texture.h" />
     <ClInclude Include="src\Error\Error.h" />
+    <ClInclude Include="src\HECS\Component\Component.h" />
     <ClInclude Include="src\HECS\Component\Model.h" />
     <ClInclude Include="src\HECS\Component\Parent.h" />
     <ClInclude Include="src\HECS\Component\Transform.h" />
     <ClInclude Include="src\HECS\Entity\Entity.h" />
+    <ClInclude Include="src\HECS\System\Hierarchy.h" />
     <ClInclude Include="src\HECS\System\Renderer.h" />
     <ClInclude Include="src\HECS\System\TransformSystem.h" />
     <ClInclude Include="src\UI\Ui.h" />

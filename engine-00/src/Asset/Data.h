@@ -15,6 +15,14 @@ struct MeshData {
 	std::vector<unsigned int> indices;
 };
 
+struct Cuboid {
+	glm::vec3 p1;
+	glm::vec3 p2;
+	glm::vec3 size();
+	MeshData generate_mesh();
+	glm::vec3 center();
+};
+
 const MeshData BASIC_QUAD_MESH_DATA {
 	std::vector<Vertex> {
 		{ { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
@@ -56,3 +64,5 @@ struct TextureData {
 	int width;
 	int height;
 };
+
+Cuboid generate_bounding_box(const MeshData& data);

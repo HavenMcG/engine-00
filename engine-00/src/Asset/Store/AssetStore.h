@@ -13,9 +13,10 @@ public:
 	virtual std::expected<Mesh, ErrorCode> load(const MeshData& data, const std::string& path) = 0;
 	virtual std::expected<Mesh, ErrorCode> load(const MeshData& data) = 0;
 	virtual std::expected<void, ErrorCode> unload(Mesh mesh) = 0;
-	virtual bool loaded(Mesh mesh) = 0;
+	virtual bool loaded(Mesh mesh) const = 0;
 	// Returns the mesh with the given path, if it exists.
-	virtual std::expected<Mesh, ErrorCode> mesh(const std::string& path) = 0;
+	virtual std::expected<Mesh, ErrorCode> mesh(const std::string& path) const = 0;
+	virtual std::expected<Cuboid, ErrorCode> bounding_box(Mesh mesh) const = 0;
 
 	// textures
 
