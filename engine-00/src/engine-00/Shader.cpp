@@ -168,3 +168,13 @@ void Shader::set_material(const std::string& name, const Material& material, con
 
 	set_float(name + ".opacity", material.opacity);
 }
+
+void Shader::set_light(const std::string& name, const Light& light) {
+	set_vec3(name + ".position", light.position);
+	set_vec3(name + ".ambient", light.ambient);
+	set_vec3(name + ".diffuse", light.diffuse);
+	set_vec3(name + ".specular", light.specular);
+	set_float(name + ".constant", light.constant);
+	set_float(name + ".linear", light.linear);
+	set_float(name + ".quadratic", light.quadratic);
+}

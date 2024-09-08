@@ -5,6 +5,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "../Asset/Material.h"
 #include "../Asset/Store/OpenGL/OglAssetStore.h"
+#include "../engine-00/Light.h"
 
 class Shader {
 public:
@@ -29,6 +30,7 @@ public:
 	void set_mat3x2(const std::string& name, const glm::mat3x2& mat);
 	void set_mat4(const std::string& name, const glm::mat4& mat);
 	void set_material(const std::string& name, const Material& material, const OglAssetStore& texture_m);
+	void set_light(const std::string& name, const Light& light);
 
 private:
 	// the program id

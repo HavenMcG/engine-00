@@ -8,9 +8,15 @@ const int TEX_BLEND_ADD = 0;
 const int TEX_BLEND_MUL = 1;
 
 struct Light {
+    vec3 position;
+
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 struct Material {
