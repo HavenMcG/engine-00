@@ -59,59 +59,116 @@ MeshData Cuboid::generate_mesh() {
 
     // Define vertices and normals for each face (6 faces, 2 triangles per face, 3 vertices per triangle)
     std::vector<Vertex> vertices = {
-        // Front face (v1, v3, v7, v7, v5, v1)
+        // Front face
+        {v[1], normals[0]},
+        {v[7], normals[0]},
+        {v[5], normals[0]},
+
         {v[1], normals[0]},
         {v[3], normals[0]},
         {v[7], normals[0]},
 
-        {v[7], normals[0]},
-        {v[5], normals[0]},
-        {v[1], normals[0]},
-
-        // Back face (v0, v4, v6, v6, v2, v0)
+        // Back face
         {v[0], normals[1]},
-        {v[4], normals[1]},
-        {v[6], normals[1]},
-
         {v[6], normals[1]},
         {v[2], normals[1]},
-        {v[0], normals[1]},
 
-        // Left face (v0, v2, v3, v3, v1, v0)
+        {v[0], normals[1]},
+        {v[5], normals[1]},
+        {v[6], normals[1]},
+
+        // Left face
+        {v[0], normals[2]},
+        {v[3], normals[2]},
+        {v[1], normals[2]},
+
         {v[0], normals[2]},
         {v[2], normals[2]},
         {v[3], normals[2]},
 
-        {v[3], normals[2]},
-        {v[1], normals[2]},
-        {v[0], normals[2]},
+        // Right face
+        {v[4], normals[3]},
+        {v[7], normals[3]},
+        {v[6], normals[3]},
 
-        // Right face (v4, v5, v7, v7, v6, v4)
         {v[4], normals[3]},
         {v[5], normals[3]},
         {v[7], normals[3]},
 
-        {v[7], normals[3]},
-        {v[6], normals[3]},
-        {v[4], normals[3]},
+        // Top face
+        {v[2], normals[4]},
+        {v[7], normals[4]},
+        {v[3], normals[4]},
 
-        // Top face (v2, v6, v7, v7, v3, v2)
         {v[2], normals[4]},
         {v[6], normals[4]},
         {v[7], normals[4]},
 
-        {v[7], normals[4]},
-        {v[3], normals[4]},
-        {v[2], normals[4]},
-
-        // Bottom face (v0, v1, v5, v5, v4, v0)
+        // Bottom face
         {v[0], normals[5]},
-        {v[1], normals[5]},
-        {v[5], normals[5]},
-
         {v[5], normals[5]},
         {v[4], normals[5]},
-        {v[0], normals[5]}
+
+        {v[0], normals[5]},
+        {v[1], normals[5]},
+        {v[5], normals[5]}
+    };
+
+    vertices = {
+        // Back face
+        {{p1.x,p1.y,p1.z}, normals[1]},
+        {{p2.x,p2.y,p1.z}, normals[1]},
+        {{p2.x,p1.y,p1.z}, normals[1]},
+
+        {{p2.x,p2.y,p1.z}, normals[1]},
+        {{p1.x,p1.y,p1.z}, normals[1]},
+        {{p1.x,p2.y,p1.z}, normals[1]},
+
+        // Front face
+        {{p1.x,p1.y,p2.z}, normals[0]},
+        {{p2.x,p1.y,p2.z}, normals[0]},
+        {{p2.x,p2.y,p2.z}, normals[0]},
+
+        {{p2.x,p2.y,p2.z}, normals[0]},
+        {{p1.x,p2.y,p2.z}, normals[0]},
+        {{p1.x,p1.y,p2.z}, normals[0]},
+
+        // Left f.yace.z
+        {{p1.x,p2.y,p2.z}, normals[2]},
+        {{p1.x,p2.y,p1.z}, normals[2]},
+        {{p1.x,p1.y,p1.z}, normals[2]},
+
+        {{p1.x,p1.y,p1.z}, normals[2]},
+        {{p1.x,p1.y,p2.z}, normals[2]},
+        {{p1.x,p2.y,p2.z}, normals[2]},
+
+        // Right .yfac.ze
+        {{p2.x,p2.y,p2.z}, normals[3]},
+        {{p2.x,p1.y,p1.z}, normals[3]},
+        {{p2.x,p2.y,p1.z}, normals[3]},
+
+        {{p2.x,p1.y,p1.z}, normals[3]},
+        {{p2.x,p2.y,p2.z}, normals[3]},
+        {{p2.x,p1.y,p2.z}, normals[3]},
+
+        // Bottom.y fa.zce
+        {{p1.x,p1.y,p1.z}, normals[5]},
+        {{p2.x,p1.y,p1.z}, normals[5]},
+        {{p2.x,p1.y,p2.z}, normals[5]},
+
+        {{p2.x,p1.y,p2.z}, normals[5]},
+        {{p1.x,p1.y,p2.z}, normals[5]},
+        {{p1.x,p1.y,p1.z}, normals[5]},
+
+        // Top fa.yce .z
+        {{p1.x,p2.y,p1.z}, normals[4]},
+        {{p2.x,p2.y,p2.z}, normals[4]},
+        {{p2.x,p2.y,p1.z}, normals[4]},
+
+        {{p2.x,p2.y,p2.z}, normals[4]},
+        {{p1.x,p2.y,p1.z}, normals[4]},
+        {{p1.x,p2.y,p2.z}, normals[4]}
+
     };
 
     std::vector<unsigned int> indices{};

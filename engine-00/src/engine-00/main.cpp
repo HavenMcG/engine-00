@@ -177,9 +177,10 @@ int main() {
 
 	Mesh bounding_box_mesh = *assets.load(bound.generate_mesh());
 	Material bounding_box_material{};
-	bounding_box_material.color_diffuse = normalize_rgb({ 255.0f, 255.0f, 255.0f });
+	bounding_box_material.color_diffuse = normalize_rgb({ 0.0f, 29.0f, 51.0f });
 	bounding_box_material.color_specular = { 1.0f, 1.0f, 1.0f };
-	bounding_box_material.opacity = 0.5f;
+	bounding_box_material.opacity = 0.7f;
+	bounding_box_material.shininess = 32.0f;
 	Model bounding_box_model = { "bounding_box", { bounding_box_mesh }, { bounding_box_material } };
 
 	Entity monster_bounding_box = entities.create_entity();
@@ -196,7 +197,7 @@ int main() {
 
 	Entity monster_owner = entities.create_entity();
 	transform_col.add_component(monster_owner);
-	transform_col.set_position(monster_owner, { 3,0,3 });
+	transform_col.set_position(monster_owner, { 0,0,0 });
 	relation_col.make_child(monster, monster_owner);
 	// !!END BOUNDING BOX!!
 
@@ -210,12 +211,16 @@ int main() {
 	std::unordered_map<Hex, Entity> hex_map = rectangle_map_pointy<Entity>(0, 9, 0, 5);
 	std::unordered_set<Hex> selection = hexagon_set(1);
 
+	Entity e_hex_map;
+	transform_col.add_component(e_hex_map);
+	transform_col.set_position(e_hex_map, { 0.0f, -0.01f, 0.0f });
 	for (auto& r : hex_map) {
 		Entity e = entities.create_entity();
 		r.second = e;
 		glm::vec2 p = hex_to_cartesian(l, r.first);
-		transform_col.add_component(e, Transform{ glm::vec3{ p.x, -0.003, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }), glm::vec3{ 1,1,1 } });
+		transform_col.add_component(e, Transform{ glm::vec3{ p.x, 0.0f, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }), glm::vec3{ 1,1,1 } });
 		model_col.add_component(e, hex_2d);
+		relation_col.make_child(e, e_hex_map);
 	}
 
 	// hex shader uniforms
@@ -303,10 +308,19 @@ int main() {
 		my_shader.set_vec3("light.ambient", ambient_color);
 		my_shader.set_vec3("light.diffuse", diffuse_color);
 		my_shader.set_vec3("light.specular", specular_color);
-		my_shader.set_float("material.shininess", 16.0f);
 
 		renderer.draw_models(view, my_shader, model_col, transform_col, ogl_store);
+
+		glDepthMask(GL_FALSE);  // Disable writing to the depth buffer
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
 		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, ogl_store);
+
+		glCullFace(GL_BACK);
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, ogl_store);
+
+		glDepthMask(GL_TRUE);
+		glDisable(GL_CULL_FACE);
 		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);
 
 		hex_grid_shader.use();

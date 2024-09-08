@@ -66,8 +66,11 @@ void main() {
 	vec3 view_dir = normalize(-frag_pos);
 	vec3 reflect_dir = reflect(-light_dir, norm);
 	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * vec3(texture(material.specular_textures[0], tex_coords));
+    vec3 specular_color = blendTextures(material.specular_color, material.specular_textures, material.specular_blend_strengths, material.specular_blend_ops, material.num_specular_textures, tex_coords);
+    //specular_color = vec3(1.0,1.0,1.0);
+	vec3 specular = light.specular * spec * specular_color;
 
+    //specular = vec3(0.0);
 	vec3 result = ambient + diffuse + specular;
 	frag_color = vec4(result, material.opacity);
 }
