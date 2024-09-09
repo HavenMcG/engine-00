@@ -99,8 +99,9 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 		aiMaterial* ai_material = scene->mMaterials[ai_mesh->mMaterialIndex];
 
 		// process textures
-		material.diffuses = load_material_textures(model, scene, ai_material, aiTextureType_DIFFUSE, store);
-		material.speculars = load_material_textures(model, scene, ai_material, aiTextureType_SPECULAR, store);
+		material.texture_diffuses = load_material_textures(model, scene, ai_material, aiTextureType_DIFFUSE, store);
+		material.texture_speculars = load_material_textures(model, scene, ai_material, aiTextureType_SPECULAR, store);
+		material.texture_emissives = load_material_textures(model, scene, ai_material, aiTextureType_EMISSIVE, store);
 
 		// process other fields
 		aiColor3D ai_color_diffuse;
@@ -110,6 +111,10 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 		aiColor3D ai_color_specular;
 		ai_material->Get(AI_MATKEY_COLOR_SPECULAR, ai_color_specular);
 		material.color_specular = { ai_color_specular.r, ai_color_specular.g, ai_color_specular.b };
+
+		aiColor3D ai_color_emissive;
+		ai_material->Get(AI_MATKEY_COLOR_EMISSIVE, ai_color_emissive);
+		material.color_emissive = { ai_color_emissive.r, ai_color_emissive.g, ai_color_emissive.b };
 
 		float shininess;
 		ai_material->Get(AI_MATKEY_SHININESS, shininess);
@@ -152,10 +157,10 @@ std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_texture
 		}
 
 		// get other texture assignment properties
-		float blend_strength = 1.0f;
+		float blend_strength;
 		mat->Get(AI_MATKEY_TEXBLEND(ai_ttype, i), blend_strength);
 
-		aiTextureOp ai_blend_op = aiTextureOp_Multiply;
+		aiTextureOp ai_blend_op;
 		mat->Get(AI_MATKEY_TEXOP(ai_ttype, i), ai_blend_op);
 
 		TextureAssignment ta{ 

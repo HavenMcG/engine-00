@@ -15,10 +15,12 @@ struct TextureAssignment {
 };
 
 struct Material {
-	std::vector<TextureAssignment> diffuses;
-	std::vector<TextureAssignment> speculars;
+	std::vector<TextureAssignment> texture_diffuses;
+	std::vector<TextureAssignment> texture_speculars;
+	std::vector<TextureAssignment> texture_emissives;
 	glm::vec3 color_diffuse;
 	glm::vec3 color_specular;
+	glm::vec3 color_emissive;
 	float shininess;
 	float opacity = 1.0f;
 };
