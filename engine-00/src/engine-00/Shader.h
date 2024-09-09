@@ -5,7 +5,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "../Asset/Material.h"
 #include "../Asset/Store/OpenGL/OglAssetStore.h"
-#include "../engine-00/Light.h"
+#include "../HECS/Component/Light.h"
 
 class Shader {
 public:

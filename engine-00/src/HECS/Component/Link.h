@@ -44,7 +44,7 @@ public:
 	EntityType n_ = 0;
 };
 
-class RelationCollection {
+class LinkCollection {
 public:
 	std::expected<void, ErrorCode> make_child(Entity e, Entity parent);
 

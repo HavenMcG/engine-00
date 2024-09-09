@@ -16,14 +16,14 @@
 
 #include "HexGrid.h"
 
-#include "../HECS/Component/Parent.h"
+#include "../HECS/Component/Link.h"
 #include "../HECS/System/Hierarchy.h"
 
 glm::vec3 normalize_rgb(glm::vec3 rgb) {
 	return rgb/255.0f;
 }
 
-void print(const std::vector<Entity>& ets, const RelationCollection& rc) {
+void print(const std::vector<Entity>& ets, const LinkCollection& rc) {
 	std::cout << std::endl;
 	std::cout << "==================================================================================" << std::endl;
 	for (Entity et : ets) {
@@ -121,6 +121,7 @@ int main() {
 	// Instantiate component collections
 	ModelCollection model_col;
 	TransformCollection transform_col;
+	LightCollection light_col;
 
 	// !!TEMP GUI STUFF!!
 	Mesh gui_quad = *ogl_store.load(BASIC_QUAD_MESH_DATA);
@@ -132,7 +133,7 @@ int main() {
 
 	ModelCollection gui_model_col;
 	TransformCollection gui_transform_col;
-	RelationCollection relation_col;
+	LinkCollection relation_col;
 
 	Entity gui_element_1 = entities.create_entity();
 	gui_model_col.add_component(gui_element_1, gui_model_1);
@@ -150,6 +151,15 @@ int main() {
 	Entity monster = entities.create_entity();
 	transform_col.add_component(monster);
 	model_col.add_component(monster, monster_model);
+
+	Entity lamp = entities.create_entity();
+	transform_col.add_component(lamp);
+	light_col.add_component(lamp);
+	auto lali_ref = *light_col.get_component_ref(lamp);
+	lali_ref.ambient = { 0.1f, 0.1f, 0.1f };
+	lali_ref.diffuse = { 1.0f, 1.0f, 1.0f };
+	lali_ref.specular = { 1.0f, 1.0f, 1.0f };
+	transform_col.set_position(lamp, { 0.0f, 10.0f, 0.0f });
 
 	// !!TEMP BOUNDING BOX STUFF!!
 	Cuboid bound = *model_col.bounding_box(monster, assets);
@@ -179,13 +189,13 @@ int main() {
 	Material bounding_box_material{};
 	bounding_box_material.color_diffuse = normalize_rgb({ 0.0f, 29.0f, 51.0f });
 	bounding_box_material.color_specular = { 1.0f, 1.0f, 1.0f };
-	bounding_box_material.opacity = 0.7f;
+	bounding_box_material.opacity = 1.0f;
 	bounding_box_material.shininess = 32.0f;
 	Model bounding_box_model = { "bounding_box", { bounding_box_mesh }, { bounding_box_material } };
 
 	Entity monster_bounding_box = entities.create_entity();
 	ModelCollection transparent_model_col;
-	transparent_model_col.add_component(monster_bounding_box, bounding_box_model);
+	model_col.add_component(monster_bounding_box, bounding_box_model);
 	transform_col.add_component(monster_bounding_box);
 	relation_col.make_child(monster_bounding_box, monster);
 	transform_col.set_position_offset(monster_bounding_box, *transform_col.position_offset(monster));
@@ -309,15 +319,15 @@ int main() {
 		my_shader.set_vec3("light.diffuse", diffuse_color);
 		my_shader.set_vec3("light.specular", specular_color);
 
-		renderer.draw_models(view, my_shader, model_col, transform_col, ogl_store);
+		renderer.draw_models(view, my_shader, model_col, transform_col, light_col, ogl_store);
 
 		glDepthMask(GL_FALSE);  // Disable writing to the depth buffer
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, ogl_store);
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store);
 
 		glCullFace(GL_BACK);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, ogl_store);
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store);
 
 		glDepthMask(GL_TRUE);
 		glDisable(GL_CULL_FACE);

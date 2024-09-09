@@ -60,7 +60,7 @@
     <ClCompile Include="src\UI\Ui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\HECS\Component\Parent.cpp">
+    <ClCompile Include="src\HECS\Component\Link.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\external\src\glad.c">
@@ -73,6 +73,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\HECS\System\Hierarchy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HECS\Component\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,13 +137,16 @@
     <ClInclude Include="src\UI\Ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\HECS\Component\Parent.h">
+    <ClInclude Include="src\HECS\Component\Link.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\HECS\Component\Component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\HECS\System\Hierarchy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HECS\Component\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

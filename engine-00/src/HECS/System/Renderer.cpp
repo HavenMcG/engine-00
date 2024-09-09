@@ -7,7 +7,7 @@
 const int MAX_DIFFUSE_TEXTURES = 8;
 const int MAX_SPECULAR_TEXTURES = 8;
 
-void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, const OglAssetStore& assets) {
+void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, LightCollection& lights, const OglAssetStore& assets) {
 	shader.use();
 	// we need to find all entities with both a model and a transform
 	// there will be fewer entities with models so we'll start there
@@ -41,6 +41,10 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 			// set normal matrix uniform
 			glm::mat3 normal_matrix = glm::mat3(glm::inverseTranspose(view_matrix * model_matrix));
 			shader.set_mat3("normal_matrix", normal_matrix);
+
+			// temp?
+			shader.set_vec3("light_pos_world", *transforms.position(lights.indices_.begin()->first));
+			shader.set_light("light", *lights.get_component(lights.indices_.begin()->first));
 
 			for (int mesh_mat_index = 0; mesh_mat_index < model.meshes.size(); ++mesh_mat_index) {
 				// check loaded here?

@@ -1,4 +1,4 @@
-#include "Parent.h"
+#include "Link.h"
 #include <iostream>
 #include <iomanip>
 
@@ -165,7 +165,7 @@ std::expected<void, ErrorCode> ChildListCollection::destroy_component(Entity e) 
 }
 
 // ==================================================================================================================
-std::expected<void, ErrorCode> RelationCollection::make_child(Entity e, Entity parent) {
+std::expected<void, ErrorCode> LinkCollection::make_child(Entity e, Entity parent) {
     // add parent to e
     if (e == parent) return std::unexpected{ false }; // entity can't be a child of itself
     if (pc.has_component(e)) return std::unexpected{ false }; // entity is already assigned to a different parent
@@ -183,7 +183,7 @@ std::expected<void, ErrorCode> RelationCollection::make_child(Entity e, Entity p
     }
 }
 
-void RelationCollection::update_child_depths(Entity e) {
+void LinkCollection::update_child_depths(Entity e) {
     int depth = 0;
     if (pc.has_component(e)) depth = pc.depths_[pc.indices_[e]];
     if (cc.has_component(e)) {
@@ -194,7 +194,7 @@ void RelationCollection::update_child_depths(Entity e) {
     }
 }
 
-void RelationCollection::sever(Entity e) {
+void LinkCollection::sever(Entity e) {
     if (!pc.has_component(e)) return;
     Entity parent = pc.parents_[pc.indices_[e]];
     // remove parent from e:
@@ -206,7 +206,7 @@ void RelationCollection::sever(Entity e) {
     else cc.child_lists_[i].erase(e);
 }
 
-void RelationCollection::sever_children(Entity e) {
+void LinkCollection::sever_children(Entity e) {
     if (!cc.has_component(e)) return;
     int i = cc.indices_[e];
     std::unordered_set<Entity>& l = cc.child_lists_[i];
@@ -217,7 +217,7 @@ void RelationCollection::sever_children(Entity e) {
     cc.destroy_component(e);
 }
 
-void RelationCollection::print(Entity e) const {
+void LinkCollection::print(Entity e) const {
     std::cout << "Entity: " << e.id << std::endl;
 
     std::cout << "Parent: ";

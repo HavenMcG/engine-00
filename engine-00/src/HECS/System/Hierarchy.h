@@ -1,10 +1,10 @@
 #pragma once
-#include "../Component/Parent.h"
+#include "../Component/Link.h"
 #include "../Component/Transform.h"
 
 class HierarchySystem {
 public:
-	RelationCollection& relations;
+	LinkCollection& relations;
 	TransformCollection& transforms;
 	void apply_parent_transforms();
 };
