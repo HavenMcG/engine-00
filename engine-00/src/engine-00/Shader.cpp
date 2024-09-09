@@ -144,17 +144,16 @@ void Shader::set_mat4(const std::string& name, const glm::mat4& mat) {
 }
 
 void Shader::set_material(const std::string& name, const Material& material, const OglAssetStore& assets) {
-	for (int i = 0; i < material.diffuses.size(); ++i) {
-		// potential bug: are we using the Sampler id or the Texture id???
-		set_int(name + ".diffuse_textures[" + std::to_string(i) + "]", assets.tex_ogl_ids_[material.diffuses[i].texture.index()]);
+	int total_textures = 0;
+	for (int i = 0; i < material.diffuses.size(); ++i, ++total_textures) {
+		set_int(name + ".diffuse_textures[" + std::to_string(i) + "]", total_textures);
 		set_int(name + ".diffuse_blend_strengths[" + std::to_string(i) + "]", material.diffuses[i].blend_strength);
 		set_int(name + ".diffuse_blend_ops[" + std::to_string(i) + "]", material.diffuses[i].blend_op);
 	}
 	set_int(name + ".num_diffuse_textures", material.diffuses.size());
 
-	for (int i = 0; i < material.speculars.size(); ++i) {
-		// potential bug: are we using the Sampler id or the Texture id???
-		set_int(name + ".specular_textures[" + std::to_string(i) + "]", assets.tex_ogl_ids_[material.speculars[i].texture.index()]);
+	for (int i = 0; i < material.speculars.size(); ++i, ++total_textures) {
+		set_int(name + ".specular_textures[" + std::to_string(i) + "]", total_textures);
 		set_int(name + ".specular_blend_strengths[" + std::to_string(i) + "]", material.speculars[i].blend_strength);
 		set_int(name + ".specular_blend_ops[" + std::to_string(i) + "]", material.speculars[i].blend_op);
 	}
