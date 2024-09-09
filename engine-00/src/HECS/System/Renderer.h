@@ -3,6 +3,7 @@
 #include "../Component/Model.h"
 #include "../Component/Light.h"
 #include "../../engine-00/Shader.h"
+#include "../../Asset/Store/OpenGL/OglAssetStore.h"
 
 class Renderer {
 public:

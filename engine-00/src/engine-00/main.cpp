@@ -195,7 +195,7 @@ int main() {
 
 	Entity monster_bounding_box = entities.create_entity();
 	ModelCollection transparent_model_col;
-	model_col.add_component(monster_bounding_box, bounding_box_model);
+	//model_col.add_component(monster_bounding_box, bounding_box_model);
 	transform_col.add_component(monster_bounding_box);
 	relation_col.make_child(monster_bounding_box, monster);
 	transform_col.set_position_offset(monster_bounding_box, *transform_col.position_offset(monster));
