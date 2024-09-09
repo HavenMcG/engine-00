@@ -157,7 +157,7 @@ std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_texture
 		}
 
 		// get other texture assignment properties
-		float blend_strength;
+		float blend_strength = 1.0f;
 		mat->Get(AI_MATKEY_TEXBLEND(ai_ttype, i), blend_strength);
 
 		aiTextureOp ai_blend_op;
