@@ -58,15 +58,15 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 				int total_textures = 0;
 				for (int i = 0; i < material.texture_diffuses.size() && i <= MAX_DIFFUSE_TEXTURES; ++i, ++total_textures) {
 					glActiveTexture(GL_TEXTURE0 + total_textures);
-					shader.set_int("material.diffuse_textures[" + std::to_string(i) + "]", total_textures);
-					id = assets.tex_ogl_ids_[material.texture_diffuses[i].texture.index()];
+					//shader.set_int("material.diffuse_textures[" + std::to_string(i) + "]", total_textures);
+					id = assets.tex_ogl_ids_[material.diffuses[i].texture.index()];
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 
 				for (int i = 0; i < material.texture_speculars.size() && i <= MAX_SPECULAR_TEXTURES; ++i, ++total_textures) {
 					glActiveTexture(GL_TEXTURE0 + total_textures);
-					shader.set_int("material.specular_textures[" + std::to_string(i) + "]", total_textures);
-					id = assets.tex_ogl_ids_[material.texture_speculars[i].texture.index()];
+					//shader.set_int("material.specular_textures[" + std::to_string(i) + "]", total_textures);
+					id = assets.tex_ogl_ids_[material.speculars[i].texture.index()];
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 
