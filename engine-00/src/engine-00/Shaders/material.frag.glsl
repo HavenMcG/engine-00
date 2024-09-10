@@ -2,6 +2,7 @@
 
 const int MAX_DIFFUSE_TEXTURES = 8;
 const int MAX_SPECULAR_TEXTURES = 8;
+const int MAX_EMISSIVE_TEXTURES = 8;
 
 // Texture blending operations
 const int TEX_BLEND_ADD = 0;
@@ -28,8 +29,14 @@ struct Material {
     int specular_blend_ops[MAX_SPECULAR_TEXTURES];
     int num_specular_textures;
 
+    sampler2D emissive_textures[MAX_EMISSIVE_TEXTURES];
+    int emissive_blend_strengths[MAX_EMISSIVE_TEXTURES];
+    int emissive_blend_ops[MAX_EMISSIVE_TEXTURES];
+    int num_emissive_textures;
+
     vec3 diffuse_color;
     vec3 specular_color;
+    vec3 emissive_color;
 	float shininess;
     float opacity;
 };
@@ -74,7 +81,10 @@ void main() {
     //specular_color = vec3(1.0,1.0,1.0);
 	vec3 specular = light.specular * spec * specular_color;
 
+    // gamma correction special case??
+    vec3 emissive = blendTextures(material.emissive_color, material.emissive_textures, material.emissive_blend_strengths, material.emissive_blend_ops, material.num_emissive_textures, tex_coords);
+
     //specular = vec3(0.0);
-	vec3 result = ambient + diffuse + specular;
+	vec3 result = ambient + diffuse + specular + emissive;
 	frag_color = vec4(result, material.opacity);
 }

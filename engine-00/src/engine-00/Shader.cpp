@@ -146,6 +146,8 @@ void Shader::set_mat4(const std::string& name, const glm::mat4& mat) {
 
 void Shader::set_material(const std::string& name, const Material& material) {
 	int total_textures = 0;
+
+	set_vec3(name + ".diffuse_color", material.color_diffuse);
 	for (int i = 0; i < material.texture_diffuses.size(); ++i, ++total_textures) {
 		set_int(name + ".diffuse_textures[" + std::to_string(i) + "]", total_textures);
 		set_int(name + ".diffuse_blend_strengths[" + std::to_string(i) + "]", material.texture_diffuses[i].blend_strength);
@@ -153,6 +155,7 @@ void Shader::set_material(const std::string& name, const Material& material) {
 	}
 	set_int(name + ".num_diffuse_textures", material.texture_diffuses.size());
 
+	set_vec3(name + ".specular_color", material.color_specular);
 	for (int i = 0; i < material.texture_speculars.size(); ++i, ++total_textures) {
 		set_int(name + ".specular_textures[" + std::to_string(i) + "]", total_textures);
 		set_int(name + ".specular_blend_strengths[" + std::to_string(i) + "]", material.texture_speculars[i].blend_strength);
@@ -160,9 +163,13 @@ void Shader::set_material(const std::string& name, const Material& material) {
 	}
 	set_int(name + ".num_specular_textures", material.texture_speculars.size());
 
-	set_vec3(name + ".diffuse_color", material.color_diffuse);
-
-	set_vec3(name + ".specular_color", material.color_specular);
+	set_vec3(name + ".emissive_color", material.color_emissive);
+	for (int i = 0; i < material.texture_emissives.size(); ++i, ++total_textures) {
+		set_int(name + ".emissive_textures[" + std::to_string(i) + "]", total_textures);
+		set_int(name + ".emissive_blend_strengths[" + std::to_string(i) + "]", material.texture_emissives[i].blend_strength);
+		set_int(name + ".emissive_blend_ops[" + std::to_string(i) + "]", material.texture_emissives[i].blend_op);
+	}
+	set_int(name + ".num_emissive_textures", material.texture_emissives.size());
 
 	set_float(name + ".shininess", material.shininess);
 

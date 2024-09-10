@@ -105,10 +105,20 @@ int main() {
 
 	// Load assets
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
+
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
 	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 6.0f, 138.0f, 44.0f });
+
 	Model selected_hex = hex_2d;
 	selected_hex.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 255.0f, 0.0f, 0.0f });
+
+	Mesh mesh_cube_1x1x1 = *assets.load(Cuboid{ {-0.5f,-0.5f,-0.5f},{0.5f,0.5f,0.5f} }.generate_mesh());
+	Material mat_light_emitter{};
+	mat_light_emitter.color_diffuse = { 1.0f,1.0f,1.0f };
+	mat_light_emitter.color_specular = { 1.0f,1.0f,1.0f };
+	mat_light_emitter.color_emissive = { 1.0f,1.0f,1.0f };
+	mat_light_emitter.shininess = 32.0f;
+	Model model_light_cube{ "light emitter", { mesh_cube_1x1x1 }, { mat_light_emitter }};
 
 	// Load shaders
 	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
@@ -159,7 +169,8 @@ int main() {
 	lali_ref.ambient = { 0.1f, 0.1f, 0.1f };
 	lali_ref.diffuse = { 1.0f, 1.0f, 1.0f };
 	lali_ref.specular = { 1.0f, 1.0f, 1.0f };
-	transform_col.set_position(lamp, { 0.0f, 10.0f, 0.0f });
+	transform_col.set_position(lamp, { 3.0f, 2.0f, 0.0f });
+	model_col.add_component(lamp, model_light_cube);
 
 	// !!TEMP BOUNDING BOX STUFF!!
 	Cuboid bound = *model_col.bounding_box(monster, assets);
@@ -309,30 +320,21 @@ int main() {
 
 		// setting model matrix is done in the renderer
 
-		my_shader.set_vec3("light_pos_world", glm::vec3{ 0.0f, 0.0f, 4.0f });
-
-		glm::vec3 light_color{ 1.0f, 1.0f, 1.0f };
-		glm::vec3 diffuse_color = light_color * glm::vec3(1.0f);
-		glm::vec3 ambient_color = light_color * glm::vec3(1.0f);
-		glm::vec3 specular_color = light_color * glm::vec3(1.0f);
-		my_shader.set_vec3("light.ambient", ambient_color);
-		my_shader.set_vec3("light.diffuse", diffuse_color);
-		my_shader.set_vec3("light.specular", specular_color);
-
+		// render standard models
 		renderer.draw_models(view, my_shader, model_col, transform_col, light_col, ogl_store);
 
+		// render transparent models
 		glDepthMask(GL_FALSE);  // Disable writing to the depth buffer
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store);
-
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // draw back faces first
 		glCullFace(GL_BACK);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store);
-
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // then front faces
 		glDepthMask(GL_TRUE);
 		glDisable(GL_CULL_FACE);
 		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);
 
+		// render hex grid shader
 		hex_grid_shader.use();
 		hex_grid_shader.set_mat4("model", glm::mat4(1.0f));
 		hex_grid_shader.set_mat4("view", view);
