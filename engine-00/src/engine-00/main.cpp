@@ -227,7 +227,7 @@ int main() {
 	// !!END BOUNDING BOX!!
 
 	// Set camera start position
-	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 20.0f });
+	my_cam.move_to(glm::vec3{ 0.0f, 6.0f, 8.0f });
 	my_cam.look_at(glm::vec3{ 0.0f, 0.0f, 0.0f });
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
 
