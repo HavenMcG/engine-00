@@ -112,7 +112,7 @@ int main() {
 	Model selected_hex = hex_2d;
 	selected_hex.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 255.0f, 0.0f, 0.0f });
 
-	Mesh mesh_cube_1x1x1 = *assets.load(Cuboid{ {-0.5f,-0.5f,-0.5f},{0.5f,0.5f,0.5f} }.generate_mesh());
+	Mesh mesh_cube_1x1x1 = *assets.load(Cuboid{ { -0.5f,-0.5f,-0.5f },{ 0.5f,0.5f,0.5f } }.generate_mesh());
 	Material mat_light_emitter{};
 	mat_light_emitter.color_diffuse = { 1.0f,1.0f,1.0f };
 	mat_light_emitter.color_specular = { 1.0f,1.0f,1.0f };
@@ -166,7 +166,7 @@ int main() {
 	transform_col.add_component(lamp);
 	light_col.add_component(lamp);
 	auto lali_ref = *light_col.get_component_ref(lamp);
-	lali_ref.ambient = { 0.1f, 0.1f, 0.1f };
+	lali_ref.ambient = { 1.0f, 1.0f, 1.0f };
 	lali_ref.diffuse = { 1.0f, 1.0f, 1.0f };
 	lali_ref.specular = { 1.0f, 1.0f, 1.0f };
 	lali_ref.constant = 1.0f;
@@ -295,6 +295,11 @@ int main() {
 	// track the previously selected hex
 	Hex prev_sel = hex_map.begin()->first;
 
+	// move light cube in orbit
+	float angle = 0.0f;
+	float radius = 2.0f;
+	float speed = 2.0f;
+
 	// RENDER LOOP
 	while (!glfwWindowShouldClose(window)) {
 		float current_frame = glfwGetTime();
@@ -309,11 +314,15 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// move light cube in orbit
+		angle += speed * delta_time;
+		if (angle >= 360.0f) angle -= 360.0f;
+		glm::vec3 ppos = *transform_col.position(monster);
+		transform_col.set_position(lamp, { radius * cos(angle), 2, radius * sin(angle) });
+
 		relation_col.pc.binary_insertion_sort();
 		hierarchy_sys.apply_parent_transforms();
-		//transform_sys.rotate_degrees(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
-		//transform_sys.rotate_degrees(hex_tile, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
-
+		
 		my_shader.use();
 
 		glm::mat4 view = my_cam.view_matrix();

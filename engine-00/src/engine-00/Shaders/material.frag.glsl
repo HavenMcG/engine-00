@@ -61,9 +61,9 @@ vec3 blendTextures(vec3 base_color, TextureStack stack, vec2 tex_coords) {
 }
 
 void main() {
-    vec3 diffuse_color = blendTextures(material.diffuse_color, material.diffuse_stack, tex_coords); // note: emissive gamma correction special case??
+    vec3 diffuse_color = blendTextures(material.diffuse_color, material.diffuse_stack, tex_coords);
     vec3 specular_color = blendTextures(material.specular_color, material.specular_stack, tex_coords);
-    vec3 emissive = blendTextures(material.emissive_color, material.emissive_stack, tex_coords);
+    vec3 emissive = blendTextures(material.emissive_color, material.emissive_stack, tex_coords); // note: emissive gamma correction special case??
 
     // ambient
 	vec3 ambient = light.ambient * diffuse_color;
