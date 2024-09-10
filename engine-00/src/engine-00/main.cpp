@@ -107,16 +107,16 @@ int main() {
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
 
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
-	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 6.0f, 138.0f, 44.0f });
+	//hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 6.0f, 138.0f, 44.0f });
 
 	Model selected_hex = hex_2d;
 	selected_hex.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 255.0f, 0.0f, 0.0f });
 
 	Mesh mesh_cube_1x1x1 = *assets.load(Cuboid{ { -0.5f,-0.5f,-0.5f },{ 0.5f,0.5f,0.5f } }.generate_mesh());
 	Material mat_light_emitter{};
-	mat_light_emitter.color_diffuse = { 1.0f,1.0f,1.0f };
-	mat_light_emitter.color_specular = { 1.0f,1.0f,1.0f };
-	mat_light_emitter.color_emissive = { 1.0f,1.0f,1.0f };
+	mat_light_emitter.color_diffuse = normalize_rgb({ 255, 213, 77 });
+	mat_light_emitter.color_specular = normalize_rgb({ 255, 213, 77 });
+	mat_light_emitter.color_emissive = normalize_rgb({ 255, 213, 77 });
 	mat_light_emitter.shininess = 32.0f;
 	Model model_light_cube{ "light emitter", { mesh_cube_1x1x1 }, { mat_light_emitter }};
 
@@ -131,7 +131,8 @@ int main() {
 	// Instantiate component collections
 	ModelCollection model_col;
 	TransformCollection transform_col;
-	LightCollection light_col;
+	PointLightCollection point_light_col;
+	DirectionalLightCollection dir_light_col;
 
 	// !!TEMP GUI STUFF!!
 	Mesh gui_quad = *ogl_store.load(BASIC_QUAD_MESH_DATA);
@@ -164,17 +165,30 @@ int main() {
 
 	Entity lamp = entities.create_entity();
 	transform_col.add_component(lamp);
-	light_col.add_component(lamp);
-	auto lali_ref = *light_col.get_component_ref(lamp);
-	lali_ref.ambient = { 1.0f, 1.0f, 1.0f };
-	lali_ref.diffuse = { 1.0f, 1.0f, 1.0f };
-	lali_ref.specular = { 1.0f, 1.0f, 1.0f };
-	lali_ref.constant = 1.0f;
-	lali_ref.linear = 0.09f;
-	lali_ref.quadratic = 0.032f;
+	point_light_col.add_component(lamp);
+	point_light_col.set_color(lamp, normalize_rgb({ 255, 213, 77 }));
+	point_light_col.set_constant(lamp, 1.0f);
+	point_light_col.set_linear(lamp, 0.09f);
+	point_light_col.set_quadratic(lamp, 0.032f);
 	transform_col.set_position(lamp, { 2.0f, 1.0f, 0.0f });
 	transform_col.set_scale(lamp, { 0.4f, 0.4f, 0.4f });
 	model_col.add_component(lamp, model_light_cube);
+
+	Entity lamp2 = entities.create_entity();
+	transform_col.add_component(lamp2);
+	point_light_col.add_component(lamp2);
+	point_light_col.set_color(lamp2, normalize_rgb({ 255, 213, 77 }));
+	point_light_col.set_constant(lamp2, 1.0f);
+	point_light_col.set_linear(lamp2, 0.09f);
+	point_light_col.set_quadratic(lamp2, 0.032f);
+	transform_col.set_position(lamp2, { 13.0f, 1.0f, 6.0f });
+	transform_col.set_scale(lamp2, { 0.4f, 0.4f, 0.4f });
+	model_col.add_component(lamp2, model_light_cube);
+
+	Entity moon = entities.create_entity();
+	dir_light_col.add_component(moon);
+	dir_light_col.set_color(moon, normalize_rgb({ 193, 203, 219 }));
+	dir_light_col.set_direction(moon, { -0.2f, -1.0f, -0.3f });
 
 	// !!TEMP BOUNDING BOX STUFF!!
 	Cuboid bound = *model_col.bounding_box(monster, assets);
@@ -334,15 +348,15 @@ int main() {
 		// setting model matrix is done in the renderer
 
 		// render standard models
-		renderer.draw_models(view, my_shader, model_col, transform_col, light_col, ogl_store);
+		renderer.draw_models(view, my_shader, model_col, transform_col, dir_light_col, point_light_col, ogl_store);
 
 		// render transparent models
 		glDepthMask(GL_FALSE);  // Disable writing to the depth buffer
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // draw back faces first
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, dir_light_col, point_light_col, ogl_store); // draw back faces first
 		glCullFace(GL_BACK);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // then front faces
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, dir_light_col, point_light_col, ogl_store); // then front faces
 		glDepthMask(GL_TRUE);
 		glDisable(GL_CULL_FACE);
 		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);

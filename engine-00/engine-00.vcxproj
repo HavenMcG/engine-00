@@ -148,7 +148,9 @@
     <ClCompile Include="src\engine-00\main.cpp" />
     <ClCompile Include="src\engine-00\Shader.cpp" />
     <ClCompile Include="src\HECS\Component\Component.cpp" />
-    <ClCompile Include="src\HECS\Component\Light.cpp" />
+    <ClCompile Include="src\HECS\Component\Light\DirectionalLight.cpp" />
+    <ClCompile Include="src\HECS\Component\Light\PointLight.cpp" />
+    <ClCompile Include="src\HECS\Component\Light\SpotLight.cpp" />
     <ClCompile Include="src\HECS\Component\Model.cpp" />
     <ClCompile Include="src\HECS\Component\Link.cpp" />
     <ClCompile Include="src\HECS\Component\Transform.cpp" />
@@ -168,12 +170,14 @@
     <ClInclude Include="src\Asset\Material.h" />
     <ClInclude Include="src\Asset\Mesh.h" />
     <ClInclude Include="src\engine-00\HexGrid.h" />
-    <ClInclude Include="src\HECS\Component\Light.h" />
+    <ClInclude Include="src\HECS\Component\Light\DirectionalLight.h" />
+    <ClInclude Include="src\HECS\Component\Light\PointLight.h" />
     <ClInclude Include="src\engine-00\RayCast.h" />
     <ClInclude Include="src\engine-00\Shader.h" />
     <ClInclude Include="src\Asset\Texture.h" />
     <ClInclude Include="src\Error\Error.h" />
     <ClInclude Include="src\HECS\Component\Component.h" />
+    <ClInclude Include="src\HECS\Component\Light\SpotLight.h" />
     <ClInclude Include="src\HECS\Component\Model.h" />
     <ClInclude Include="src\HECS\Component\Link.h" />
     <ClInclude Include="src\HECS\Component\Transform.h" />

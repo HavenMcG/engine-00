@@ -4,8 +4,30 @@
 #include <iostream>
 #include <iomanip>
 
-void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, LightCollection& lights, const OglAssetStore& assets) {
+void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, DirectionalLightCollection& directional_lights, PointLightCollection& point_lights, const OglAssetStore& assets) {
 	shader.use();
+
+	// find directional lights:
+	int light_count = 0;
+	for (int i = 0; i < directional_lights.size(); ++i) {
+		Entity e = directional_lights.owners_[i];
+		shader.set_directional_light("directional_lights[" + std::to_string(light_count) + "]", *directional_lights.get_component(e));
+		++light_count;
+	}
+	shader.set_int("num_directional_lights", light_count);
+
+	// find point lights:
+	light_count = 0;
+	for (int i = 0; i < point_lights.size(); ++i) {
+		Entity e = point_lights.owners_[i];
+		if (transforms.has_component(e)) {
+			shader.set_vec3("point_light_world_positions[" + std::to_string(light_count) + "]", *transforms.position(e));
+			shader.set_point_light("point_lights[" + std::to_string(light_count) + "]", *point_lights.get_component(e));
+			++light_count;
+		}
+		shader.set_int("num_point_lights", light_count);
+	}
+
 	// we need to find all entities with both a model and a transform
 	// there will be fewer entities with models so we'll start there
 	for (int model_index = 0; model_index < models.size(); ++model_index) {
@@ -23,25 +45,12 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 			// scale:
 			model_matrix *= glm::scale(glm::mat4(1.0f), transform->scale);
 
-			/*std::cout << std::endl;
-			std::cout << "Model Matrix: " << std::endl;
-			for (int i = 0; i < 4; ++i) {
-				for (int j = 0; j < 4; ++j) {
-					std::cout << std::setw(8) << model_matrix[i][j] << " ";
-				}
-				std::cout << std::endl;
-			}*/
-
 			// set model matrix uniform:
 			shader.set_mat4("model", model_matrix);
 
 			// set normal matrix uniform
 			glm::mat3 normal_matrix = glm::mat3(glm::inverseTranspose(view_matrix * model_matrix));
 			shader.set_mat3("normal_matrix", normal_matrix);
-
-			// temp?
-			shader.set_vec3("light_pos_world", *transforms.position(lights.indices_.begin()->first));
-			shader.set_light("light", *lights.get_component(lights.indices_.begin()->first));
 
 			for (int mesh_mat_index = 0; mesh_mat_index < model.meshes.size(); ++mesh_mat_index) {
 				// check loaded here?

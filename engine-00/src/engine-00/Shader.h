@@ -4,7 +4,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "../Asset/Material.h"
-#include "../HECS/Component/Light.h"
+#include "../HECS/Component/Light/PointLight.h"
+#include "../HECS/Component/Light/DirectionalLight.h"
 
 const int MAX_TEXTURES_PER_STACK = 4;
 
@@ -31,7 +32,8 @@ public:
 	void set_mat3x2(const std::string& name, const glm::mat3x2& mat);
 	void set_mat4(const std::string& name, const glm::mat4& mat);
 	void set_material(const std::string& name, const Material& material);
-	void set_light(const std::string& name, const Light& light);
+	void set_point_light(const std::string& name, const PointLight& light);
+	void set_directional_light(const std::string& name, const DirectionalLight& light);
 
 private:
 	// the program id
