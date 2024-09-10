@@ -169,7 +169,11 @@ int main() {
 	lali_ref.ambient = { 0.1f, 0.1f, 0.1f };
 	lali_ref.diffuse = { 1.0f, 1.0f, 1.0f };
 	lali_ref.specular = { 1.0f, 1.0f, 1.0f };
-	transform_col.set_position(lamp, { 3.0f, 2.0f, 0.0f });
+	lali_ref.constant = 1.0f;
+	lali_ref.linear = 0.09f;
+	lali_ref.quadratic = 0.032f;
+	transform_col.set_position(lamp, { 2.0f, 1.0f, 0.0f });
+	transform_col.set_scale(lamp, { 0.4f, 0.4f, 0.4f });
 	model_col.add_component(lamp, model_light_cube);
 
 	// !!TEMP BOUNDING BOX STUFF!!

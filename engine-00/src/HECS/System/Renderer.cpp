@@ -4,9 +4,6 @@
 #include <iostream>
 #include <iomanip>
 
-const int MAX_DIFFUSE_TEXTURES = 8;
-const int MAX_SPECULAR_TEXTURES = 8;
-
 void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, LightCollection& lights, const OglAssetStore& assets) {
 	shader.use();
 	// we need to find all entities with both a model and a transform
@@ -56,17 +53,21 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 
 				unsigned int id;
 				int total_textures = 0;
-				for (int i = 0; i < material.texture_diffuses.size() && i <= MAX_DIFFUSE_TEXTURES; ++i, ++total_textures) {
+				for (int i = 0; i < material.texture_diffuses.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
 					glActiveTexture(GL_TEXTURE0 + total_textures);
-					//shader.set_int("material.diffuse_textures[" + std::to_string(i) + "]", total_textures);
 					id = assets.tex_ogl_ids_[material.texture_diffuses[i].texture.index()];
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 
-				for (int i = 0; i < material.texture_speculars.size() && i <= MAX_SPECULAR_TEXTURES; ++i, ++total_textures) {
+				for (int i = 0; i < material.texture_speculars.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
 					glActiveTexture(GL_TEXTURE0 + total_textures);
-					//shader.set_int("material.specular_textures[" + std::to_string(i) + "]", total_textures);
 					id = assets.tex_ogl_ids_[material.texture_speculars[i].texture.index()];
+					glBindTexture(GL_TEXTURE_2D, id);
+				}
+
+				for (int i = 0; i < material.texture_emissives.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
+					glActiveTexture(GL_TEXTURE0 + total_textures);
+					id = assets.tex_ogl_ids_[material.texture_emissives[i].texture.index()];
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 
@@ -117,17 +118,21 @@ void Renderer::draw_ui(Shader& shader, ModelCollection& models, TransformCollect
 
 				unsigned int id;
 				int total_textures = 0;
-				for (int i = 0; i < material.texture_diffuses.size() && i <= MAX_DIFFUSE_TEXTURES; ++i, ++total_textures) {
+				for (int i = 0; i < material.texture_diffuses.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
 					glActiveTexture(GL_TEXTURE0 + total_textures);
-					shader.set_int("material.diffuse_textures[" + std::to_string(i) + "]", total_textures);
 					id = assets.tex_ogl_ids_[material.texture_diffuses[i].texture.index()];
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 
-				for (int i = 0; i < material.texture_speculars.size() && i <= MAX_SPECULAR_TEXTURES; ++i, ++total_textures) {
+				for (int i = 0; i < material.texture_speculars.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
 					glActiveTexture(GL_TEXTURE0 + total_textures);
-					shader.set_int("material.specular_textures[" + std::to_string(i) + "]", total_textures);
 					id = assets.tex_ogl_ids_[material.texture_speculars[i].texture.index()];
+					glBindTexture(GL_TEXTURE_2D, id);
+				}
+
+				for (int i = 0; i < material.texture_emissives.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
+					glActiveTexture(GL_TEXTURE0 + total_textures);
+					id = assets.tex_ogl_ids_[material.texture_emissives[i].texture.index()];
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 

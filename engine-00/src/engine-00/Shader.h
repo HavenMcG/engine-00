@@ -6,6 +6,8 @@
 #include "../Asset/Material.h"
 #include "../HECS/Component/Light.h"
 
+const int MAX_TEXTURES_PER_STACK = 4;
+
 class Shader {
 public:
 	// constructor reads and builds the shader
