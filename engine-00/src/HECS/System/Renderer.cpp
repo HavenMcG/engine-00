@@ -4,28 +4,18 @@
 #include <iostream>
 #include <iomanip>
 
-void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, DirectionalLightCollection& directional_lights, PointLightCollection& point_lights, const OglAssetStore& assets) {
+void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollection& models, TransformCollection& transforms, LightCollection& point_lights, const OglAssetStore& assets) {
 	shader.use();
 
-	// find directional lights:
 	int light_count = 0;
-	for (int i = 0; i < directional_lights.size(); ++i) {
-		Entity e = directional_lights.owners_[i];
-		shader.set_directional_light("directional_lights[" + std::to_string(light_count) + "]", *directional_lights.get_component(e));
-		++light_count;
-	}
-	shader.set_int("num_directional_lights", light_count);
-
-	// find point lights:
-	light_count = 0;
 	for (int i = 0; i < point_lights.size(); ++i) {
 		Entity e = point_lights.owners_[i];
 		if (transforms.has_component(e)) {
-			shader.set_vec3("point_light_world_positions[" + std::to_string(light_count) + "]", *transforms.position(e));
-			shader.set_point_light("point_lights[" + std::to_string(light_count) + "]", *point_lights.get_component(e));
+			shader.set_vec3("light_world_positions[" + std::to_string(light_count) + "]", *transforms.position(e));
+			shader.set_point_light("lights[" + std::to_string(light_count) + "]", *point_lights.get_component(e));
 			++light_count;
 		}
-		shader.set_int("num_point_lights", light_count);
+		shader.set_int("num_lights", light_count);
 	}
 
 	// we need to find all entities with both a model and a transform

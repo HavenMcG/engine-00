@@ -131,7 +131,7 @@ int main() {
 	// Instantiate component collections
 	ModelCollection model_col;
 	TransformCollection transform_col;
-	PointLightCollection point_light_col;
+	LightCollection point_light_col;
 	DirectionalLightCollection dir_light_col;
 
 	// !!TEMP GUI STUFF!!
