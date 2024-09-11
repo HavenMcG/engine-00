@@ -178,9 +178,12 @@ void Shader::set_material(const std::string& name, const Material& material) {
 
 void Shader::set_point_light(const std::string& name, const Light& light) {
 	set_vec3(name + ".color", light.color);
+	set_vec3(name + ".direction", light.direction);
 	set_float(name + ".constant", light.constant);
 	set_float(name + ".linear", light.linear);
 	set_float(name + ".quadratic", light.quadratic);
+	set_float(name + ".inner_cutoff", light.inner_cutoff);
+	set_float(name + ".outer_cutoff", light.outer_cuttoff);
 }
 
 void Shader::set_directional_light(const std::string& name, const Light& light) {
