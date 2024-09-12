@@ -10,16 +10,18 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 	int light_count = 0;
 	for (int i = 0; i < lights.size(); ++i) {
 		Entity e = lights.owners_[i];
-		if (transforms.has_component(e)) {
-			shader.set_vec3("light_world_positions[" + std::to_string(light_count) + "]", *transforms.position(e));
+		auto l = *lights.get_component(e);
+		glm::vec3 pos = { 0.0f,0.0f,0.0f };
+		bool has_pos = transforms.has_component(e);
+		if (l.type == Directional) {
+			has_pos = true;
 		}
-		else {
-			shader.set_vec3("light_world_positions[" + std::to_string(light_count) + "]", {0,0,0});
+		else if (has_pos) {
+			pos = *transforms.position(e);
 		}
-		shader.set_light("lights[" + std::to_string(light_count) + "]", *lights.get_component(e));
-		++light_count;
+		std::string s = "";
+		shader.set_light(s, l, pos);
 	}
-	shader.set_int("num_lights", light_count);
 
 	// we need to find all entities with both a model and a transform
 	// there will be fewer entities with models so we'll start there

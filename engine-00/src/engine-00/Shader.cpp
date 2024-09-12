@@ -176,19 +176,30 @@ void Shader::set_material(const std::string& name, const Material& material) {
 	set_float(name + ".opacity", material.opacity);
 }
 
-void Shader::set_light(const std::string& name, const Light& light, glm::vec3 position) {
+void Shader::set_light(std::string& name, const Light& light, glm::vec3 position) {
 	switch (light.type) {
 		case Point:
+			name = "point_lights[" + std::to_string(num_point_lights_) + "]";
 			set_float(name + ".constant", light.constant);
 			set_float(name + ".linear", light.linear);
 			set_float(name + ".quadratic", light.quadratic);
+			set_vec3("point_light_world_positions[" + std::to_string(num_point_lights_) + "]", position);
+			++num_point_lights_;
+			set_int("num_point_lights", num_point_lights_);
 			break;
 		case Directional:
+			name = "directional_lights[" + std::to_string(num_directional_lights_) + "]";
 			set_vec3(name + ".direction", light.direction);
+			++num_directional_lights_;
+			set_int("num_directional_lights", num_directional_lights_);
 			break;
 		case Spotlight:
+			name = "spotlights[" + std::to_string(num_spotlights_) + "]";
 			set_float(name + ".inner_cutoff", light.inner_cutoff);
 			set_float(name + ".outer_cutoff", light.outer_cuttoff);
+			set_vec3("spotlight_world_positions[" + std::to_string(num_spotlights_) + "]", position);
+			++num_spotlights_;
+			set_int("num_spotlights", num_spotlights_);
 			break;
 		default:
 			break;
