@@ -85,7 +85,7 @@ vec3 calc_directional_light(DirectionalLight light, vec3 normal, vec3 view_dir, 
     vec3 reflect_dir = reflect(-light_dir, normal);
     float spec = pow(max(dot(view_dir, reflect_dir), 0.0), material.shininess);
     // combine results
-    vec3 ambient = 0.1 * light.color * mat_ambient;
+    vec3 ambient = 0.7 * light.color * mat_ambient;
     vec3 diffuse = diff * light.color * mat_diffuse;
     vec3 specular = spec * light.color * mat_specular;
     return (ambient + diffuse + specular);
@@ -102,7 +102,7 @@ vec3 calc_point_light(PointLight light, vec3 light_pos, vec3 normal, vec3 view_d
     float distance = length(light_pos - frag_pos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // combine results
-    vec3 ambient = 0.1 * light.color * mat_ambient;
+    vec3 ambient = 0.7 * light.color * mat_ambient;
     vec3 diffuse = diff * light.color * mat_diffuse;
     vec3 specular = spec * light.color * mat_specular;
     ambient *= attenuation;

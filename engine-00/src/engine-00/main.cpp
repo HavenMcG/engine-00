@@ -38,6 +38,8 @@ int window_height = 1200;
 float delta_time = 0.0f;
 float last_frame = 0.0f;
 
+glm::vec3 lamp_color = normalize_rgb({ 255, 255, 255 });
+
 // camera variables
 Camera my_cam{};
 float last_x = window_width / 2; // to track the change in mouse cursor position
@@ -103,6 +105,8 @@ int main() {
 	AssimpAssetLoader aal;
 	AssetLoader& asset_loader = aal;
 
+
+
 	// Load assets
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
 
@@ -114,9 +118,9 @@ int main() {
 
 	Mesh mesh_cube_1x1x1 = *assets.load(Cuboid{ { -0.5f,-0.5f,-0.5f },{ 0.5f,0.5f,0.5f } }.generate_mesh());
 	Material mat_light_emitter{};
-	mat_light_emitter.color_diffuse = normalize_rgb({ 255, 213, 77 });
-	mat_light_emitter.color_specular = normalize_rgb({ 255, 213, 77 });
-	mat_light_emitter.color_emissive = normalize_rgb({ 255, 213, 77 });
+	mat_light_emitter.color_diffuse = lamp_color;
+	mat_light_emitter.color_specular = lamp_color;
+	mat_light_emitter.color_emissive = lamp_color;
 	mat_light_emitter.shininess = 32.0f;
 	Model model_light_cube{ "light emitter", { mesh_cube_1x1x1 }, { mat_light_emitter }};
 
@@ -166,7 +170,7 @@ int main() {
 	Entity lamp = entities.create_entity();
 	transform_col.add_component(lamp);
 	point_light_col.add_component(lamp);
-	point_light_col.set_color(lamp, normalize_rgb({ 255, 213, 77 }));
+	point_light_col.set_color(lamp, lamp_color);
 	point_light_col.set_constant(lamp, 1.0f);
 	point_light_col.set_linear(lamp, 0.09f);
 	point_light_col.set_quadratic(lamp, 0.032f);
@@ -177,7 +181,7 @@ int main() {
 	Entity lamp2 = entities.create_entity();
 	transform_col.add_component(lamp2);
 	point_light_col.add_component(lamp2);
-	point_light_col.set_color(lamp2, normalize_rgb({ 255, 213, 77 }));
+	point_light_col.set_color(lamp2, lamp_color);
 	point_light_col.set_constant(lamp2, 1.0f);
 	point_light_col.set_linear(lamp2, 0.09f);
 	point_light_col.set_quadratic(lamp2, 0.032f);
@@ -185,10 +189,10 @@ int main() {
 	transform_col.set_scale(lamp2, { 0.4f, 0.4f, 0.4f });
 	model_col.add_component(lamp2, model_light_cube);
 
-	Entity moon = entities.create_entity();
+	/*Entity moon = entities.create_entity();
 	dir_light_col.add_component(moon);
 	dir_light_col.set_color(moon, normalize_rgb({ 193, 203, 219 }));
-	dir_light_col.set_direction(moon, { -0.2f, -1.0f, -0.3f });
+	dir_light_col.set_direction(moon, { -0.2f, -1.0f, -0.3f });*/
 
 	// !!TEMP BOUNDING BOX STUFF!!
 	Cuboid bound = *model_col.bounding_box(monster, assets);
