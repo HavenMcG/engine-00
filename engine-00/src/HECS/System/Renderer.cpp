@@ -20,7 +20,7 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 			pos = *transforms.position(e);
 		}
 		std::string s = "";
-		shader.set_light(s, l, pos);
+		if (has_pos) shader.set_light(s, l, pos);
 	}
 
 	// we need to find all entities with both a model and a transform
