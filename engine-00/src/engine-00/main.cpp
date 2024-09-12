@@ -132,7 +132,6 @@ int main() {
 	ModelCollection model_col;
 	TransformCollection transform_col;
 	LightCollection point_light_col;
-	DirectionalLightCollection dir_light_col;
 
 	// !!TEMP GUI STUFF!!
 	Mesh gui_quad = *ogl_store.load(BASIC_QUAD_MESH_DATA);
@@ -186,9 +185,9 @@ int main() {
 	model_col.add_component(lamp2, model_light_cube);
 
 	Entity moon = entities.create_entity();
-	dir_light_col.add_component(moon);
-	dir_light_col.set_color(moon, normalize_rgb({ 193, 203, 219 }));
-	dir_light_col.set_direction(moon, { -0.2f, -1.0f, -0.3f });
+	point_light_col.add_component(moon);
+	point_light_col.set_color(moon, normalize_rgb({ 193, 203, 219 }));
+	point_light_col.set_direction(moon, { -0.2f, -1.0f, -0.3f });
 
 	// !!TEMP BOUNDING BOX STUFF!!
 	Cuboid bound = *model_col.bounding_box(monster, assets);
@@ -348,15 +347,15 @@ int main() {
 		// setting model matrix is done in the renderer
 
 		// render standard models
-		renderer.draw_models(view, my_shader, model_col, transform_col, dir_light_col, point_light_col, ogl_store);
+		renderer.draw_models(view, my_shader, model_col, transform_col, point_light_col, ogl_store);
 
 		// render transparent models
 		glDepthMask(GL_FALSE);  // Disable writing to the depth buffer
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, dir_light_col, point_light_col, ogl_store); // draw back faces first
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, point_light_col, ogl_store); // draw back faces first
 		glCullFace(GL_BACK);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, dir_light_col, point_light_col, ogl_store); // then front faces
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, point_light_col, ogl_store); // then front faces
 		glDepthMask(GL_TRUE);
 		glDisable(GL_CULL_FACE);
 		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);

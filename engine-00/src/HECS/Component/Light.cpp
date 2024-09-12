@@ -18,6 +18,7 @@ std::expected<void, ErrorCode> LightCollection::add_component(Entity e) {
     if (!indices_.emplace(e, n_).second) return std::unexpected(false);
     if (owners_.size() == n_) {
         owners_.push_back(e);
+        types_.push_back(Point);
         colors_.push_back({ 0.0f, 0.0f, 0.0f });
         directions_.push_back({ 0.0f, 0.0f, 0.0f });
         constants_.push_back(0.0f);
@@ -30,6 +31,7 @@ std::expected<void, ErrorCode> LightCollection::add_component(Entity e) {
     else {
         int i = n_ - 1;
         owners_[i] = e;
+        types_[i] = Point;
         colors_[i] = { 0.0f, 0.0f, 0.0f };
         directions_[i] = { 0.0f, 0.0f, 0.0f };
         constants_[i] = 0.0f;
@@ -48,6 +50,7 @@ std::expected<void, ErrorCode> LightCollection::destroy_component(Entity e) {
     int end = indices_[last_entity];
 
     owners_[i] = owners_[end];
+    types_[i] = types_[end];
     colors_[i] = colors_[end];
     directions_[i] = directions_[end];
     constants_[i] = constants_[end];
@@ -66,6 +69,7 @@ std::expected<Light, ErrorCode> LightCollection::get_component(Entity e) {
     if (!r.has_value()) return std::unexpected(false);
     int i = *r;
     return Light{
+        types_[i],
         colors_[i],
         directions_[i],
         constants_[i],
@@ -81,6 +85,7 @@ std::expected<LightRef, ErrorCode> LightCollection::get_component_ref(Entity e) 
     if (!r.has_value()) return std::unexpected(false);
     int i = *r;
     return LightRef{
+        types_[i],
         colors_[i],
         directions_[i],
         constants_[i],
@@ -91,10 +96,22 @@ std::expected<LightRef, ErrorCode> LightCollection::get_component_ref(Entity e) 
     };
 }
 
+std::expected<void, ErrorCode> LightCollection::set_type(Entity e, LightType new_type) {
+    auto r = index(e);
+    if (!r.has_value()) return std::unexpected(false);
+    types_[*r] = new_type;
+}
+
 std::expected<void, ErrorCode> LightCollection::set_color(Entity e, glm::vec3 new_color) {
     auto r = index(e);
     if (!r.has_value()) return std::unexpected(false);
     colors_[*r] = new_color;
+}
+
+std::expected<void, ErrorCode> LightCollection::set_direction(Entity e, glm::vec3 new_direction) {
+    auto r = index(e);
+    if (!r.has_value()) return std::unexpected(false);
+    directions_[*r] = new_direction;
 }
 
 std::expected<void, ErrorCode> LightCollection::set_constant(Entity e, float new_constant) {
@@ -113,4 +130,16 @@ std::expected<void, ErrorCode> LightCollection::set_quadratic(Entity e, float ne
     auto r = index(e);
     if (!r.has_value()) return std::unexpected(false);
     quadratics_[*r] = new_quadratic;
+}
+
+std::expected<void, ErrorCode> LightCollection::set_inner_cutoff(Entity e, float new_inner_cutoff) {
+    auto r = index(e);
+    if (!r.has_value()) return std::unexpected(false);
+    inner_cutoffs_[*r] = new_inner_cutoff;
+}
+
+std::expected<void, ErrorCode> LightCollection::set_outer_cutoff(Entity e, float new_outer_cutoff) {
+    auto r = index(e);
+    if (!r.has_value()) return std::unexpected(false);
+    outer_cutoffs_[*r] = new_outer_cutoff;
 }

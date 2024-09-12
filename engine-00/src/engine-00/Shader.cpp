@@ -176,14 +176,24 @@ void Shader::set_material(const std::string& name, const Material& material) {
 	set_float(name + ".opacity", material.opacity);
 }
 
-void Shader::set_point_light(const std::string& name, const Light& light) {
+void Shader::set_light(const std::string& name, const Light& light, glm::vec3 position) {
+	switch (light.type) {
+		case Point:
+			set_float(name + ".constant", light.constant);
+			set_float(name + ".linear", light.linear);
+			set_float(name + ".quadratic", light.quadratic);
+			break;
+		case Directional:
+			set_vec3(name + ".direction", light.direction);
+			break;
+		case Spotlight:
+			set_float(name + ".inner_cutoff", light.inner_cutoff);
+			set_float(name + ".outer_cutoff", light.outer_cuttoff);
+			break;
+		default:
+			break;
+	}
 	set_vec3(name + ".color", light.color);
-	set_vec3(name + ".direction", light.direction);
-	set_float(name + ".constant", light.constant);
-	set_float(name + ".linear", light.linear);
-	set_float(name + ".quadratic", light.quadratic);
-	set_float(name + ".inner_cutoff", light.inner_cutoff);
-	set_float(name + ".outer_cutoff", light.outer_cuttoff);
 }
 
 void Shader::set_directional_light(const std::string& name, const Light& light) {

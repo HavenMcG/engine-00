@@ -7,9 +7,14 @@
 #include <unordered_map>
 #include <expected>
 
-struct LightRef;
+enum LightType {
+	Point,
+	Directional,
+	Spotlight
+};
 
 struct Light {
+	LightType type;
 	glm::vec3 color;
 	glm::vec3 direction;
 	float constant;
@@ -20,6 +25,7 @@ struct Light {
 };
 
 struct LightRef {
+	LightType& type;
 	glm::vec3& color;
 	glm::vec3& direction;
 	float& constant;
@@ -39,15 +45,19 @@ public:
 	std::expected<Light, ErrorCode> get_component(Entity e);
 	std::expected<LightRef, ErrorCode> get_component_ref(Entity e);
 
+	std::expected<void, ErrorCode> set_type(Entity e, LightType new_type);
 	std::expected<void, ErrorCode> set_color(Entity e, glm::vec3 new_color);
+	std::expected<void, ErrorCode> set_direction(Entity e, glm::vec3 new_direction);
 	std::expected<void, ErrorCode> set_constant(Entity e, float new_constant);
 	std::expected<void, ErrorCode> set_linear(Entity e, float new_linear);
 	std::expected<void, ErrorCode> set_quadratic(Entity e, float new_quadratic);
+	std::expected<void, ErrorCode> set_inner_cutoff(Entity e, float new_inner_cutoff);
+	std::expected<void, ErrorCode> set_outer_cutoff(Entity e, float new_outer_cutoff);
 
 	std::unordered_map<Entity, EntityType> indices_;
 	std::vector<Entity> owners_;
+	std::vector<LightType> types_;
 	std::vector<glm::vec3> colors_;
-
 	// for directional lights AND spotlights
 	std::vector<glm::vec3> directions_;
 
