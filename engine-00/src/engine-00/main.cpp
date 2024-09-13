@@ -38,6 +38,8 @@ int window_height = 1200;
 float delta_time = 0.0f;
 float last_frame = 0.0f;
 
+glm::vec3 lamp_color = { 1.0f, 1.0f, 1.0f };
+
 // camera variables
 Camera my_cam{};
 float last_x = window_width / 2; // to track the change in mouse cursor position
@@ -107,16 +109,16 @@ int main() {
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
 
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
-	//hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 6.0f, 138.0f, 44.0f });
+	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 27, 48, 17 });
 
 	Model selected_hex = hex_2d;
 	selected_hex.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 255.0f, 0.0f, 0.0f });
 
 	Mesh mesh_cube_1x1x1 = *assets.load(Cuboid{ { -0.5f,-0.5f,-0.5f },{ 0.5f,0.5f,0.5f } }.generate_mesh());
 	Material mat_light_emitter{};
-	mat_light_emitter.color_diffuse = normalize_rgb({ 255, 213, 77 });
-	mat_light_emitter.color_specular = normalize_rgb({ 255, 213, 77 });
-	mat_light_emitter.color_emissive = normalize_rgb({ 255, 213, 77 });
+	mat_light_emitter.color_diffuse = lamp_color;
+	mat_light_emitter.color_specular = lamp_color;
+	mat_light_emitter.color_emissive = lamp_color;
 	mat_light_emitter.shininess = 32.0f;
 	Model model_light_cube{ "light emitter", { mesh_cube_1x1x1 }, { mat_light_emitter }};
 
@@ -165,18 +167,18 @@ int main() {
 	Entity lamp = entities.create_entity();
 	transform_col.add_component(lamp);
 	light_col.add_component(lamp);
-	light_col.set_color(lamp, normalize_rgb({ 255, 213, 77 }));
+	light_col.set_color(lamp, lamp_color);
 	light_col.set_constant(lamp, 1.0f);
-	light_col.set_linear(lamp, 0.09f);
-	light_col.set_quadratic(lamp, 0.032f);
+	light_col.set_linear(lamp, 0.045f);
+	light_col.set_quadratic(lamp, 0.0075f);
 	transform_col.set_position(lamp, { 2.0f, 1.0f, 0.0f });
-	transform_col.set_scale(lamp, { 0.4f, 0.4f, 0.4f });
+	transform_col.set_scale(lamp, { 0.2f, 0.2f, 0.2f });
 	model_col.add_component(lamp, model_light_cube);
 
 	Entity lamp2 = entities.create_entity();
 	transform_col.add_component(lamp2);
 	light_col.add_component(lamp2);
-	light_col.set_color(lamp2, normalize_rgb({ 255, 213, 77 }));
+	light_col.set_color(lamp2, lamp_color);
 	light_col.set_constant(lamp2, 1.0f);
 	light_col.set_linear(lamp2, 0.09f);
 	light_col.set_quadratic(lamp2, 0.032f);
