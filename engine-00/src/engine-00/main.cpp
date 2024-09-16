@@ -131,7 +131,7 @@ int main() {
 	Shader hex_grid_shader("src/engine-00/Shaders/hexGrid.vert.glsl", "src/engine-00/Shaders/hexGrid.frag.glsl");
 	Shader gui_shader("src/engine-00/Shaders/gui.vert.glsl", "src/engine-00/Shaders/gui.frag.glsl");
 
-	// Instantiate component collections
+	// Instantiate entity collections
 	EntityCollection entities;
 
 	// Instantiate component collections
