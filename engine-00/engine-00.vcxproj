@@ -140,6 +140,7 @@
     <ClCompile Include="..\external\src\glad.c" />
     <ClCompile Include="src\Asset\Data.cpp" />
     <ClCompile Include="src\Asset\Loader\Assimp\AssimpAssetLoader.cpp" />
+    <ClCompile Include="src\Asset\Material.cpp" />
     <ClCompile Include="src\Asset\Mesh.cpp" />
     <ClCompile Include="src\Asset\Store\OpenGL\OglAssetStore.cpp" />
     <ClCompile Include="src\Asset\Texture.cpp" />

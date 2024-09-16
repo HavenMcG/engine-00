@@ -118,7 +118,9 @@ static GLenum to_gl_enum(Format f) {
 }
 
 std::expected<Texture, ErrorCode> OglAssetStore::load(const TextureData& data, const std::string& name) {
-	std::cout << "loading texture " << name << std::endl;
+	std::cout << "loading texture " << name;
+	if (data.format == RGBA) std::cout << " RGBA";
+	std::cout << std::endl;
 	if (!tex_paths_to_indices_.contains(name)) {
 		unsigned int ogl_id;
 		glGenTextures(1, &ogl_id);

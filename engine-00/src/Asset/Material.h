@@ -1,6 +1,9 @@
 #pragma once
 #include "Texture.h"
 #include <vector>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 // these need to match constants in the shader
 enum TextureBlendOp {
@@ -24,3 +27,5 @@ struct Material {
 	float shininess;
 	float opacity = 1.0f;
 };
+
+void print(Material m);

@@ -107,6 +107,10 @@ int main() {
 
 	// Load assets
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
+	// split off the tree
+	Model tree_model{ "monster tree", { monster_model.meshes[0] }, { monster_model.materials[0] } };
+	monster_model.meshes.erase(monster_model.meshes.begin());
+	monster_model.materials.erase(monster_model.materials.begin());
 
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
 	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 27, 48, 17 });
@@ -134,6 +138,12 @@ int main() {
 	ModelCollection model_col;
 	TransformCollection transform_col;
 	LightCollection light_col;
+	LinkCollection relation_col;
+	ModelCollection transparent_model_col;
+
+	// gui
+	ModelCollection gui_model_col;
+	TransformCollection gui_transform_col;
 
 	// !!TEMP GUI STUFF!!
 	Mesh gui_quad = *ogl_store.load(BASIC_QUAD_MESH_DATA);
@@ -142,10 +152,6 @@ int main() {
 	gui_material.color_specular = { 1.0f, 1.0f, 1.0f };
 	Model gui_model_1 = { "gui_model_1", { gui_quad }, { gui_material } };
 	Transform gui_transform_1{};
-
-	ModelCollection gui_model_col;
-	TransformCollection gui_transform_col;
-	LinkCollection relation_col;
 
 	Entity gui_element_1 = entities.create_entity();
 	gui_model_col.add_component(gui_element_1, gui_model_1);
@@ -163,6 +169,11 @@ int main() {
 	Entity monster = entities.create_entity();
 	transform_col.add_component(monster);
 	model_col.add_component(monster, monster_model);
+
+	Entity monster_tree = entities.create_entity();
+	transform_col.add_component(monster_tree);
+	transparent_model_col.add_component(monster_tree, tree_model);
+	relation_col.make_child(monster_tree, monster);
 
 	Entity lamp = entities.create_entity();
 	transform_col.add_component(lamp);
@@ -207,6 +218,7 @@ int main() {
 	glm::vec3 act_dimensions = bound.size() * act_scale;
 	std::cout << "dimensions: " << act_dimensions.x << " x " << act_dimensions.y << " x " << act_dimensions.z << std::endl;
 	std::cout << "center: " << center.x << ", " << center.y << ", " << center.z << std::endl;
+	std::cout << std::endl;
 
 	glm::vec3 t = glm::vec3{ 0, 0, 0 } - center;
 	transform_col.set_position_offset(monster, t * scale);
@@ -220,16 +232,17 @@ int main() {
 	Model bounding_box_model = { "bounding_box", { bounding_box_mesh }, { bounding_box_material } };
 
 	Entity monster_bounding_box = entities.create_entity();
-	ModelCollection transparent_model_col;
 	//model_col.add_component(monster_bounding_box, bounding_box_model);
 	transform_col.add_component(monster_bounding_box);
 	relation_col.make_child(monster_bounding_box, monster);
 	transform_col.set_position_offset(monster_bounding_box, *transform_col.position_offset(monster));
 
 	glm::vec3 act_world_pos = *transform_col.world_position(monster);
+	std::cout << std::endl;
 	std::cout << "world position: " << act_world_pos.x << ", " << act_world_pos.y << ", " << act_world_pos.z << std::endl;
 	glm::vec3 act_local_pos = *transform_col.position(monster);
 	std::cout << "local position: " << act_local_pos.x << ", " << act_local_pos.y << ", " << act_local_pos.z << std::endl;
+	std::cout << std::endl;
 
 	Entity monster_owner = entities.create_entity();
 	transform_col.add_component(monster_owner);
@@ -347,17 +360,6 @@ int main() {
 		// render standard models
 		renderer.draw_models(view, my_shader, model_col, transform_col, light_col, ogl_store);
 
-		// render transparent models
-		glDepthMask(GL_FALSE);  // Disable writing to the depth buffer
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // draw back faces first
-		glCullFace(GL_BACK);
-		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // then front faces
-		glDepthMask(GL_TRUE);
-		glDisable(GL_CULL_FACE);
-		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);
-
 		// render hex grid shader
 		hex_grid_shader.use();
 		hex_grid_shader.set_mat4("model", glm::mat4(1.0f));
@@ -365,6 +367,17 @@ int main() {
 		hex_grid_shader.set_mat4("projection", projection);
 		glBindVertexArray(hex_vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		// render transparent models
+		glDepthMask(GL_FALSE);  // Disable writing to the depth buffer
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // draw back faces first
+		//glCullFace(GL_BACK);
+		//renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // then front faces
+		glDepthMask(GL_TRUE);
+		//glDisable(GL_CULL_FACE);
+		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);
 
 		// find which hex the cursor is hovering:
 		double cursor_pos_x = 0, cursor_pos_y = 0;
