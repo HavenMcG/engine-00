@@ -7,6 +7,7 @@
 struct Vertex {
 	glm::vec3 position;
 	glm::vec3 normal;
+	glm::vec3 tangent;
 	glm::vec2 tex_coords;
 };
 
@@ -23,18 +24,9 @@ struct Cuboid {
 	glm::vec3 center();
 };
 
-const MeshData BASIC_QUAD_MESH_DATA {
-	std::vector<Vertex> {
-		{ { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-		{ { 0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
-		{ { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-		{ { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } }
-	},
-	std::vector<unsigned int> {
-		0, 1, 3,
-		1, 2, 3
-	}
-};
+glm::vec3 tangent(std::vector<glm::vec3> pos, std::vector<glm::vec2> uv, glm::vec3 normal);
+
+MeshData basic_quad_meshdata();
 
 enum TextureType {
 	Diffuse,

@@ -21,11 +21,13 @@ struct Material {
 	std::vector<TextureAssignment> texture_diffuses;
 	std::vector<TextureAssignment> texture_speculars;
 	std::vector<TextureAssignment> texture_emissives;
+	Texture normal_map;
 	glm::vec3 color_diffuse;
 	glm::vec3 color_specular;
 	glm::vec3 color_emissive;
 	float shininess;
 	float opacity = 1.0f;
+	Material();
 };
 
 void print(Material m);

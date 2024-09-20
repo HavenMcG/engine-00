@@ -1,5 +1,51 @@
 #include "Data.h"
 
+glm::vec3 tangent(std::vector<glm::vec3> pos, std::vector<glm::vec2> uv, glm::vec3 normal) {
+    glm::vec3 edge1 = pos[1] - pos[0];
+    glm::vec3 edge2 = pos[2] - pos[0];
+    glm::vec2 delta_uv1 = uv[1] - uv[0];
+    glm::vec2 delta_uv2 = uv[2] - uv[0];
+
+    float f = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv2.x * delta_uv1.y);
+
+    glm::vec3 tangent;
+    tangent.x = f * (delta_uv2.y * edge1.x - delta_uv1.y * edge2.x);
+    tangent.y = f * (delta_uv2.y * edge1.y - delta_uv1.y * edge2.y);
+    tangent.z = f * (delta_uv2.y * edge1.z - delta_uv1.y * edge2.z);
+
+    return tangent;
+}
+
+MeshData basic_quad_meshdata() {
+    std::vector<glm::vec3> pos = {
+        { 0.5f, 0.5f, 0.0f },
+        { 0.5f, -0.5f, 0.0f },
+        { -0.5f, -0.5f, 0.0f },
+        { -0.5f, 0.5f, 0.0f }
+    };
+    glm::vec3 nm = { 0.0f, 0.0f, 1.0f };
+    std::vector<glm::vec2> uv = {
+        { 1.0f, 1.0f },
+        { 1.0f, 0.0f },
+        { 0.0f, 0.0f },
+        { 0.0f, 1.0f }
+    };
+    glm::vec3 tan1 = tangent({ pos[0],pos[1],pos[3] }, { uv[0],uv[1],uv[3] }, nm);
+
+    return MeshData{
+        std::vector<Vertex> {
+            { pos[0], nm, tan1, uv[0]},
+            { pos[1], nm, tan1, uv[1]},
+            { pos[2], nm, tan1, uv[2]},
+            { pos[3], nm, tan1, uv[3]}
+        },
+        std::vector<unsigned int> {
+            0, 1, 3,
+            1, 2, 3
+        }
+    };
+}
+
 Cuboid generate_bounding_box(const MeshData& data) {
     glm::vec3 min_point = data.vertices[0].position;
     glm::vec3 max_point = data.vertices[0].position;

@@ -106,7 +106,7 @@ int main() {
 	AssetLoader& asset_loader = aal;
 
 	// Load assets
-	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
+	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final-DIFFUSE.obj", assets);
 	// split off the tree
 	Model tree_model{ "monster tree", { monster_model.meshes[0] }, { monster_model.materials[0] } };
 	monster_model.meshes.erase(monster_model.meshes.begin());
@@ -146,7 +146,7 @@ int main() {
 	TransformCollection gui_transform_col;
 
 	// !!TEMP GUI STUFF!!
-	Mesh gui_quad = *ogl_store.load(BASIC_QUAD_MESH_DATA);
+	Mesh gui_quad = *ogl_store.load(basic_quad_meshdata());
 	Material gui_material{};
 	gui_material.color_diffuse = normalize_rgb({ 145.0f, 91.0f, 4.0f });
 	gui_material.color_specular = { 1.0f, 1.0f, 1.0f };

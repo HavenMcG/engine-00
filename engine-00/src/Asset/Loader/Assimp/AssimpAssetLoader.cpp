@@ -17,7 +17,7 @@ struct AssimpAssetLoader::Private {
 
 std::expected<Model, bool> AssimpAssetLoader::load_model(const std::string& path, AssetStore& store) {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -66,7 +66,11 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 				ai_mesh->mNormals[i].y,
 				ai_mesh->mNormals[i].z
 			};
-
+			vertex.tangent = {
+				ai_mesh->mTangents[i].x,
+				ai_mesh->mTangents[i].y,
+				ai_mesh->mTangents[i].z
+			};
 			if (ai_mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
 				glm::vec2 tex_coords{
 					ai_mesh->mTextureCoords[0][i].x,
@@ -102,6 +106,9 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 		material.texture_diffuses = load_material_textures(model, scene, ai_material, aiTextureType_DIFFUSE, store);
 		material.texture_speculars = load_material_textures(model, scene, ai_material, aiTextureType_SPECULAR, store);
 		material.texture_emissives = load_material_textures(model, scene, ai_material, aiTextureType_EMISSIVE, store);
+		auto r = load_material_textures(model, scene, ai_material, aiTextureType_HEIGHT, store);
+		if (r.size() == 0) std::cout << "failed to read normal map\n";
+		else material.normal_map = r[0].texture;
 
 		// process other fields
 		aiColor3D ai_color_diffuse;
@@ -125,6 +132,7 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 }
 
 std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_textures(Model& model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, AssetStore& store) {
+	std::cout << "loading texture\n";
 	std::vector<TextureAssignment> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(ai_ttype); ++i) {
 		aiString ai_path;

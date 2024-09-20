@@ -20,3 +20,16 @@ void print(Material m) {
 	std::cout << "Shininess: " << m.shininess << std::endl;
 	std::cout << "Opacity: " << m.opacity << std::endl;
 }
+
+Material::Material()
+	: texture_diffuses{ std::vector<TextureAssignment>{} }
+	, texture_speculars{ std::vector<TextureAssignment>{} }
+	, texture_emissives{ std::vector<TextureAssignment>{} }
+	, normal_map{ Texture(0,0) } // bad
+	, color_diffuse{ glm::vec3{ 0.6, 0.6, 0.6 } }
+	, color_specular{ glm::vec3{ 0,0,0 } }
+	, color_emissive{ glm::vec3{ 0,0,0 } }
+	, shininess{ 2.0f }
+	, opacity{ 1.0f }
+{
+}
