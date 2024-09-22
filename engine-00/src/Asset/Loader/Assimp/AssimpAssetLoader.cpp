@@ -107,8 +107,8 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 		material.texture_speculars = load_material_textures(model, scene, ai_material, aiTextureType_SPECULAR, store);
 		material.texture_emissives = load_material_textures(model, scene, ai_material, aiTextureType_EMISSIVE, store);
 		auto r = load_material_textures(model, scene, ai_material, aiTextureType_HEIGHT, store);
-		if (r.size() == 0) std::cout << "failed to read normal map\n";
-		else material.normal_map = r[0].texture;
+		if (r.size() > 0) material.normal_map = r[0].texture;
+		if (r.size() > 1) std::cout << "warning: material has more than one normal map\n";
 
 		// process other fields
 		aiColor3D ai_color_diffuse;
@@ -132,7 +132,6 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 }
 
 std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_textures(Model& model, const aiScene* scene, aiMaterial* mat, aiTextureType ai_ttype, AssetStore& store) {
-	std::cout << "loading texture\n";
 	std::vector<TextureAssignment> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(ai_ttype); ++i) {
 		aiString ai_path;

@@ -171,8 +171,12 @@ void Shader::set_material(const std::string& name, const Material& material) {
 	}
 	set_int(name + ".emissive_stack.num_textures", material.texture_emissives.size());
 
-	set_int(name + ".normal_map", total_textures);
-	++total_textures;
+	if (material.normal_map.has_value()) {
+		set_int(name + ".normal_map", total_textures);
+		set_bool(name + ".has_normal_map", true);
+		++total_textures;
+	}
+	else set_bool(name + ".has_normal_map", false);
 
 	set_float(name + ".shininess", material.shininess);
 

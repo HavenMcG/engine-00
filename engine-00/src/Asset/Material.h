@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture.h"
 #include <vector>
+#include <optional>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -21,7 +22,7 @@ struct Material {
 	std::vector<TextureAssignment> texture_diffuses;
 	std::vector<TextureAssignment> texture_speculars;
 	std::vector<TextureAssignment> texture_emissives;
-	Texture normal_map;
+	std::optional<Texture> normal_map;
 	glm::vec3 color_diffuse;
 	glm::vec3 color_specular;
 	glm::vec3 color_emissive;

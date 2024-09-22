@@ -29,6 +29,8 @@ struct Material {
 	TextureStack diffuse_stack;
     TextureStack specular_stack;
     TextureStack emissive_stack;
+    sampler2D normal_map;
+    bool has_normal_map;
 
     vec3 diffuse_color;
     vec3 specular_color;
@@ -64,6 +66,13 @@ void main() {
     vec4 emissive = blendTextures(material.emissive_color, material.emissive_stack, tex_coords); // note: emissive gamma correction special case??
 
 	vec3 norm = normalize(normal);
+    if (material.has_normal_map) {
+        norm = texture(material.normal_map, tex_coords).rgb;
+        norm = normalize(norm * 2.0 - 1.0); // transform normal vector to range [-1, 1]
+    }
+    if (gl_FrontFacing == false) {
+        norm = -norm;
+    }
 	vec3 view_dir = normalize(-frag_pos);
 
     vec4 result = vec4(0.0);

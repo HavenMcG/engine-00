@@ -322,7 +322,7 @@ int main() {
 	// move light cube in orbit
 	float angle = 0.0f;
 	float radius = 2.0f;
-	float speed = 2.0f;
+	float speed = 1.0f;
 
 	// RENDER LOOP
 	while (!glfwWindowShouldClose(window)) {

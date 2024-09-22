@@ -75,10 +75,12 @@ void Renderer::draw_models(glm::mat4 view_matrix, Shader& shader, ModelCollectio
 					glBindTexture(GL_TEXTURE_2D, id);
 				}
 
-				glActiveTexture(GL_TEXTURE0 + total_textures);
-				id = assets.tex_ogl_ids_[material.normal_map.index()];
-				glBindTexture(GL_TEXTURE_2D, id);
-				++total_textures;
+				if (material.normal_map.has_value()) {
+					glActiveTexture(GL_TEXTURE0 + total_textures);
+					id = assets.tex_ogl_ids_[material.normal_map->index()];
+					glBindTexture(GL_TEXTURE_2D, id);
+					++total_textures;
+				}
 
 				// draw mesh
 				glBindVertexArray(assets.mesh_vaos_[mesh.index()]);
