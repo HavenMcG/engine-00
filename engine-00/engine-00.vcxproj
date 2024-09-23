@@ -169,6 +169,7 @@
     <ClInclude Include="src\Asset\Material.h" />
     <ClInclude Include="src\Asset\Mesh.h" />
     <ClInclude Include="src\engine-00\HexGrid.h" />
+    <ClInclude Include="src\HECS\Component\AI.h" />
     <ClInclude Include="src\HECS\Component\Light.h" />
     <ClInclude Include="src\engine-00\RayCast.h" />
     <ClInclude Include="src\engine-00\Shader.h" />
