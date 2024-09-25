@@ -6,3 +6,5 @@ I learned the basics of OpenGL in late July 2024 and began this project shortly 
 
 Currently (2024-09-04) the main branch loads up a simple scene containing an oversized 3d model, a hexagonal grid shader and a small hex map that responds to being moused over.
 Use WASD to move around the scene.
+
+Forest monster asset from https://opengameart.org/content/forest-monster and is in the public domain.
