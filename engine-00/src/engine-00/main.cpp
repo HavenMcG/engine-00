@@ -116,7 +116,7 @@ int main() {
 	tree_model.materials[0].shininess = 32;
 
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
-	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 27, 48, 17 });
+	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 33, 92, 36 });
 
 	Model selected_hex = hex_2d;
 	selected_hex.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 255.0f, 0.0f, 0.0f });
