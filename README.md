@@ -10,7 +10,7 @@ Use WASD to move around the scene, spacebar to move up, and C to move down.
 Forest monster asset from https://opengameart.org/content/forest-monster and is in the public domain.
 
 External libraries used:  
-GLAD for OpenGL function handles.  
+GLAD for fetching OpenGL function pointers.  
 GLFW for window creation.  
 GLM for vector/matrix/quaternion math.  
 stb_image for loading texture files.  
