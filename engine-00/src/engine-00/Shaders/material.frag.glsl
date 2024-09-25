@@ -18,6 +18,7 @@ struct PointLight {
     float quadratic;
 };
 
+// I decided game engines probably don't need to handle complex texture stacks and am planning to remove this.
 struct TextureStack {
     sampler2D textures[MAX_TEXURES_PER_STACK];
     int blend_strengths[MAX_TEXURES_PER_STACK];
@@ -70,6 +71,7 @@ void main() {
         norm = texture(material.normal_map, tex_coords).rgb;
         norm = normalize(norm * 2.0 - 1.0); // transform normal vector to range [-1, 1]
     }
+
     if (gl_FrontFacing == false) {
         norm = -norm;
     }
@@ -82,7 +84,6 @@ void main() {
     for (int i = 0; i < num_point_lights; i++) {
         result += calc_point_light(point_lights[i], point_light_positions[i], norm, view_dir, frag_pos, ambient_color, diffuse_color, specular_color);
     }
-	result;
 	frag_color = vec4(result.rgb + emissive.rgb, result.a); // TODO account for material opacity
 }
 
@@ -119,6 +120,8 @@ vec4 calc_point_light(PointLight light, vec3 light_pos, vec3 normal, vec3 view_d
     return vec4(result, mat_diffuse.a);
 }
 
+// this is a dummy and actually just returns the first texture or the base color if there are no textures
+// there is a working implementation in a different branch but I decided game engines probably don't need to handle complex texture stacks and am planning to remove this.
 vec4 blendTextures(vec3 base_color, TextureStack stack, vec2 tex_coords) {
     vec4 color;
     if (stack.num_textures > 0) {
@@ -129,42 +132,3 @@ vec4 blendTextures(vec3 base_color, TextureStack stack, vec2 tex_coords) {
     }
     return color;
 }
-
-// v1
-// vec4 blendTextures(vec3 base_color, TextureStack stack, vec2 tex_coords) {
-//     vec3 final_color = base_color;
-//     float alpha = 0.0;
-//     for (int i = 0; i < stack.num_textures; i++) {
-//         vec4 ssample = texture(stack.textures[i], tex_coords);
-//         vec3 color = vec3(ssample) * stack.blend_strengths[i];
-//         alpha = alpha + ssample.a * (1.0 - alpha);
-//         int blend_op = stack.blend_ops[i];
-//         if (blend_op == TEX_BLEND_ADD) {
-//             final_color += color;
-//         } else if (blend_op == TEX_BLEND_MUL) {
-//             final_color *= color;
-//         }
-//     }
-//     return vec4(final_color, alpha);
-// }
-
-
-// v2
-// vec4 blendTextures(vec3 base_color, TextureStack stack, vec2 tex_coords) {
-//     vec4 final_color;
-//     float alpha = 0.0;
-//     for (int i = 0; i < stack.num_textures; i++) {
-//         vec4 ssample = texture(stack.textures[i], tex_coords);
-//         vec4 color = ssample * stack.blend_strengths[i];
-//         //alpha = alpha + ssample.a * (1.0 - alpha);
-//         int blend_op = stack.blend_ops[i];
-//         if (blend_op == TEX_BLEND_MUL) {
-//             if (i == 0) final_color = color;
-//             else final_color *= color;
-//         } else if (blend_op == TEX_BLEND_ADD) {
-//             if (i == 0) final_color = color;
-//             else final_color += color;
-//         }
-//     }
-//     return final_color;
-// }

@@ -107,10 +107,13 @@ int main() {
 
 	// Load assets
 	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final-DIFFUSE.obj", assets);
-	// split off the tree
+	// split off the tree because we need to render it transparent
 	Model tree_model{ "monster tree", { monster_model.meshes[0] }, { monster_model.materials[0] } };
 	monster_model.meshes.erase(monster_model.meshes.begin());
 	monster_model.materials.erase(monster_model.materials.begin());
+	// for now we just set the shininess value since the asset is unreasonably shiny for some reason
+	monster_model.materials[0].shininess = 32;
+	tree_model.materials[0].shininess = 32;
 
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
 	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 27, 48, 17 });
@@ -197,7 +200,6 @@ int main() {
 	transform_col.set_scale(lamp2, { 0.4f, 0.4f, 0.4f });
 	model_col.add_component(lamp2, model_light_cube);
 
-
 	// !!TEMP BOUNDING BOX STUFF!!
 	Cuboid bound = *model_col.bounding_box(monster, assets);
 
@@ -239,9 +241,9 @@ int main() {
 
 	glm::vec3 act_world_pos = *transform_col.world_position(monster);
 	std::cout << std::endl;
-	std::cout << "world position: " << act_world_pos.x << ", " << act_world_pos.y << ", " << act_world_pos.z << std::endl;
+	//std::cout << "world position: " << act_world_pos.x << ", " << act_world_pos.y << ", " << act_world_pos.z << std::endl;
 	glm::vec3 act_local_pos = *transform_col.position(monster);
-	std::cout << "local position: " << act_local_pos.x << ", " << act_local_pos.y << ", " << act_local_pos.z << std::endl;
+	//std::cout << "local position: " << act_local_pos.x << ", " << act_local_pos.y << ", " << act_local_pos.z << std::endl;
 	std::cout << std::endl;
 
 	Entity monster_owner = entities.create_entity();
@@ -405,6 +407,7 @@ int main() {
 			}
 		}
 
+		// for now we just manually reset the shader light counts each frame.
 		my_shader.num_point_lights_ = 0;
 		my_shader.num_directional_lights_ = 0;
 		my_shader.num_spotlights_ = 0;
@@ -412,7 +415,6 @@ int main() {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-	std::cout << "point lights: " << my_shader.num_point_lights_ << std::endl;
 	glfwTerminate();
 }
 
