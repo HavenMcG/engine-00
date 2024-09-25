@@ -17,7 +17,7 @@ struct AssimpAssetLoader::Private {
 
 std::expected<Model, bool> AssimpAssetLoader::load_model(const std::string& path, AssetStore& store) {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -66,7 +66,11 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 				ai_mesh->mNormals[i].y,
 				ai_mesh->mNormals[i].z
 			};
-
+			vertex.tangent = {
+				ai_mesh->mTangents[i].x,
+				ai_mesh->mTangents[i].y,
+				ai_mesh->mTangents[i].z
+			};
 			if (ai_mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
 				glm::vec2 tex_coords{
 					ai_mesh->mTextureCoords[0][i].x,
@@ -99,8 +103,12 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 		aiMaterial* ai_material = scene->mMaterials[ai_mesh->mMaterialIndex];
 
 		// process textures
-		material.diffuses = load_material_textures(model, scene, ai_material, aiTextureType_DIFFUSE, store);
-		material.speculars = load_material_textures(model, scene, ai_material, aiTextureType_SPECULAR, store);
+		material.texture_diffuses = load_material_textures(model, scene, ai_material, aiTextureType_DIFFUSE, store);
+		material.texture_speculars = load_material_textures(model, scene, ai_material, aiTextureType_SPECULAR, store);
+		material.texture_emissives = load_material_textures(model, scene, ai_material, aiTextureType_EMISSIVE, store);
+		auto r = load_material_textures(model, scene, ai_material, aiTextureType_HEIGHT, store);
+		if (r.size() > 0) material.normal_map = r[0].texture;
+		if (r.size() > 1) std::cout << "warning: material has more than one normal map\n";
 
 		// process other fields
 		aiColor3D ai_color_diffuse;
@@ -110,6 +118,10 @@ std::pair<Mesh, Material> AssimpAssetLoader::Private::process_mesh(Model& model,
 		aiColor3D ai_color_specular;
 		ai_material->Get(AI_MATKEY_COLOR_SPECULAR, ai_color_specular);
 		material.color_specular = { ai_color_specular.r, ai_color_specular.g, ai_color_specular.b };
+
+		aiColor3D ai_color_emissive;
+		ai_material->Get(AI_MATKEY_COLOR_EMISSIVE, ai_color_emissive);
+		material.color_emissive = { ai_color_emissive.r, ai_color_emissive.g, ai_color_emissive.b };
 
 		float shininess;
 		ai_material->Get(AI_MATKEY_SHININESS, shininess);
@@ -155,7 +167,7 @@ std::vector<TextureAssignment> AssimpAssetLoader::Private::load_material_texture
 		float blend_strength = 1.0f;
 		mat->Get(AI_MATKEY_TEXBLEND(ai_ttype, i), blend_strength);
 
-		aiTextureOp ai_blend_op = aiTextureOp_Multiply;
+		aiTextureOp ai_blend_op;
 		mat->Get(AI_MATKEY_TEXOP(ai_ttype, i), ai_blend_op);
 
 		TextureAssignment ta{ 

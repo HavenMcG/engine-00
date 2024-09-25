@@ -16,8 +16,20 @@
 
 #include "HexGrid.h"
 
+#include "../HECS/Component/Link.h"
+#include "../HECS/System/Hierarchy.h"
+
 glm::vec3 normalize_rgb(glm::vec3 rgb) {
 	return rgb/255.0f;
+}
+
+void print(const std::vector<Entity>& ets, const LinkCollection& rc) {
+	std::cout << std::endl;
+	std::cout << "==================================================================================" << std::endl;
+	for (Entity et : ets) {
+		std::cout << std::endl;
+		rc.print(et);
+	}
 }
 
 int window_width = 1800;
@@ -25,6 +37,8 @@ int window_height = 1200;
 
 float delta_time = 0.0f;
 float last_frame = 0.0f;
+
+glm::vec3 lamp_color = { 1.0f, 1.0f, 1.0f };
 
 // camera variables
 Camera my_cam{};
@@ -92,53 +106,154 @@ int main() {
 	AssetLoader& asset_loader = aal;
 
 	// Load assets
-	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final_FIXED.obj", assets);
+	Model monster_model = *asset_loader.load_model("../resources/models/forest-monster/forest-monster-final-DIFFUSE.obj", assets);
+	// split off the tree because we need to render it transparent
+	Model tree_model{ "monster tree", { monster_model.meshes[0] }, { monster_model.materials[0] } };
+	monster_model.meshes.erase(monster_model.meshes.begin());
+	monster_model.materials.erase(monster_model.materials.begin());
+	// for now we just set the shininess value since the asset is unreasonably shiny for some reason
+	monster_model.materials[0].shininess = 32;
+	tree_model.materials[0].shininess = 32;
+
 	Model hex_2d = *asset_loader.load_model("../resources/models/2d-hex/2d-hex.glb", assets);
-	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 6.0f, 138.0f, 44.0f });
+	hex_2d.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 33, 92, 36 });
+
 	Model selected_hex = hex_2d;
 	selected_hex.materials[0].color_diffuse = normalize_rgb(glm::vec3{ 255.0f, 0.0f, 0.0f });
+
+	Mesh mesh_cube_1x1x1 = *assets.load(Cuboid{ { -0.5f,-0.5f,-0.5f },{ 0.5f,0.5f,0.5f } }.generate_mesh());
+	Material mat_light_emitter{};
+	mat_light_emitter.color_diffuse = lamp_color;
+	mat_light_emitter.color_specular = lamp_color;
+	mat_light_emitter.color_emissive = lamp_color;
+	mat_light_emitter.shininess = 32.0f;
+	Model model_light_cube{ "light emitter", { mesh_cube_1x1x1 }, { mat_light_emitter }};
 
 	// Load shaders
 	Shader my_shader("src/engine-00/Shaders/material.vert.glsl", "src/engine-00/Shaders/material.frag.glsl");
 	Shader hex_grid_shader("src/engine-00/Shaders/hexGrid.vert.glsl", "src/engine-00/Shaders/hexGrid.frag.glsl");
 	Shader gui_shader("src/engine-00/Shaders/gui.vert.glsl", "src/engine-00/Shaders/gui.frag.glsl");
 
-	// Instantiate component collections
+	// Instantiate entity collections
 	EntityCollection entities;
 
 	// Instantiate component collections
 	ModelCollection model_col;
 	TransformCollection transform_col;
+	LightCollection light_col;
+	LinkCollection relation_col;
+	ModelCollection transparent_model_col;
+
+	// gui
+	ModelCollection gui_model_col;
+	TransformCollection gui_transform_col;
 
 	// !!TEMP GUI STUFF!!
-	Mesh gui_quad = *ogl_store.load(BASIC_QUAD_MESH_DATA);
+	Mesh gui_quad = *ogl_store.load(basic_quad_meshdata());
 	Material gui_material{};
 	gui_material.color_diffuse = normalize_rgb({ 145.0f, 91.0f, 4.0f });
 	gui_material.color_specular = { 1.0f, 1.0f, 1.0f };
 	Model gui_model_1 = { "gui_model_1", { gui_quad }, { gui_material } };
-	TransformComponent gui_transform_1{};
-
-	ModelCollection gui_model_col;
-	TransformCollection gui_transform_col;
+	Transform gui_transform_1{};
 
 	Entity gui_element_1 = entities.create_entity();
 	gui_model_col.add_component(gui_element_1, gui_model_1);
 	gui_transform_col.add_component(gui_element_1, gui_transform_1);
 
-	gui_transform_col.set_world_position(gui_element_1, { 0.0f, 0.0f, 0.0f });
-	// !!END!!
+	gui_transform_col.set_position(gui_element_1, { 0.0f, 0.0f, 0.0f });
+	// !!END GUI!!
 
 	// Instantiate systems
 	TransformSystem transform_sys{ transform_col };
 	Renderer renderer;
+	HierarchySystem hierarchy_sys{ relation_col, transform_col };
 
 	// Set up entities
 	Entity monster = entities.create_entity();
 	transform_col.add_component(monster);
 	model_col.add_component(monster, monster_model);
 
+	Entity monster_tree = entities.create_entity();
+	transform_col.add_component(monster_tree);
+	transparent_model_col.add_component(monster_tree, tree_model);
+	relation_col.make_child(monster_tree, monster);
+
+	Entity lamp = entities.create_entity();
+	transform_col.add_component(lamp);
+	light_col.add_component(lamp);
+	light_col.set_color(lamp, lamp_color);
+	light_col.set_constant(lamp, 1.0f);
+	light_col.set_linear(lamp, 0.045f);
+	light_col.set_quadratic(lamp, 0.0075f);
+	transform_col.set_position(lamp, { 2.0f, 1.0f, 0.0f });
+	transform_col.set_scale(lamp, { 0.2f, 0.2f, 0.2f });
+	model_col.add_component(lamp, model_light_cube);
+
+	Entity lamp2 = entities.create_entity();
+	transform_col.add_component(lamp2);
+	light_col.add_component(lamp2);
+	light_col.set_color(lamp2, lamp_color);
+	light_col.set_constant(lamp2, 1.0f);
+	light_col.set_linear(lamp2, 0.09f);
+	light_col.set_quadratic(lamp2, 0.032f);
+	transform_col.set_position(lamp2, { 13.0f, 1.0f, 6.0f });
+	transform_col.set_scale(lamp2, { 0.4f, 0.4f, 0.4f });
+	model_col.add_component(lamp2, model_light_cube);
+
+	// !!TEMP BOUNDING BOX STUFF!!
+	Cuboid bound = *model_col.bounding_box(monster, assets);
+
+	glm::vec3 center{};
+	center.x = bound.p1.x + bound.size().x / 2.0f;
+	center.y = 0;
+	center.z = bound.p1.z + bound.size().z / 2.0f;
+
+	float desired_size = 2.0f;
+	float scale_x = desired_size / bound.size().x;
+	float scale_z = desired_size / bound.size().z;
+	float scale = std::min(scale_x, scale_z);
+
+	transform_col.set_scale(monster, glm::vec3{ scale,scale,scale });
+	auto act_scale = *transform_col.scale(monster);
+	std::cout << std::endl;
+	std::cout << "scale: " << act_scale.x << " " << act_scale.y << " " << act_scale.z << std::endl;
+	glm::vec3 act_dimensions = bound.size() * act_scale;
+	std::cout << "dimensions: " << act_dimensions.x << " x " << act_dimensions.y << " x " << act_dimensions.z << std::endl;
+	std::cout << "center: " << center.x << ", " << center.y << ", " << center.z << std::endl;
+	std::cout << std::endl;
+
+	glm::vec3 t = glm::vec3{ 0, 0, 0 } - center;
+	transform_col.set_position_offset(monster, t * scale);
+
+	Mesh bounding_box_mesh = *assets.load(bound.generate_mesh());
+	Material bounding_box_material{};
+	bounding_box_material.color_diffuse = normalize_rgb({ 0.0f, 29.0f, 51.0f });
+	bounding_box_material.color_specular = { 1.0f, 1.0f, 1.0f };
+	bounding_box_material.opacity = 1.0f;
+	bounding_box_material.shininess = 32.0f;
+	Model bounding_box_model = { "bounding_box", { bounding_box_mesh }, { bounding_box_material } };
+
+	Entity monster_bounding_box = entities.create_entity();
+	//model_col.add_component(monster_bounding_box, bounding_box_model);
+	transform_col.add_component(monster_bounding_box);
+	relation_col.make_child(monster_bounding_box, monster);
+	transform_col.set_position_offset(monster_bounding_box, *transform_col.position_offset(monster));
+
+	glm::vec3 act_world_pos = *transform_col.world_position(monster);
+	std::cout << std::endl;
+	//std::cout << "world position: " << act_world_pos.x << ", " << act_world_pos.y << ", " << act_world_pos.z << std::endl;
+	glm::vec3 act_local_pos = *transform_col.position(monster);
+	//std::cout << "local position: " << act_local_pos.x << ", " << act_local_pos.y << ", " << act_local_pos.z << std::endl;
+	std::cout << std::endl;
+
+	Entity monster_owner = entities.create_entity();
+	transform_col.add_component(monster_owner);
+	transform_col.set_position(monster_owner, { 0,0,0 });
+	relation_col.make_child(monster, monster_owner);
+	// !!END BOUNDING BOX!!
+
 	// Set camera start position
-	my_cam.move_to(glm::vec3{ 0.0f, 20.0f, 20.0f });
+	my_cam.move_to(glm::vec3{ 0.0f, 6.0f, 8.0f });
 	my_cam.look_at(glm::vec3{ 0.0f, 0.0f, 0.0f });
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
 
@@ -147,12 +262,16 @@ int main() {
 	std::unordered_map<Hex, Entity> hex_map = rectangle_map_pointy<Entity>(0, 9, 0, 5);
 	std::unordered_set<Hex> selection = hexagon_set(1);
 
+	Entity e_hex_map;
+	transform_col.add_component(e_hex_map);
+	transform_col.set_position(e_hex_map, { 0.0f, -0.01f, 0.0f });
 	for (auto& r : hex_map) {
 		Entity e = entities.create_entity();
 		r.second = e;
 		glm::vec2 p = hex_to_cartesian(l, r.first);
-		transform_col.add_component(e, TransformComponent{ glm::vec3{ p.x, -0.003, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }) });
+		transform_col.add_component(e, Transform{ glm::vec3{ p.x, 0.0f, p.y }, glm::quat(glm::vec3{ 0.0f, glm::radians(-(60.0f * l.orientation.angle()) + 30.0f), 0.0f }), glm::vec3{ 1,1,1 } });
 		model_col.add_component(e, hex_2d);
+		relation_col.make_child(e, e_hex_map);
 	}
 
 	// hex shader uniforms
@@ -202,6 +321,11 @@ int main() {
 	// track the previously selected hex
 	Hex prev_sel = hex_map.begin()->first;
 
+	// move light cube in orbit
+	float angle = 0.0f;
+	float radius = 2.0f;
+	float speed = 1.0f;
+
 	// RENDER LOOP
 	while (!glfwWindowShouldClose(window)) {
 		float current_frame = glfwGetTime();
@@ -216,9 +340,15 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//transform_sys.rotate_degrees(monster, 0.0f * delta_time, 24.0f * delta_time, 0.0f * delta_time);
-		//transform_sys.rotate_degrees(hex_tile, 24.0f * delta_time, 0.0f * delta_time, 0.0f * delta_time);
+		// move light cube in orbit
+		angle += speed * delta_time;
+		if (angle >= 360.0f) angle -= 360.0f;
+		glm::vec3 ppos = *transform_col.position(monster);
+		transform_col.set_position(lamp, { radius * cos(angle), 2, radius * sin(angle) });
 
+		relation_col.pc.binary_insertion_sort();
+		hierarchy_sys.apply_parent_transforms();
+		
 		my_shader.use();
 
 		glm::mat4 view = my_cam.view_matrix();
@@ -229,26 +359,27 @@ int main() {
 
 		// setting model matrix is done in the renderer
 
-		my_shader.set_vec3("light_pos_world", glm::vec3{ 0.0f, 0.0f, 4.0f });
+		// render standard models
+		renderer.draw_models(view, my_shader, model_col, transform_col, light_col, ogl_store);
 
-		glm::vec3 light_color{ 1.0f, 1.0f, 1.0f };
-		glm::vec3 diffuse_color = light_color * glm::vec3(1.0f);
-		glm::vec3 ambient_color = light_color * glm::vec3(1.0f);
-		glm::vec3 specular_color = light_color * glm::vec3(1.0f);
-		my_shader.set_vec3("light.ambient", ambient_color);
-		my_shader.set_vec3("light.diffuse", diffuse_color);
-		my_shader.set_vec3("light.specular", specular_color);
-		my_shader.set_float("material.shininess", 16.0f);
-
-		renderer.draw_models(view, my_shader, model_col, transform_col, ogl_store);
-		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);
-
+		// render hex grid shader
 		hex_grid_shader.use();
 		hex_grid_shader.set_mat4("model", glm::mat4(1.0f));
 		hex_grid_shader.set_mat4("view", view);
 		hex_grid_shader.set_mat4("projection", projection);
 		glBindVertexArray(hex_vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		// render transparent models
+		glDepthMask(GL_FALSE);  // Disable writing to the depth buffer
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // draw back faces first
+		//glCullFace(GL_BACK);
+		//renderer.draw_models(view, my_shader, transparent_model_col, transform_col, light_col, ogl_store); // then front faces
+		glDepthMask(GL_TRUE);
+		//glDisable(GL_CULL_FACE);
+		//renderer.draw_ui(gui_shader, gui_model_col, gui_transform_col, ogl_store);
 
 		// find which hex the cursor is hovering:
 		double cursor_pos_x = 0, cursor_pos_y = 0;
@@ -270,11 +401,16 @@ int main() {
 			model_col.models_[model_col.map_[hex_map[prev_sel]]] = hex_2d;
 			Hex selo = hex_round(cartesian_to_hex(l, glm::vec2{ intersection_point->x, intersection_point->z }));
 			if (hex_map.contains(selo)) {
-				if (selo != prev_sel) std::cout << "hex: " << selo.q << "," << selo.r << std::endl;
+				//if (selo != prev_sel) std::cout << "hex: " << selo.q << "," << selo.r << std::endl;
 				model_col.models_[model_col.map_[hex_map[selo]]] = selected_hex;
 				prev_sel = selo;
 			}
 		}
+
+		// for now we just manually reset the shader light counts each frame.
+		my_shader.num_point_lights_ = 0;
+		my_shader.num_directional_lights_ = 0;
+		my_shader.num_spotlights_ = 0;
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -9,8 +9,9 @@ public:
 	std::expected<Mesh, ErrorCode> load(const MeshData& data, const std::string& path) override;
 	std::expected<Mesh, ErrorCode> load(const MeshData& data) override;
 	std::expected<void, ErrorCode> unload(Mesh mesh) override;
-	bool loaded(Mesh mesh) override;
-	std::expected<Mesh, ErrorCode> mesh(const std::string& path) override;
+	bool loaded(Mesh mesh) const override;
+	std::expected<Mesh, ErrorCode> mesh(const std::string& path) const override;
+	std::expected<Cuboid, ErrorCode> bounding_box(Mesh mesh) const override;
 
 	// textures
 	std::expected<Texture, ErrorCode> load(const TextureData& data, const std::string& path) override;
@@ -29,6 +30,7 @@ public:
 	std::vector<unsigned int> mesh_vertex_counts_;
 	std::vector<unsigned int> mesh_index_counts_;
 	std::vector<std::string> mesh_paths_;
+	std::vector<Cuboid> mesh_bounding_boxes_;
 	std::unordered_map<std::string, unsigned int> mesh_paths_to_indices_;
 
 private:

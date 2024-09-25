@@ -27,9 +27,12 @@ std::expected<Mesh, ErrorCode> OglAssetStore::load(const MeshData& data, const s
 		// vertex normals
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-		// vertex texture coords
+		// vertex tangents (for transforming from tangent space to world/view space)
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coords));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+		// vertex texture coords
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coords));
 
 		unsigned int index;
 		if (mesh_free_indices_.empty()) {
@@ -41,6 +44,7 @@ std::expected<Mesh, ErrorCode> OglAssetStore::load(const MeshData& data, const s
 			mesh_vertex_counts_.push_back(data.vertices.size());
 			mesh_index_counts_.push_back(data.indices.size());
 			mesh_paths_.push_back(name);
+			mesh_bounding_boxes_.push_back(generate_bounding_box(data));
 			mesh_paths_to_indices_.emplace(name, index);
 		}
 		else {
@@ -52,6 +56,7 @@ std::expected<Mesh, ErrorCode> OglAssetStore::load(const MeshData& data, const s
 			mesh_vertex_counts_[index] = data.vertices.size();
 			mesh_index_counts_[index] = data.indices.size();
 			mesh_paths_[index] = name;
+			mesh_bounding_boxes_[index] = generate_bounding_box(data);
 			mesh_paths_to_indices_.emplace(name, index);
 		}
 		return Mesh{ index, mesh_generations_[index] };
@@ -88,15 +93,20 @@ std::expected<void, ErrorCode> OglAssetStore::unload(Mesh mesh) {
 	mesh_paths_to_indices_.erase(mesh_paths_[i]);
 }
 
-bool OglAssetStore::loaded(Mesh mesh) {
-	if (mesh.index() >= tex_generations_.size()) return false;
-	return tex_generations_[mesh.index()] == mesh.generation();
+bool OglAssetStore::loaded(Mesh mesh) const {
+	if (mesh.index() >= mesh_generations_.size()) return false;
+	return mesh_generations_[mesh.index()] == mesh.generation();
 }
 
-std::expected<Mesh, ErrorCode> OglAssetStore::mesh(const std::string& path) {
+std::expected<Mesh, ErrorCode> OglAssetStore::mesh(const std::string& path) const {
 	auto r = mesh_paths_to_indices_.find(path);
 	if (r == mesh_paths_to_indices_.end()) return std::unexpected(false);
 	else return Mesh{ r->second, mesh_generations_[r->second] };
+}
+
+std::expected<Cuboid, ErrorCode> OglAssetStore::bounding_box(Mesh mesh) const {
+	if (!loaded(mesh)) return std::unexpected(false);
+	return mesh_bounding_boxes_[mesh.index()];
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -111,7 +121,9 @@ static GLenum to_gl_enum(Format f) {
 }
 
 std::expected<Texture, ErrorCode> OglAssetStore::load(const TextureData& data, const std::string& name) {
-	std::cout << "loading texture " << name << std::endl;
+	std::cout << "loading texture " << name;
+	if (data.format == RGBA) std::cout << " RGBA";
+	std::cout << std::endl;
 	if (!tex_paths_to_indices_.contains(name)) {
 		unsigned int ogl_id;
 		glGenTextures(1, &ogl_id);

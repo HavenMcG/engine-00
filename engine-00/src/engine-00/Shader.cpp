@@ -143,26 +143,78 @@ void Shader::set_mat4(const std::string& name, const glm::mat4& mat) {
 	glUniformMatrix4fv(glGetUniformLocation(id(), name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::set_material(const std::string& name, const Material& material, const OglAssetStore& assets) {
-	for (int i = 0; i < material.diffuses.size(); ++i) {
-		// potential bug: are we using the Sampler id or the Texture id???
-		set_int(name + ".diffuse_textures[" + std::to_string(i) + "]", assets.tex_ogl_ids_[material.diffuses[i].texture.index()]);
-		set_int(name + ".diffuse_blend_strengths[" + std::to_string(i) + "]", material.diffuses[i].blend_strength);
-		set_int(name + ".diffuse_blend_ops[" + std::to_string(i) + "]", material.diffuses[i].blend_op);
-	}
-	set_int(name + ".num_diffuse_textures", material.diffuses.size());
 
-	for (int i = 0; i < material.speculars.size(); ++i) {
-		// potential bug: are we using the Sampler id or the Texture id???
-		set_int(name + ".specular_textures[" + std::to_string(i) + "]", assets.tex_ogl_ids_[material.speculars[i].texture.index()]);
-		set_int(name + ".specular_blend_strengths[" + std::to_string(i) + "]", material.speculars[i].blend_strength);
-		set_int(name + ".specular_blend_ops[" + std::to_string(i) + "]", material.speculars[i].blend_op);
-	}
-	set_int(name + ".num_specular_textures", material.speculars.size());
+void Shader::set_material(const std::string& name, const Material& material) {
+	int total_textures = 0;
 
 	set_vec3(name + ".diffuse_color", material.color_diffuse);
+	for (int i = 0; i < material.texture_diffuses.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
+		set_int(name + ".diffuse_stack.textures[" + std::to_string(i) + "]", total_textures);
+		set_int(name + ".diffuse_stack.blend_strengths[" + std::to_string(i) + "]", material.texture_diffuses[i].blend_strength);
+		set_int(name + ".diffuse_stack.blend_ops[" + std::to_string(i) + "]", material.texture_diffuses[i].blend_op);
+	}
+	set_int(name + ".diffuse_stack.num_textures", material.texture_diffuses.size());
 
 	set_vec3(name + ".specular_color", material.color_specular);
+	for (int i = 0; i < material.texture_speculars.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
+		set_int(name + ".specular_stack.textures[" + std::to_string(i) + "]", total_textures);
+		set_int(name + ".specular_stack.blend_strengths[" + std::to_string(i) + "]", material.texture_speculars[i].blend_strength);
+		set_int(name + ".specular_stack.blend_ops[" + std::to_string(i) + "]", material.texture_speculars[i].blend_op);
+	}
+	set_int(name + ".specular_stack.num_textures", material.texture_speculars.size());
+
+	set_vec3(name + ".emissive_color", material.color_emissive);
+	for (int i = 0; i < material.texture_emissives.size() && i < MAX_TEXTURES_PER_STACK; ++i, ++total_textures) {
+		set_int(name + ".emissive_stack.textures[" + std::to_string(i) + "]", total_textures);
+		set_int(name + ".emissive_stack.blend_strengths[" + std::to_string(i) + "]", material.texture_emissives[i].blend_strength);
+		set_int(name + ".emissive_stack.blend_ops[" + std::to_string(i) + "]", material.texture_emissives[i].blend_op);
+	}
+	set_int(name + ".emissive_stack.num_textures", material.texture_emissives.size());
+
+	if (material.normal_map.has_value()) {
+		set_int(name + ".normal_map", total_textures);
+		set_bool(name + ".has_normal_map", true);
+		++total_textures;
+	}
+	else set_bool(name + ".has_normal_map", false);
 
 	set_float(name + ".shininess", material.shininess);
+
+	set_float(name + ".opacity", material.opacity);
+}
+
+void Shader::set_light(std::string& name, const Light& light, glm::vec3 position) {
+	switch (light.type) {
+		case Point:
+			name = "point_lights[" + std::to_string(num_point_lights_) + "]";
+			set_float(name + ".constant", light.constant);
+			set_float(name + ".linear", light.linear);
+			set_float(name + ".quadratic", light.quadratic);
+			set_vec3("point_light_world_positions[" + std::to_string(num_point_lights_) + "]", position);
+			++num_point_lights_;
+			set_int("num_point_lights", num_point_lights_);
+			break;
+		case Directional:
+			name = "directional_lights[" + std::to_string(num_directional_lights_) + "]";
+			set_vec3(name + ".direction", light.direction);
+			++num_directional_lights_;
+			set_int("num_directional_lights", num_directional_lights_);
+			break;
+		case Spotlight:
+			name = "spotlights[" + std::to_string(num_spotlights_) + "]";
+			set_float(name + ".inner_cutoff", light.inner_cutoff);
+			set_float(name + ".outer_cutoff", light.outer_cuttoff);
+			set_vec3("spotlight_world_positions[" + std::to_string(num_spotlights_) + "]", position);
+			++num_spotlights_;
+			set_int("num_spotlights", num_spotlights_);
+			break;
+		default:
+			break;
+	}
+	set_vec3(name + ".color", light.color);
+}
+
+void Shader::set_directional_light(const std::string& name, const Light& light) {
+	set_vec3(name + ".color", light.color);
+	set_vec3(name + ".direction", light.direction);
 }
