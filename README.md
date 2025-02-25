@@ -1,4 +1,4 @@
-Hello, this project is a game and/or game engine. Both of these components are as yet unnamed. I want to try to wor
+Hello, this project is a game and/or game engine. Both of these components are as yet unnamed.
 The engine will likely not have a standalone editor etc but the project will hopefully be designed in a way that allows me to repurpose the engine code for use in future endeavors.
 
 This project is for educational purposes though I hope to keep working on it long term.
